@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    app: node0
+  labels:
+    app: node0
+    cluster: charon
+  name: node0
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: node0
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        app: node0
+      labels:
+        app: node0
+        cluster: charon
+    spec:
+      securityContext:
+        runAsUser: 0
+      containers:
+        - name: node0
+          image: ghcr.io/obolnetwork/charon/charon:latest
+          command:
+            - sh
+            - /charon/run.sh
+          ports:
+            - containerPort: 80
+          env:
+            - name: CLEAN
+              value: "true"
+            - name: GENERATE
+              value: "true"
+          volumeMounts:
+            - name: charon
+              mountPath: /charon
+          workingDir: /charon/node0
+      initContainers:
+        - name: copy-scripts
+          image: busybox
+          command: ['sh', '-c', 'cp /scripts/* /charon/']
+          volumeMounts:
+            - name: run-script
+              mountPath: /scripts
+            - name: charon
+              mountPath: /charon
+      volumes:
+        - name: run-script
+          configMap:
+            name: run-script
+            defaultMode: 0775
+        - name: charon
+          persistentVolumeClaim:
+            claimName: charon-pvc
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: ghcr-access
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: node0
+spec:
+  selector:
+    app: node0
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 80
+    - name: monitoring
+      protocol: TCP
+      port: 16001
+      targetPort: 16001
+    - name: validator-api
+      protocol: TCP
+      port: 16002
+      targetPort: 16002
+    - name: p2p-tcp
+      protocol: TCP
+      port: 16003
+      targetPort: 16003
+    - name: p2p-udp
+      protocol: UDP
+      port: 16004
+      targetPort: 16004

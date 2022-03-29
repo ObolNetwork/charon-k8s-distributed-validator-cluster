@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: charon-pv
+  labels:
+    type: local
+    cluster: charon
+spec:
+  storageClassName: local
+  capacity:
+    storage: 100Mi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: /var/lib/data
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    cluster: charon
+  name: charon-pvc
+spec:
+  storageClassName: local
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Mi
