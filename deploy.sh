@@ -20,14 +20,18 @@ fi
 echo ">>> enable container registry access for the new workspace."
 kubectl get secret ghcr-access --namespace=default -oyaml | grep -v '^\s*namespace:\s' | kubectl apply --namespace=$ns -f - 2>/dev/null
 
+# set the current namespace
+echo "set namespace to $ns"
+kubectl config set-context --current --namespace=$ns
+
 # deploy charon bootnode and configmaps
 echo ">>> deploying charon bootnodes and configmaps."
-kubectl -n $ns apply -f bootnode/
+kubectl apply -f bootnode/
 
 # deploy charon nodes
 echo ">>> deploying charon charon nodes."
-kubectl -n $ns apply -f nodes/
+kubectl apply -f nodes/
 
 # deploy monitoring stack
 echo ">>> deploying monitoring stack."
-kubectl -n $ns apply -f monitoring/
+kubectl apply -f monitoring/

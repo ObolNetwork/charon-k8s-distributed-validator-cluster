@@ -16,20 +16,21 @@ git clone git@github.com:ObolNetwork/charon-k8s.git
 
 ## View Logs
 ```sh
-kubectl -n <namespace> logs -f deploy/node0
-kubectl -n <namespace> logs -f deploy/node1
-kubectl -n <namespace> logs -f deploy/node2
-kubectl -n <namespace> logs -f deploy/node3
-kubectl -n <namespace> logs -f deploy/prometheus
-kubectl -n <namespace> logs -f deploy/grafana
+kubectl config set-context --current --namespace=<namespace>
+kubectl logs -f deploy/node0
+kubectl logs -f deploy/node1
+kubectl logs -f deploy/node2
+kubectl logs -f deploy/node3
+kubectl logs -f deploy/prometheus
+kubectl logs -f deploy/grafana
 ```
 
 ## Access Prometheus & Grafana
-- Open a terminal tab
+- Open a terminal tab, then port forward to the prometheus deployment to your local:
 ```sh
 kubectl -n <namespace> port-forward deployment/prometheus 9091:9090
 ```
-- Open another terminal tab
+- Open a terminal tab, then port forward to the grafana deployment to your local:
 ```sh
 kubectl -n <namespace> port-forward deployment/grafana 3001:3000
 ```
@@ -38,5 +39,5 @@ kubectl -n <namespace> port-forward deployment/grafana 3001:3000
 
 ## Cleanup
 ```sh
-kubectl delete ns <namespace>
+./cleanup.sh <namespace>
 ```
