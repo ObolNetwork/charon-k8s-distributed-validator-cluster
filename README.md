@@ -34,8 +34,8 @@ kubectl -n <namespace> port-forward deployment/prometheus 9091:9090
 ```sh
 kubectl -n <namespace> port-forward deployment/grafana 3001:3000
 ```
-- Open a browser and access prometheus [http://localhost:9091]
-- Open a browser and access grafana [http://localhost:3001]
+- Open a browser and access [prometheus] (http://localhost:9091)
+- Open a browser and access [grafana] (http://localhost:3001]
 
 ## Cleanup
 ```sh
