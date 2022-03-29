@@ -26,16 +26,17 @@ kubectl logs -f deploy/grafana
 ```
 
 ## Access Prometheus & Grafana
-- Open a terminal tab, then port forward to the prometheus deployment to your local:
+- Open a terminal tab, then port forward the prometheus deployment to your local:
 ```sh
 kubectl -n <namespace> port-forward deployment/prometheus 9091:9090
 ```
-- Open a terminal tab, then port forward to the grafana deployment to your local:
+- Local access [prometheus](http://localhost:9091)
+
+- Open a terminal tab, then port forward the grafana deployment to your local:
 ```sh
 kubectl -n <namespace> port-forward deployment/grafana 3001:3000
 ```
-- Open a browser and access [prometheus] (http://localhost:9091)
-- Open a browser and access [grafana] (http://localhost:3001]
+- Local access [grafana](http://localhost:3001]
 
 ## Cleanup
 ```sh
