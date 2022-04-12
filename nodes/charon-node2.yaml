@@ -36,7 +36,7 @@ spec:
             topologyKey: "kubernetes.io/hostname"
       containers:
         - name: node2
-          image: ghcr.io/obolnetwork/charon/charon:latest
+          image: ghcr.io/obolnetwork/charon:v0.3.0
           command:
             - sh
             - /charon/run.sh
