@@ -26,7 +26,7 @@ spec:
         runAsUser: 0
       containers:
         - name: node0
-          image: ghcr.io/obolnetwork/charon/charon:latest
+          image: ghcr.io/obolnetwork/charon:v0.3.0
           command:
             - sh
             - /charon/run.sh
