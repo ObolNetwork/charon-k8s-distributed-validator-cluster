@@ -32,6 +32,10 @@ kubectl delete -f nodes
 echo ">>> delete the charon bootnode:"
 kubectl delete -f bootnode
 
+# delete the charon volumes
+echo ">>> delete the charon volumes:"
+kubectl delete pvc --all
+
 # delete the current namespace
 echo ">>> delete the current namespace:"
 kubectl delete ns ${ns}

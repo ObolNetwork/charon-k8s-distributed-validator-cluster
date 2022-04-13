@@ -2,54 +2,50 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    app: node1
+    app: node3
   labels:
-    app: node1
+    app: node3
     cluster: charon
-  name: node1
+  name: node3
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: node1
+      app: node3
   strategy:
     type: Recreate
   template:
     metadata:
       annotations:
-        app: node1
+        app: node3
       labels:
-        app: node1
+        app: node3
         cluster: charon
     spec:
       securityContext:
         runAsUser: 0
-      affinity:
-        podAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: cluster
-                operator: In
-                values:
-                - charon
-            topologyKey: "kubernetes.io/hostname"
       containers:
-        - name: node1
+        - name: node3
           image: ghcr.io/obolnetwork/charon:v0.3.0
-          command:
-            - sh
-            - /charon/run.sh
+          command: ["/usr/local/bin/charon"]
+          args: ["run"]
           ports:
-            - containerPort: 80
+            - containerPort: 16000
           env:
-            - name: BOOTNODE
-              value: node0
+            - name: CHARON_DATA_DIR
+              value: "/charon/node3"
+            - name: CHARON_JAEGER_SERVICE
+              value: "node3"
+            - name: CHARON_P2P_EXTERNAL_HOSTNAME
+              value: "node3"
+          envFrom:
+            - configMapRef:
+                name: charon-config
           volumeMounts:
             - name: charon
               mountPath: /charon
               readOnly: false
-          workingDir: /charon/node1
+          workingDir: /
       volumes:
         - name: charon
           persistentVolumeClaim:
@@ -61,16 +57,15 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: node1
+  name: node3
 spec:
   selector:
-    app: node1
-  ports:
+    app: node3
   ports:
     - name: http
       protocol: TCP
-      port: 80
-      targetPort: 80
+      port: 16000
+      targetPort: 16000
     - name: monitoring
       protocol: TCP
       port: 16001

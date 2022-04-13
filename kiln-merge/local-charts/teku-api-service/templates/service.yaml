@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    meta.helm.sh/release-name: teku
+    meta.helm.sh/release-namespace: kiln
+  labels:
+    app.kubernetes.io/instance: teku
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: teku
+    helm.sh/chart: teku-0.1.0
+    pod: teku-0
+  name: teku-api-0
+  namespace: '{{ .Values.namespace.name }}'
+spec:
+  ports:
+  - name: api
+    protocol: TCP
+    port: 80
+    targetPort: 5051
+  selector:
+    app.kubernetes.io/instance: teku
+    app.kubernetes.io/name: teku
+    statefulset.kubernetes.io/pod-name: teku-0
+  type: LoadBalancer
+  loadBalancerIP: "34.72.238.199"

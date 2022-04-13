@@ -1,4 +1,4 @@
-# Charon Kubernetes Deployment
+# Charon Cluster Deployment
 
 Run a *simnet* [charon](https://github.com/ObolNetwork/charon) distributed validator cluster using Kubernetes deployment manifests.
 
@@ -6,15 +6,33 @@ Run a *simnet* [charon](https://github.com/ObolNetwork/charon) distributed valid
 > and a mixture of mock and real (Lighthouse and Teku) validator clients.
 
 ## Prerequisites
-Ensure you have kubectl and gloud CLI installed and authenticated [Instructions](https://github.com/ObolNetwork/obol-infrastructure/tree/main/environments/development)
+- [`gcloud`](https://cloud.google.com/sdk/docs/install)
+- [`terraform`](https://www.terraform.io/)
+- [`doctl`](https://github.com/digitalocean/doctl)
+- [`kubectl`](https://kubernetes.io/docs/tasks/tools/#kubectl)
+- [`helm`](https://helm.sh/)
+- [`helmsman`](https://github.com/Praqma/helmsman)
+- [`helm-diff`](https://github.com/databus23/helm-diff)
 
-## Usage
+## Deploy Kiln Testnet
 ```sh
 git clone git@github.com:ObolNetwork/charon-k8s.git
-./deploy.sh <namespace>
+./kiln-merge/deploy.sh
 ```
 
-## View Logs
+## View Kiln Logs
+```sh
+kubectl config set-context --current --namespace=kiln
+kubectl logs -f geth-0
+kubectl logs -f teku-0
+```
+
+## Deploy Charon Cluster
+```sh
+./charon-cluster/deploy.sh <namespace>
+```
+
+## View Charon Logs
 ```sh
 kubectl config set-context --current --namespace=<namespace>
 kubectl logs -f deploy/node0
@@ -40,5 +58,6 @@ kubectl -n <namespace> port-forward deployment/grafana 3001:3000
 
 ## Cleanup
 ```sh
-./cleanup.sh <namespace>
+./charon-cluster/cleanup.sh <namespace>
+./kiln-merge/cleanup.sh
 ```

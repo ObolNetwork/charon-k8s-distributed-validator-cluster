@@ -1,60 +1,66 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    app: node0
   labels:
-    app: node0
+    app: bootnode
     cluster: charon
-  name: node0
+  name: bootnode
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: node0
+      app: bootnode
   strategy:
     type: Recreate
   template:
     metadata:
-      annotations:
-        app: node0
       labels:
-        app: node0
+        app: bootnode
         cluster: charon
     spec:
       securityContext:
         runAsUser: 0
       containers:
-        - name: node0
+        - name: bootnode
           image: ghcr.io/obolnetwork/charon:v0.3.0
-          command:
-            - sh
-            - /charon/run.sh
+          command: ["/usr/local/bin/charon"]
+          args: ["bootnode"]
           ports:
-            - containerPort: 80
+            - containerPort: 16000
           env:
-            - name: CLEAN
-              value: "true"
-            - name: GENERATE
-              value: "true"
+            - name: CHARON_BOOTNODE_HTTP_ADDRESS
+              value: "0.0.0.0:16000"
+            - name: CHARON_DATA_DIR
+              value: "/charon/bootnode"
+            - name: CHARON_P2P_BOOTNODES 
+              value: ""
+            - name: CHARON_P2P_EXTERNAL_HOSTNAME
+              value: "bootnode"
+            - name: NODES_COUNT
+              value: "4"
+            - name: THRESHOLD
+              value: "3"
+          envFrom:
+            - configMapRef:
+                name: charon-config
           volumeMounts:
             - name: charon
               mountPath: /charon
-          workingDir: /charon/node0
+          workingDir: /charon
       initContainers:
-        - name: copy-scripts
-          image: busybox
-          command: ['sh', '-c', 'cp /scripts/* /charon/']
+        - name: create-config
+          image: ghcr.io/obolnetwork/charon:v0.3.0
+          command:
+          - sh
+          - -ace
+          - |
+            echo "Cleaning cluster manifest, node config and node keys"
+            rm -rf /charon/* 2>/dev/null || true
+            charon create-cluster --cluster-dir=/charon;
           volumeMounts:
-            - name: run-script
-              mountPath: /scripts
             - name: charon
               mountPath: /charon
       volumes:
-        - name: run-script
-          configMap:
-            name: run-script
-            defaultMode: 0775
         - name: charon
           persistentVolumeClaim:
             claimName: charon-pvc
@@ -65,15 +71,15 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: node0
+  name: bootnode
 spec:
   selector:
-    app: node0
+    app: bootnode
   ports:
     - name: http
       protocol: TCP
-      port: 80
-      targetPort: 80
+      port: 16000
+      targetPort: 16000
     - name: monitoring
       protocol: TCP
       port: 16001

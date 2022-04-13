@@ -1,55 +1,53 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    app: node3
   labels:
-    app: node3
+    app: vc1-teku
     cluster: charon
-  name: node3
+  name: vc1-teku
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: node3
+      app: vc1-teku
   strategy:
     type: Recreate
   template:
     metadata:
-      annotations:
-        app: node3
       labels:
-        app: node3
+        app: vc1-teku
         cluster: charon
     spec:
       securityContext:
         runAsUser: 0
-      affinity:
-        podAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: cluster
-                operator: In
-                values:
-                - charon
-            topologyKey: "kubernetes.io/hostname"
       containers:
-        - name: node3
-          image: ghcr.io/obolnetwork/charon:v0.3.0
+        - name: vc1-teku
+          image: consensys/teku:latest
           command:
             - sh
-            - /charon/run.sh
+            - -ace
+            - |
+              /opt/teku/bin/teku vc \
+              --network=auto \
+              --beacon-node-api-endpoint="http://node1:16002" \
+              --validator-keys="/charon/node1:/charon/node1" \
+              --validators-proposer-default-fee-recipient="0x0000000000000000000000000000000000000000";
           ports:
-            - containerPort: 80
+            - containerPort: 16000
           env:
-            - name: BOOTNODE
-              value: node0
+            - name: CHARON_DATA_DIR
+              value: "/charon/vc1-teku"
+            - name: CHARON_JAEGER_SERVICE
+              value: vc1-teku
+            - name: CHARON_P2P_EXTERNAL_HOSTNAME
+              value: vc1-teku
+            - name: CHARON_SIMNET_VALIDATOR_MOCK
+              value: "false" # Uses Lighthouse VC
           volumeMounts:
             - name: charon
               mountPath: /charon
               readOnly: false
-          workingDir: /charon/node3
+          workingDir: /
       volumes:
         - name: charon
           persistentVolumeClaim:
@@ -61,15 +59,16 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: node3
+  name: vc1-teku
 spec:
   selector:
-    app: node3
+    app: vc1-teku
+  ports:
   ports:
     - name: http
       protocol: TCP
-      port: 80
-      targetPort: 80
+      port: 16000
+      targetPort: 16000
     - name: monitoring
       protocol: TCP
       port: 16001
