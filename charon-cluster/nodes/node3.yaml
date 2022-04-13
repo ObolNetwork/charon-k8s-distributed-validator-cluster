@@ -24,32 +24,28 @@ spec:
     spec:
       securityContext:
         runAsUser: 0
-      affinity:
-        podAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: cluster
-                operator: In
-                values:
-                - charon
-            topologyKey: "kubernetes.io/hostname"
       containers:
         - name: node3
-          image: ghcr.io/obolnetwork/charon/charon:latest
-          command:
-            - sh
-            - /charon/run.sh
+          image: ghcr.io/obolnetwork/charon:v0.3.0
+          command: ["/usr/local/bin/charon"]
+          args: ["run"]
           ports:
-            - containerPort: 80
+            - containerPort: 16000
           env:
-            - name: BOOTNODE
-              value: node0
+            - name: CHARON_DATA_DIR
+              value: "/charon/node3"
+            - name: CHARON_JAEGER_SERVICE
+              value: "node3"
+            - name: CHARON_P2P_EXTERNAL_HOSTNAME
+              value: "node3"
+          envFrom:
+            - configMapRef:
+                name: charon-config
           volumeMounts:
             - name: charon
               mountPath: /charon
               readOnly: false
-          workingDir: /charon/node3
+          workingDir: /
       volumes:
         - name: charon
           persistentVolumeClaim:
@@ -68,8 +64,8 @@ spec:
   ports:
     - name: http
       protocol: TCP
-      port: 80
-      targetPort: 80
+      port: 16000
+      targetPort: 16000
     - name: monitoring
       protocol: TCP
       port: 16001

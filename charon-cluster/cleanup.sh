@@ -22,15 +22,19 @@ kubectl config set-context --current --namespace=${ns}
 
 # delete the monitoring stack
 echo ">>> delete the monitoring stack:"
-kubectl delete -f charon-cluster/monitoring
+kubectl delete -f monitoring
 
 # delete the charon nodes
 echo ">>> delete the charon nodes:"
-kubectl delete -f charon-cluster/nodes
+kubectl delete -f nodes
 
 # delete the charon bootnode
 echo ">>> delete the charon bootnode:"
-kubectl delete -f charon-cluster/bootnode
+kubectl delete -f bootnode
+
+# delete the charon volumes
+echo ">>> delete the charon volumes:"
+kubectl delete pvc --all
 
 # delete the current namespace
 echo ">>> delete the current namespace:"

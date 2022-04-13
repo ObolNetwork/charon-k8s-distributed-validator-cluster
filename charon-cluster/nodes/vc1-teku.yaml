@@ -1,60 +1,54 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    app: node0
   labels:
-    app: node0
+    app: vc1-teku
     cluster: charon
-  name: node0
+  name: vc1-teku
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: node0
+      app: vc1-teku
   strategy:
     type: Recreate
   template:
     metadata:
-      annotations:
-        app: node0
       labels:
-        app: node0
+        app: vc1-teku
         cluster: charon
     spec:
       securityContext:
         runAsUser: 0
       containers:
-        - name: node0
-          image: ghcr.io/obolnetwork/charon/charon:latest
+        - name: vc1-teku
+          image: consensys/teku:latest
           command:
             - sh
-            - /charon/run.sh
+            - -ace
+            - |
+              /opt/teku/bin/teku vc \
+              --network=auto \
+              --beacon-node-api-endpoint="http://node1:16002" \
+              --validator-keys="/charon/node1:/charon/node1" \
+              --validators-proposer-default-fee-recipient="0x0000000000000000000000000000000000000000";
           ports:
-            - containerPort: 80
+            - containerPort: 16000
           env:
-            - name: CLEAN
-              value: "true"
-            - name: GENERATE
-              value: "true"
+            - name: CHARON_DATA_DIR
+              value: "/charon/vc1-teku"
+            - name: CHARON_JAEGER_SERVICE
+              value: vc1-teku
+            - name: CHARON_P2P_EXTERNAL_HOSTNAME
+              value: vc1-teku
+            - name: CHARON_SIMNET_VALIDATOR_MOCK
+              value: "false" # Uses Lighthouse VC
           volumeMounts:
             - name: charon
               mountPath: /charon
-          workingDir: /charon/node0
-      initContainers:
-        - name: copy-scripts
-          image: busybox
-          command: ['sh', '-c', 'cp /scripts/* /charon/']
-          volumeMounts:
-            - name: run-script
-              mountPath: /scripts
-            - name: charon
-              mountPath: /charon
+              readOnly: false
+          workingDir: /
       volumes:
-        - name: run-script
-          configMap:
-            name: run-script
-            defaultMode: 0775
         - name: charon
           persistentVolumeClaim:
             claimName: charon-pvc
@@ -65,15 +59,16 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: node0
+  name: vc1-teku
 spec:
   selector:
-    app: node0
+    app: vc1-teku
+  ports:
   ports:
     - name: http
       protocol: TCP
-      port: 80
-      targetPort: 80
+      port: 16000
+      targetPort: 16000
     - name: monitoring
       protocol: TCP
       port: 16001

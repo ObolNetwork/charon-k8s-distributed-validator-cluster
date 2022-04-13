@@ -1,55 +1,49 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    app: node1
   labels:
-    app: node1
+    app: node0
     cluster: charon
-  name: node1
+  name: node0
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: node1
+      app: node0
   strategy:
     type: Recreate
   template:
     metadata:
-      annotations:
-        app: node1
       labels:
-        app: node1
+        app: node0
         cluster: charon
     spec:
       securityContext:
         runAsUser: 0
-      affinity:
-        podAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: cluster
-                operator: In
-                values:
-                - charon
-            topologyKey: "kubernetes.io/hostname"
       containers:
-        - name: node1
-          image: ghcr.io/obolnetwork/charon/charon:latest
-          command:
-            - sh
-            - /charon/run.sh
+        - name: node0
+          image: ghcr.io/obolnetwork/charon:v0.3.0
+          command: ["/usr/local/bin/charon"]
+          args: ["run"]
           ports:
-            - containerPort: 80
+            - containerPort: 16000
           env:
-            - name: BOOTNODE
+            - name: CHARON_DATA_DIR
+              value: "/charon/node0"
+            - name: CHARON_JAEGER_SERVICE
               value: node0
+            - name: CHARON_P2P_EXTERNAL_HOSTNAME
+              value: node0
+            - name: CHARON_SIMNET_VALIDATOR_MOCK
+              value: "false" # Uses Lighthouse VC
+          envFrom:
+            - configMapRef:
+                name: charon-config
           volumeMounts:
             - name: charon
               mountPath: /charon
               readOnly: false
-          workingDir: /charon/node1
+          workingDir: /
       volumes:
         - name: charon
           persistentVolumeClaim:
@@ -61,16 +55,16 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: node1
+  name: node0
 spec:
   selector:
-    app: node1
+    app: node0
   ports:
   ports:
     - name: http
       protocol: TCP
-      port: 80
-      targetPort: 80
+      port: 16000
+      targetPort: 16000
     - name: monitoring
       protocol: TCP
       port: 16001

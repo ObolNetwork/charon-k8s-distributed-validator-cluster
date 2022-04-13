@@ -26,12 +26,12 @@ kubectl config set-context --current --namespace=$ns
 
 # deploy charon bootnode and configmaps
 echo ">>> deploying charon bootnodes and configmaps."
-kubectl apply -f charon-cluster/bootnode
+kubectl apply -f bootnode
 
 # deploy charon nodes
 echo ">>> deploying charon charon nodes."
-kubectl apply -f charon-cluster/nodes
+kubectl apply -f nodes
 
 # deploy monitoring stack
 echo ">>> deploying monitoring stack."
-kubectl apply -f charon-cluster/monitoring
+kubectl apply -f monitoring
