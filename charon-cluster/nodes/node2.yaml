@@ -51,8 +51,6 @@ spec:
           persistentVolumeClaim:
             claimName: charon-pvc
       restartPolicy: Always
-      imagePullSecrets:
-        - name: ghcr-access
 ---
 apiVersion: v1
 kind: Service
