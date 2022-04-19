@@ -34,15 +34,6 @@ spec:
               --validators-proposer-default-fee-recipient="0x0000000000000000000000000000000000000000";
           ports:
             - containerPort: 16000
-          env:
-            - name: CHARON_DATA_DIR
-              value: "/charon/vc1-teku"
-            - name: CHARON_JAEGER_SERVICE
-              value: vc1-teku
-            - name: CHARON_P2P_EXTERNAL_HOSTNAME
-              value: vc1-teku
-            - name: CHARON_SIMNET_VALIDATOR_MOCK
-              value: "false" # Uses Lighthouse VC
           volumeMounts:
             - name: charon
               mountPath: /charon
@@ -53,8 +44,6 @@ spec:
           persistentVolumeClaim:
             claimName: charon-pvc
       restartPolicy: Always
-      imagePullSecrets:
-        - name: ghcr-access
 ---
 apiVersion: v1
 kind: Service

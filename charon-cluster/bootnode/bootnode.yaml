@@ -54,9 +54,24 @@ spec:
           - sh
           - -ace
           - |
-            echo "Cleaning cluster manifest, node config and node keys"
-            rm -rf /charon/* 2>/dev/null || true
-            charon create-cluster --cluster-dir=/charon;
+            echo "Cleaning cluster manifest, node config and node keys";
+            rm -rf /charon/* 2>/dev/null || true;
+            echo "Creating cluster manifests, node config and node keys";
+            mkdir /charon/split_keys;
+            echo ${KEYSTORE} > /charon/split_keys/keystore.json;
+            echo ${KEYSTORE_PASSWORD} > /charon/split_keys/keystore.txt;
+            charon create-cluster --split-existing-keys --split-keys-dir=/charon/split_keys --cluster-dir=/charon;
+          env:
+            - name: KEYSTORE
+              valueFrom:
+                secretKeyRef:
+                  name: keystore
+                  key: keystore
+            - name: KEYSTORE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keystore
+                  key: password
           volumeMounts:
             - name: charon
               mountPath: /charon
@@ -65,8 +80,6 @@ spec:
           persistentVolumeClaim:
             claimName: charon-pvc
       restartPolicy: Always
-      imagePullSecrets:
-        - name: ghcr-access
 ---
 apiVersion: v1
 kind: Service

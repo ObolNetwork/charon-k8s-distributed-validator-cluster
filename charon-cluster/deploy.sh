@@ -16,13 +16,12 @@ if [ -z "${nsStatus}" ]; then
     kubectl create namespace ${ns} --dry-run=client -o yaml | kubectl apply -f -
 fi
 
-# enable container registry access for the new workspace
-echo ">>> enable container registry access for the new workspace."
-kubectl get secret ghcr-access --namespace=default -oyaml | grep -v '^\s*namespace:\s' | kubectl apply --namespace=$ns -f - 2>/dev/null
-
 # set the current namespace
 echo "set namespace to $ns"
 kubectl config set-context --current --namespace=$ns
+
+# create vc keystore secrets
+kubectl create secret generic keystore --from-file=keystore=./split_keys/keystore.json --from-file=password=./split_keys/keystore.txt
 
 # deploy charon bootnode and configmaps
 echo ">>> deploying charon bootnodes and configmaps."

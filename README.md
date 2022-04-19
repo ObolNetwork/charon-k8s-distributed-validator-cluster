@@ -17,7 +17,7 @@ Run a *simnet* [charon](https://github.com/ObolNetwork/charon) distributed valid
 ## Deploy Kiln Testnet
 ```sh
 git clone git@github.com:ObolNetwork/charon-k8s.git
-./kiln-merge/deploy.sh
+./kiln-testnet/deploy.sh
 ```
 
 ## View Kiln Logs
@@ -26,6 +26,21 @@ kubectl config set-context --current --namespace=kiln
 kubectl logs -f geth-0
 kubectl logs -f teku-0
 ```
+
+## Copy Validator Keys
+
+```
+mkdir split_keys
+cp path/to/existing/keys/keystore-*.json split_keys/keystore.json
+cp path/to/passwords/keystore-*.txt split_keys/keystore-password.txt
+# Each keystore-*.json requires a keystore-*.txt file containing the password.
+make split-existing-keys
+make up
+```
+> Remember: Do not connect to main net! 
+> Remember: Please make sure any existing validator has been shut down for
+> at least 2 finalised epochs before starting the charon cluster,
+> otherwise slashing could occur.
 
 ## Deploy Charon Cluster
 ```sh
@@ -59,5 +74,5 @@ kubectl -n <namespace> port-forward deployment/grafana 3001:3000
 ## Cleanup
 ```sh
 ./charon-cluster/cleanup.sh <namespace>
-./kiln-merge/cleanup.sh
+./kiln-testnet/cleanup.sh
 ```

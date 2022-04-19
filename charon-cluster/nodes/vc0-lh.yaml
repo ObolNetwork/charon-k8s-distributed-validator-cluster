@@ -1,46 +1,39 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    app: node2
   labels:
-    app: node2
+    app: vc0-lh
     cluster: charon
-  name: node2
+  name: vc0-lh
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: node2
+      app: vc0-lh
   strategy:
     type: Recreate
   template:
     metadata:
-      annotations:
-        app: node2
       labels:
-        app: node2
+        app: vc0-lh
         cluster: charon
     spec:
       securityContext:
         runAsUser: 0
       containers:
-        - name: node2
-          image: ghcr.io/obolnetwork/charon:v0.3.0
-          command: ["/usr/local/bin/charon"]
-          args: ["run"]
+        - name: vc0-lh
+          image: ghcr.io/obolnetwork/lighthouse:v1
+          command:
+            - sh
+            - -ace
+            - |
+              #exec /charon/lighthouse/run.sh;
+              while [ true ]; do sleep 1; done;
+          env:
+            - name: NODE 
+              value: "node0"
           ports:
             - containerPort: 16000
-          env:
-            - name: CHARON_DATA_DIR
-              value: "/charon/node2"
-            - name: CHARON_JAEGER_SERVICE
-              value: "node2"
-            - name: CHARON_P2P_EXTERNAL_HOSTNAME
-              value: "node2"
-          envFrom:
-            - configMapRef:
-                name: charon-config
           volumeMounts:
             - name: charon
               mountPath: /charon
@@ -55,10 +48,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: node2
+  name: vc0-lh
 spec:
   selector:
-    app: node2
+    app: vc0-lh
+  ports:
   ports:
     - name: http
       protocol: TCP
