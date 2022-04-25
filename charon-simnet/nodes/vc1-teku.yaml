@@ -32,8 +32,6 @@ spec:
               --beacon-node-api-endpoint="http://node1:16002" \
               --validator-keys="/charon/node1:/charon/node1" \
               --validators-proposer-default-fee-recipient="0x0000000000000000000000000000000000000000";
-          ports:
-            - containerPort: 16000
           volumeMounts:
             - name: charon
               mountPath: /charon
@@ -42,7 +40,7 @@ spec:
       volumes:
         - name: charon
           persistentVolumeClaim:
-            claimName: charon-pvc
+            claimName: charon-simnet-pvc
       restartPolicy: Always
 ---
 apiVersion: v1
@@ -58,19 +56,4 @@ spec:
       protocol: TCP
       port: 16000
       targetPort: 16000
-    - name: monitoring
-      protocol: TCP
-      port: 16001
-      targetPort: 16001
-    - name: validator-api
-      protocol: TCP
-      port: 16002
-      targetPort: 16002
-    - name: p2p-tcp
-      protocol: TCP
-      port: 16003
-      targetPort: 16003
-    - name: p2p-udp
-      protocol: UDP
-      port: 16004
-      targetPort: 16004
+

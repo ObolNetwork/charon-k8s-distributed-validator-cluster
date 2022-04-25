@@ -1,41 +1,55 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  annotations:
+    app: node1
   labels:
-    app: node0
+    app: node1
     cluster: charon
-  name: node0
+  name: node1
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: node0
+      app: node1
   strategy:
     type: Recreate
   template:
     metadata:
+      annotations:
+        app: node1
       labels:
-        app: node0
+        app: node1
         cluster: charon
     spec:
       securityContext:
         runAsUser: 0
       containers:
-        - name: node0
+        - name: node1
           image: ghcr.io/obolnetwork/charon:v0.3.0
           command: ["/usr/local/bin/charon"]
           args: ["run"]
-          ports:
-            - containerPort: 16000
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: 16001
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: 16001
+            initialDelaySeconds: 20
+            periodSeconds: 5
           env:
             - name: CHARON_DATA_DIR
-              value: "/charon/node0"
+              value: "/charon/node1"
             - name: CHARON_JAEGER_SERVICE
-              value: node0
+              value: "node1"
             - name: CHARON_P2P_EXTERNAL_HOSTNAME
-              value: node0
+              value: "node1"
             - name: CHARON_SIMNET_VALIDATOR_MOCK
-              value: "false" # Uses Lighthouse VC
+              value: "false" # Uses Teku VC
           envFrom:
             - configMapRef:
                 name: charon-config
@@ -47,16 +61,16 @@ spec:
       volumes:
         - name: charon
           persistentVolumeClaim:
-            claimName: charon-pvc
+            claimName: charon-kiln-pvc
       restartPolicy: Always
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: node0
+  name: node1
 spec:
   selector:
-    app: node0
+    app: node1
   ports:
   ports:
     - name: http

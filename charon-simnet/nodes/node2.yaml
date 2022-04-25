@@ -2,44 +2,42 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    app: node1
+    app: node2
   labels:
-    app: node1
+    app: node2
     cluster: charon
-  name: node1
+  name: node2
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: node1
+      app: node2
   strategy:
     type: Recreate
   template:
     metadata:
       annotations:
-        app: node1
+        app: node2
       labels:
-        app: node1
+        app: node2
         cluster: charon
     spec:
       securityContext:
         runAsUser: 0
       containers:
-        - name: node1
+        - name: node2
           image: ghcr.io/obolnetwork/charon:v0.3.0
           command: ["/usr/local/bin/charon"]
           args: ["run"]
           ports:
-            - containerPort: 16000
+            - containerPort: 16002
           env:
             - name: CHARON_DATA_DIR
-              value: "/charon/node1"
+              value: "/charon/node2"
             - name: CHARON_JAEGER_SERVICE
-              value: "node1"
+              value: "node2"
             - name: CHARON_P2P_EXTERNAL_HOSTNAME
-              value: "node1"
-            - name: CHARON_SIMNET_VALIDATOR_MOCK
-              value: "false" # Uses Teku VC
+              value: "node2"
           envFrom:
             - configMapRef:
                 name: charon-config
@@ -51,17 +49,16 @@ spec:
       volumes:
         - name: charon
           persistentVolumeClaim:
-            claimName: charon-pvc
+            claimName: charon-simnet-pvc
       restartPolicy: Always
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: node1
+  name: node2
 spec:
   selector:
-    app: node1
-  ports:
+    app: node2
   ports:
     - name: http
       protocol: TCP

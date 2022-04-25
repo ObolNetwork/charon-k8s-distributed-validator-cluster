@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: node0
+    cluster: charon
+  name: node0
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: node0
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: node0
+        cluster: charon
+    spec:
+      securityContext:
+        runAsUser: 0
+      containers:
+        - name: node0
+          image: ghcr.io/obolnetwork/charon:v0.3.0
+          command: ["/usr/local/bin/charon"]
+          args: ["run"]
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: 16001
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: 16001
+            initialDelaySeconds: 20
+            periodSeconds: 5
+          env:
+            - name: CHARON_DATA_DIR
+              value: "/charon/node0"
+            - name: CHARON_JAEGER_SERVICE
+              value: node0
+            - name: CHARON_P2P_EXTERNAL_HOSTNAME
+              value: node0
+          envFrom:
+            - configMapRef:
+                name: charon-config
+          volumeMounts:
+            - name: charon
+              mountPath: /charon
+              readOnly: false
+          workingDir: /
+      volumes:
+        - name: charon
+          persistentVolumeClaim:
+            claimName: charon-kiln-pvc
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: node0
+spec:
+  selector:
+    app: node0
+  ports:
+  ports:
+    - name: http
+      protocol: TCP
+      port: 16000
+      targetPort: 16000
+    - name: monitoring
+      protocol: TCP
+      port: 16001
+      targetPort: 16001
+    - name: validator-api
+      protocol: TCP
+      port: 16002
+      targetPort: 16002
+    - name: p2p-tcp
+      protocol: TCP
+      port: 16003
+      targetPort: 16003
+    - name: p2p-udp
+      protocol: UDP
+      port: 16004
+      targetPort: 16004
