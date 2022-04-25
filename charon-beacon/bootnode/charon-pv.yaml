@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: charon-pv
+  name: charon-kiln-pv
   labels:
     type: local
     cluster: charon
@@ -19,7 +19,7 @@ kind: PersistentVolumeClaim
 metadata:
   labels:
     cluster: charon
-  name: charon-pvc
+  name: charon-kiln-pvc
 spec:
   storageClassName: local
   accessModes:

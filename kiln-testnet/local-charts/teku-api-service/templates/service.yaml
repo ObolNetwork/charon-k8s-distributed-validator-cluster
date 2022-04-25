@@ -23,4 +23,3 @@ spec:
     app.kubernetes.io/name: teku
     statefulset.kubernetes.io/pod-name: teku-0
   type: LoadBalancer
-  loadBalancerIP: "34.72.238.199"

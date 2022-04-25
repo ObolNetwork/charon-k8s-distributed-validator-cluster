@@ -2,38 +2,41 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: vc0-lh
+    app: node0
     cluster: charon
-  name: vc0-lh
+  name: node0
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: vc0-lh
+      app: node0
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: vc0-lh
+        app: node0
         cluster: charon
     spec:
       securityContext:
         runAsUser: 0
       containers:
-        - name: vc0-lh
-          image: ghcr.io/obolnetwork/lighthouse:v1
-          command:
-            - sh
-            - -ace
-            - |
-              #exec /charon/lighthouse/run.sh;
-              while [ true ]; do sleep 1; done;
-          env:
-            - name: NODE 
-              value: "node0"
+        - name: node0
+          image: ghcr.io/obolnetwork/charon:v0.3.0
+          command: ["/usr/local/bin/charon"]
+          args: ["run"]
           ports:
-            - containerPort: 16000
+            - containerPort: 16002
+          env:
+            - name: CHARON_DATA_DIR
+              value: "/charon/node0"
+            - name: CHARON_JAEGER_SERVICE
+              value: node0
+            - name: CHARON_P2P_EXTERNAL_HOSTNAME
+              value: node0
+          envFrom:
+            - configMapRef:
+                name: charon-config
           volumeMounts:
             - name: charon
               mountPath: /charon
@@ -42,16 +45,16 @@ spec:
       volumes:
         - name: charon
           persistentVolumeClaim:
-            claimName: charon-pvc
+            claimName: charon-simnet-pvc
       restartPolicy: Always
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: vc0-lh
+  name: node0
 spec:
   selector:
-    app: vc0-lh
+    app: node0
   ports:
   ports:
     - name: http

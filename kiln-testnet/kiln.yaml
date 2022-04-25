@@ -1,8 +1,5 @@
 context: kiln
 
-settings:
-  kubeContext: gke_prj-d-gke-a21f_us-central1_obol-dev-us-central1
-
 helmRepos:
   ethereum-helm-charts: https://skylenet.github.io/ethereum-helm-charts
   bitnami: https://charts.bitnami.com/bitnami
