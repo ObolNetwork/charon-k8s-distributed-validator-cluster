@@ -1,2 +1,4 @@
 namespace: 
-  name: kiln
+  name: ${NAMESPACE}
+beacon:
+  endpoint: ${BEACON_NODE_ENDPOINT}
