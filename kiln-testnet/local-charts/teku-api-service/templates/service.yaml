@@ -3,7 +3,8 @@ kind: Service
 metadata:
   annotations:
     meta.helm.sh/release-name: teku
-    meta.helm.sh/release-namespace: kiln
+    meta.helm.sh/release-namespace: '{{ .Values.namespace.name }}'
+    external-dns.alpha.kubernetes.io/hostname: '{{ .Values.beacon.endpoint }}'
   labels:
     app.kubernetes.io/instance: teku
     app.kubernetes.io/managed-by: Helm
@@ -22,4 +23,29 @@ spec:
     app.kubernetes.io/instance: teku
     app.kubernetes.io/name: teku
     statefulset.kubernetes.io/pod-name: teku-0
-  type: LoadBalancer
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+ name: teku
+ namespace: '{{ .Values.namespace.name }}'
+ annotations:
+   nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+   cert-manager.io/cluster-issuer: "letsencrypt"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - '{{ .Values.beacon.endpoint }}'
+      secretName: kiln-beacon-letsencrypt-crt
+  rules:
+  - host: '{{ .Values.beacon.endpoint }}'
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: teku-api-0
+            port:
+              number: 80

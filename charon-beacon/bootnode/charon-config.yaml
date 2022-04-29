@@ -12,3 +12,4 @@ data:
   CHARON_P2P_BOOTNODES: "http://bootnode:16000/enr"
   CHARON_SIMNET_VALIDATOR_MOCK: "false"
   CHARON_LOG_LEVEL: "debug"
+  CHARON_BEACON_NODE_ENDPOINT: "https://kiln-beacon-1.gcp.obol.tech" # you can bring your own node

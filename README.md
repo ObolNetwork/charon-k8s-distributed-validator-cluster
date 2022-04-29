@@ -42,7 +42,7 @@ cd charon-k8s/charon-simnet
 ```
 
 ### View deployments logs
-View charon nodes logs and validate the deployment:
+View charon nodes logs, and validate the deployment:
 ```sh
 kubectl config set-context --current --namespace=$NAMESPACE
 kubectl logs -f deploy/node0
@@ -108,9 +108,8 @@ cp path/to/passwords/keystore-*.txt split_keys/keystore.txt
 Creates a cluster with 4 nodes (n=4) and threshold of 3 (t=3) for signature reconstruction.
 
 ```
-# Add your beacon node endpoint to the charon configMap
-export CHARON_BEACON_NODE_ENDPOINT=<beacon_node_endpoint>
-echo "\tCHARON_BEACON_NODE_ENDPOINT: \"t$CHARON_BEACON_NODE_ENDPOINT\"" >> charon-k8s/charon-beacon/bootnode/charon-config.yaml
+# Optioanl: update charon config map with your beacon node endpoint:
+open charon-k8s/charon-beacon/bootnode/charon-config.yaml
 ```
 
 ```
@@ -156,6 +155,10 @@ cd charon-k8s/charon-beacon
 ```
 
 ## Optional: Deploy Kiln testnet
+
+You can run charon with a real beacon node, and 
+Update the environment variables in `.env` with the corresponding values.
+
 Deploy Kiln testnet with Geth and Teku nodes:
 ```sh
 git clone git@github.com:ObolNetwork/charon-k8s.git
@@ -165,7 +168,7 @@ cd charon-k8s/kiln-testnet
 > This Kiln testnet deployment is based on the [Public Kiln Testnet Tooling](https://github.com/skylenet/ethereum-k8s-testnets/tree/master/public-merge-kiln)
 
 ### View deployments logs
-Ensure deployment is successful, and validate kiln geth and teku logs:
+Verify the kiln node deployment is successful, and validate the geth and teku logs:
 ```sh
 kubectl config set-context --current --namespace=kiln
 kubectl logs -f geth-0

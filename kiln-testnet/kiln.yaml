@@ -1,4 +1,4 @@
-context: kiln
+context: "$NAMESPACE"
 
 helmRepos:
   ethereum-helm-charts: https://skylenet.github.io/ethereum-helm-charts
@@ -7,7 +7,7 @@ helmRepos:
 
 namespaces:
   kube-system:
-  kiln:
+  "$NAMESPACE":
     protected: false
 
 apps:
@@ -19,7 +19,7 @@ apps:
     wait: true
     priority: -100
   geth:
-    namespace: kiln
+    namespace: "$NAMESPACE"
     enabled: true
     chart: "ethereum-helm-charts/geth"
     version: "0.2.1"
@@ -30,7 +30,7 @@ apps:
     setString:
       initContainers[0].env[0].value: "$ETH_CLIENTS_AUTH_JWT"
   teku:
-    namespace: kiln
+    namespace: "$NAMESPACE"
     enabled: true
     chart: "ethereum-helm-charts/teku"
     version: "0.1.0"
@@ -40,8 +40,11 @@ apps:
     setString:
       initContainers[0].env[0].value: "$ETH_CLIENTS_AUTH_JWT"
   teku-api-service:
-    namespace: kiln
+    namespace: "$NAMESPACE"
     enabled: true
     chart: "local-charts/teku-api-service"
     version: "0.0.1"
     priority: -97
+    set:
+      namespace.name: "$NAMESPACE"
+      beacon.endpoint: "$BEACON_NODE_ENDPOINT"
