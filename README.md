@@ -154,29 +154,3 @@ cd charon-k8s/charon-beacon
 ./cleanup.sh $NAMESPACE
 ```
 
-## Optional: Deploy Kiln testnet
-
-You can run charon with a real beacon node, and 
-Update the environment variables in `.env` with the corresponding values.
-
-Deploy Kiln testnet with Geth and Teku nodes:
-```sh
-git clone git@github.com:ObolNetwork/charon-k8s.git
-cd charon-k8s/kiln-testnet
-./deploy.sh
-```
-> This Kiln testnet deployment is based on the [Public Kiln Testnet Tooling](https://github.com/skylenet/ethereum-k8s-testnets/tree/master/public-merge-kiln)
-
-### View deployments logs
-Verify the kiln node deployment is successful, and validate the geth and teku logs:
-```sh
-kubectl config set-context --current --namespace=kiln
-kubectl logs -f geth-0
-kubectl logs -f teku-0
-```
-### Cleanup
-Once done, you can delete kiln deployment:
-```sh
-cd charon-k8s/kiln-testnet
-./cleanup.sh
-```
