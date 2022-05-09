@@ -1,0 +1,43 @@
+#!/bin/bash
+
+usage() { echo "Usage: $0 <cluster-name>" 1>&2; exit 1; }
+
+if [[ -z $1 ]]; then
+  usage
+  exit 1;
+fi
+
+CLUSTER_NAME=$1
+
+# check if the namespace exists
+nsStatus=`kubectl get namespace ${CLUSTER_NAME} --no-headers --output=go-template={{.metadata.name}} 2>/dev/null`
+if [ -z "${nsStatus}" ]; then
+    echo "Namespace (${CLUSTER_NAME}) not found, please choose an existing namespace"
+    exit 1;
+fi
+
+# set current namespace
+echo ">>> set the current namespace:"
+kubectl config set-context --current --namespace=${CLUSTER_NAME}
+
+# delete the monitoring stack
+echo ">>> delete the monitoring stack."
+kubectl delete -f manifests/monitoring
+
+# delete charon nodes
+echo ">>> delete charon nodes."
+kubectl delete -f manifests/nodes
+
+# delete charon bootnode
+echo ">>> delete charon bootnode."
+kubectl delete -f manifests/bootnode/bootnode.yaml
+kubectl delete -f manifests/bootnode/charon-config.yaml
+
+# delete charon volume
+echo ">>> delete charon volume."
+kubectl delete pvc --all
+kubectl delete pv ${CLUSTER_NAME}-pv
+
+# delete current namespace
+echo ">>> delete namespace."
+kubectl delete ns ${CLUSTER_NAME}

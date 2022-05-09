@@ -3,7 +3,6 @@ kind: Deployment
 metadata:
   labels:
     app: node0
-    cluster: charon
   name: node0
 spec:
   replicas: 1
@@ -16,7 +15,6 @@ spec:
     metadata:
       labels:
         app: node0
-        cluster: charon
     spec:
       securityContext:
         runAsUser: 0
@@ -25,8 +23,18 @@ spec:
           image: ghcr.io/obolnetwork/charon:v0.3.0
           command: ["/usr/local/bin/charon"]
           args: ["run"]
-          ports:
-            - containerPort: 16002
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: 16001
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: 16001
+            initialDelaySeconds: 20
+            periodSeconds: 5
           env:
             - name: CHARON_DATA_DIR
               value: "/charon/node0"
@@ -45,7 +53,7 @@ spec:
       volumes:
         - name: charon
           persistentVolumeClaim:
-            claimName: charon-simnet-pvc
+            claimName: charon-pvc
       restartPolicy: Always
 ---
 apiVersion: v1

@@ -3,7 +3,6 @@ kind: Deployment
 metadata:
   labels:
     app: bootnode
-    cluster: charon
   name: bootnode
 spec:
   replicas: 1
@@ -16,7 +15,6 @@ spec:
     metadata:
       labels:
         app: bootnode
-        cluster: charon
     spec:
       securityContext:
         runAsUser: 0
@@ -25,8 +23,18 @@ spec:
           image: ghcr.io/obolnetwork/charon:v0.3.0
           command: ["/usr/local/bin/charon"]
           args: ["bootnode"]
-          ports:
-            - containerPort: 16000
+          readinessProbe:
+            httpGet:
+              path: /enr
+              port: 16000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /enr
+              port: 16000
+            initialDelaySeconds: 20
+            periodSeconds: 5
           env:
             - name: CHARON_BOOTNODE_HTTP_ADDRESS
               value: "0.0.0.0:16000"
@@ -56,15 +64,29 @@ spec:
           - |
             echo "Cleaning cluster manifest, node config and node keys";
             rm -rf /charon/* 2>/dev/null || true;
-            echo "Creating simnet cluster manifests, node config and node keys";
-            charon create-cluster --cluster-dir=/charon;
+            echo "Creating cluster manifests, node config and node keys";
+            mkdir /charon/split_keys;
+            echo ${KEYSTORE} > /charon/split_keys/keystore-vc.json;
+            echo ${KEYSTORE_PASSWORD} > /charon/split_keys/keystore-vc.txt;
+            charon create-cluster --split-existing-keys --split-keys-dir=/charon/split_keys --cluster-dir=/charon;
+          env:
+            - name: KEYSTORE
+              valueFrom:
+                secretKeyRef:
+                  name: keystore
+                  key: keystore
+            - name: KEYSTORE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keystore
+                  key: password
           volumeMounts:
             - name: charon
               mountPath: /charon
       volumes:
         - name: charon
           persistentVolumeClaim:
-            claimName: charon-simnet-pvc
+            claimName: charon-pvc
       restartPolicy: Always
 ---
 apiVersion: v1

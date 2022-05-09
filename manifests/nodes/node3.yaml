@@ -5,7 +5,6 @@ metadata:
     app: node3
   labels:
     app: node3
-    cluster: charon
   name: node3
 spec:
   replicas: 1
@@ -20,7 +19,6 @@ spec:
         app: node3
       labels:
         app: node3
-        cluster: charon
     spec:
       securityContext:
         runAsUser: 0
@@ -48,6 +46,8 @@ spec:
               value: "node3"
             - name: CHARON_P2P_EXTERNAL_HOSTNAME
               value: "node3"
+            - name: CHARON_SIMNET_VALIDATOR_MOCK
+              value: "false" # Uses Teku VC3
           envFrom:
             - configMapRef:
                 name: charon-config
@@ -59,7 +59,7 @@ spec:
       volumes:
         - name: charon
           persistentVolumeClaim:
-            claimName: charon-kiln-pvc
+            claimName: charon-pvc
       restartPolicy: Always
 ---
 apiVersion: v1

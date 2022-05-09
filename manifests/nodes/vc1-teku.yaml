@@ -1,46 +1,37 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    app: node2
   labels:
-    app: node2
-    cluster: charon
-  name: node2
+    app: vc1-teku
+  name: vc1-teku
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: node2
+      app: vc1-teku
   strategy:
     type: Recreate
   template:
     metadata:
-      annotations:
-        app: node2
       labels:
-        app: node2
-        cluster: charon
+        app: vc1-teku
     spec:
       securityContext:
         runAsUser: 0
       containers:
-        - name: node2
-          image: ghcr.io/obolnetwork/charon:v0.3.0
-          command: ["/usr/local/bin/charon"]
-          args: ["run"]
+        - name: vc1-teku
+          image: consensys/teku:latest
+          command:
+            - sh
+            - -ace
+            - |
+              /opt/teku/bin/teku vc \
+              --network=auto \
+              --beacon-node-api-endpoint="http://node1:16002" \
+              --validator-keys="/charon/node1:/charon/node1" \
+              --validators-proposer-default-fee-recipient="0x0000000000000000000000000000000000000000";
           ports:
-            - containerPort: 16002
-          env:
-            - name: CHARON_DATA_DIR
-              value: "/charon/node2"
-            - name: CHARON_JAEGER_SERVICE
-              value: "node2"
-            - name: CHARON_P2P_EXTERNAL_HOSTNAME
-              value: "node2"
-          envFrom:
-            - configMapRef:
-                name: charon-config
+            - containerPort: 16000
           volumeMounts:
             - name: charon
               mountPath: /charon
@@ -49,16 +40,17 @@ spec:
       volumes:
         - name: charon
           persistentVolumeClaim:
-            claimName: charon-simnet-pvc
+            claimName: charon-pvc
       restartPolicy: Always
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: node2
+  name: vc1-teku
 spec:
   selector:
-    app: node2
+    app: vc1-teku
+  ports:
   ports:
     - name: http
       protocol: TCP
