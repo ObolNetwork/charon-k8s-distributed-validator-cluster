@@ -1,156 +1,95 @@
 ![Obol Logo](https://obol.tech/obolnetwork.png)
 
-<h1 align="center">Charon with K8s</h1>
+<h1 align="center">CharonxK8s</h1>
 
-This repository contains the Kubernetes deployment manifests for a [charon](https://github.com/ObolNetwork/charon) distributed validator cluster. It deploys the Kubernetes manifests to Google Kubernetes Engine [GKE](https://cloud.google.com/kubernetes-engine)
+This repository contains Kubernetes manifests to deploy a [charon](https://github.com/ObolNetwork/charon) cluster.
 
-# Charon Cluster Deployments on Kubernetes
-You can deploy the charon cluster using the following alternatives:
-- [Deployment using Mocked Beacon Node (simnet)](#deployment-using-mocked-beacon-node-simnet)
-- [Deployment using Real Beacon Node](#real-beacon-node-deployment)
-
-### Project Status
+# Project Status
 It is still early days for the Obol Network and everything is under active development. It is NOT ready for mainnet. 
 Keep checking in for updates, [here](https://github.com/ObolNetwork/charon/#supported-consensus-layer-clients) is the latest on charon's supported clients and duties.
 
-### Note about GKE
-The manifests in this repo target deployments to GKE. To deploy to another Kubernetes platform, you should modify the following manifests:
-- Charon PV - charon-k8s/charon-beacon/bootnode/charon-pv.yaml You need to change the storage class to the proper type that works with your Kubernetes.
-- Kiln (optional) - in case you deploy Kiln testnet using the manifests in this repo, you should modify the service manifest kiln-testnet/local-charts/teku-api-service/templates/service.yaml.
-## Deployment using Mocked Beacon Node (simnet)
-This deployment uses a mocked beacon node to avoid the complexities of depositing stake and waiting for validator activation. It uses custom configuration for slots and epoch timing (1s per slot, 16 slots per epoch). It assigns attestation duties to the simnet 
-distributed validator on the first slot of every epoch.
-
-The default cluster consists of 4 charon nodes using a mixture of validator clients:
+# Charon Cluster Deployment
+The cluster consists of 4 charon nodes, 1 mock validator, 3 Teku validators, and 1 beacon node:
 - node0: [mock validator client](https://github.com/ObolNetwork/charon/tree/main/testutil/validatormock)
 - node1: [Teku](https://github.com/ConsenSys/teku)
-- node2: [mock validator client](https://github.com/ObolNetwork/charon/tree/main/testutil/validatormock)
-- node3: [mock validator client](https://github.com/ObolNetwork/charon/tree/main/testutil/validatormock)
+- node2: [Teku](https://github.com/ConsenSys/teku)
+- node3: [Teku](https://github.com/ConsenSys/teku)
 
-### Prerequisites
-Ensure you have the following tools installed before proceeding:
-- [`gcloud`](https://cloud.google.com/sdk/docs/install)
-- [`kubectl`](https://kubernetes.io/docs/tasks/tools/#kubectl)
+Please follow the following instructions to deploy a charon devnet to Kubernetes.
 
-### Deploy the cluster
-Creates a **simnet** cluster with 4 nodes (n=4) and threshold of 3 (t=3) for signature reconstruction.
-```sh
-export NAMESPACE=<namespace>
+## Prerequisites
+- Ensure having a functional k8s cluster: You can deploy a local k8s cluster using [Minikube](https://minikube.sigs.k8s.io/docs/start, or using a public cloud provider such as (GKE, EKS, AKS, or DOKS).
+- Ensure that you have [`kubectl`](https://kubernetes.io/docs/tasks/tools/#kubectl)
+- Kubernetes 1.20+ - This is the earliest version of Kubernetes tested. Charts may work with earlier versions but it is untested.
+- Kubernetes Persistent Volume provisioner support in the underlying infrastructure.
+
+## Copy Validator Keys
+This step assumes that you have an active validator client keys. 
+
+Checkout charon-k8s repository:
+```
 git clone git@github.com:ObolNetwork/charon-k8s.git
-cd charon-k8s/charon-simnet
-./deploy.sh $NAMESPACE
 ```
 
-### View deployments logs
-View charon nodes logs, and validate the deployment:
-```sh
-kubectl config set-context --current --namespace=$NAMESPACE
-kubectl logs -f deploy/node0
-kubectl logs -f deploy/node1
-kubectl logs -f deploy/node2
-kubectl logs -f deploy/node3
-kubectl logs -f deploy/prometheus
-kubectl logs -f deploy/grafana
+Copy the keystore and password files as the following:
 ```
-
-### Monitoring
-The deployment includes monitoring stack (Prometheus and Grafana), both can be accessed as the following:
-
-#### Access Prometheus
-```sh
-kubectl -n <namespace> port-forward deployment/prometheus 9091:9090
-```
-Access local [prometheus](http://localhost:9091)
-
-#### Access Grafana
-```sh
-kubectl -n <namespace> port-forward deployment/grafana 3001:3000
-```
-Access local [grafana](http://localhost:3001)
-
-### Cleanup
-Delete the deployed cluster resouces:
-```sh
-cd charon-k8s/charon-cluster
-./cleanup.sh $NAMESPACE
-```
-
-## Real Beacon Node Deployment
-This deployment enables you to use a real beancon node endpoint with the charon cluster.
-
-The default cluster consists of 4 charon nodes using a mixture of validator clients:
-- node0: [mock validator client](https://github.com/ObolNetwork/charon/tree/main/testutil/validatormock)
-- node1: [Teku](https://github.com/ConsenSys/teku) - This node uses a real Teku beacon node end point.
-- node2: [mock validator client](https://github.com/ObolNetwork/charon/tree/main/testutil/validatormock)
-- node3: [mock validator client](https://github.com/ObolNetwork/charon/tree/main/testutil/validatormock)
-
-### Prerequisites
-Ensure you have the following tools installed before proceeding:
-- [`gcloud`](https://cloud.google.com/sdk/docs/install)
-- [`kubectl`](https://kubernetes.io/docs/tasks/tools/#kubectl)
-- [`helm`](https://helm.sh/)
-- [`helmsman`](https://github.com/Praqma/helmsman)
-- [`helm-diff`](https://github.com/databus23/helm-diff)
-
-### Copy Validator Keys
-This step assumes that you have a running validator client node. You will need to copy the keystore and password files for this VC, then charon will be able to split and use them to start the charon cluster nodes.
-```
-mkdir split_keys
-cp path/to/existing/keys/keystore-*.json split_keys/keystore.json
-cp path/to/passwords/keystore-*.txt split_keys/keystore.txt
 # Each keystore-*.json requires a keystore-*.txt file containing the password.
+
+cd charon-k8s
+mkdir split_keys
+
+cp path/to/existing/keys/keystore-*.json split_keys/keystore.json
+
+cp path/to/passwords/keystore-*.txt split_keys/keystore.txt
 ```
 > Remember: Do not connect to main net! 
 
 > Remember: Please make sure any existing validator has been shut down for at least 2 finalised epochs before starting the charon cluster, otherwise slashing could occur.
 
-### Deploy the cluster
-Creates a cluster with 4 nodes (n=4) and threshold of 3 (t=3) for signature reconstruction.
-
-```
-# Optioanl: update charon config map with your beacon node endpoint:
-open charon-k8s/charon-beacon/bootnode/charon-config.yaml
-```
+## Deploy the cluster
+Creates a default cluster with 4 nodes (n=4) and threshold of 3 (t=3) for signature reconstruction.
 
 ```
 # Deploy the cluster
-export NAMESPACE=<namespace>
-git clone git@github.com:ObolNetwork/charon-k8s.git
-cd charon-k8s/charon-beacon
-./deploy.sh $NAMESPACE
+cd charon-k8s
+export NS=<namespace>
+export BN=<beacon-node-endpoint>
+
+# For example:
+# export NS="charon3"
+# export BN="https://sdfsdfdsfwper8923423:sfskldfjkds8924723@eth2-beacon-prater.infura.io/"
+
+./deploy $NS $BN
 ```
 
-### View deployments logs
+## View deployments logs
 View charon nodes logs and validate the deployment:
 ```sh
 kubectl config set-context --current --namespace=$NAMESPACE
-kubectl logs -f deploy/node0
-kubectl logs -f deploy/node1
-kubectl logs -f deploy/node2
-kubectl logs -f deploy/node3
-kubectl logs -f deploy/prometheus
-kubectl logs -f deploy/grafana
+
+kubectl logs -f deploy/nodeN (node0, node1, ..., nodeN)
+
+kubectl logs -f deploy/vcN-teku (vc1-teku, vc2-teku, ..., vcN-teku)
 ```
 
-### Monitoring
-The deployment includes monitoring stack (Prometheus and Grafana), both can be accessed as the following:
+## Monitoring
+The deployment includes monitoring stack (Prometheus and Grafana), and they can be accessed as the following:
 
-#### Access Prometheus
+### Prometheus
 ```sh
 kubectl -n <namespace> port-forward deployment/prometheus 9091:9090
 ```
-Access local [prometheus](http://localhost:9091)
+[Local prometheus URL](http://localhost:9091)
 
-#### Access Grafana
+### Grafana
 ```sh
 kubectl -n <namespace> port-forward deployment/grafana 3001:3000
 ```
-Access local [grafana](http://localhost:3001)
+[Local grafana URL](http://localhost:3001)
 
-### Cleanup
+# Delete Cluster Resources
 Delete the deployed cluster resouces:
 ```sh
-cd charon-k8s/charon-beacon
-./cleanup.sh $NAMESPACE
+export NS=<namespace>
+./cleanup.sh $NS
 ```
-
