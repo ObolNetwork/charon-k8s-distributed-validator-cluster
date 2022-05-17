@@ -23,27 +23,61 @@ kubectl config set-context --current --namespace=$CLUSTER_NAME
 # create vc keystore secrets
 kubectl create secret generic keystore --from-file=keystore=./split_keys/keystore.json --from-file=password=./split_keys/keystore.txt
 
-# deploy charon pvc, configmap, and bootnode
-echo ">>> deploying charon pvc, configmap, and bootnode."
+# cluster deployments
 export CLUSTER_NAME=$1
 export CHARON_BEACON_NODE_ENDPOINT=$2
 
+# charon pv and pvc
+echo "deploying charon pv and pvc."
 eval "cat <<EOF
-$(<./manifests/bootnode/charon-pvc.yaml)
+$(<./manifests/shared-pv/shared-pv.yaml)
 EOF
 " | kubectl apply -f -
 
+# charon bootnode
+echo "deploying charon bootnode."
 eval "cat <<EOF
-$(<./manifests/bootnode/charon-config.yaml)
+$(<./manifests/charon-bootnode/bootnode.yaml)
 EOF
 " | kubectl apply -f -
 
-kubectl apply -f manifests/bootnode/bootnode.yaml
+# charon nodes
+echo "deploying charon nodes."
+eval "cat <<EOF
+$(<./manifests/charon-nodes/node0.yaml)
+EOF
+" | kubectl apply -f -
+eval "cat <<EOF
+$(<./manifests/charon-nodes/node1.yaml)
+EOF
+" | kubectl apply -f -
+eval "cat <<EOF
+$(<./manifests/charon-nodes/node2.yaml)
+EOF
+" | kubectl apply -f -
 
-# deploy charon nodes
-echo ">>> deploying charon charon nodes."
-kubectl apply -f manifests/nodes
+# validator clients
+echo "deploying validator clients."
+eval "cat <<EOF
+$(<./manifests/validators/vc0-teku.yaml)
+EOF
+" | kubectl apply -f -
+eval "cat <<EOF
+$(<./manifests/validators/vc1-teku.yaml)
+EOF
+" | kubectl apply -f -
+eval "cat <<EOF
+$(<./manifests/validators/vc2-teku.yaml)
+EOF
+" | kubectl apply -f -
 
-# deploy monitoring stack
-echo ">>> deploying monitoring stack."
-kubectl apply -f manifests/monitoring
+# monitoring tools
+echo "deploying monitoring tools."
+eval "cat <<EOF
+$(<./manifests/monitoring/prometheus.yaml)
+EOF
+" | kubectl apply -f -
+eval "cat <<EOF
+$(<./manifests/monitoring/grafana.yaml)
+EOF
+" | kubectl apply -f -

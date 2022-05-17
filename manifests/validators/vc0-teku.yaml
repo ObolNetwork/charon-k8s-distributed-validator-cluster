@@ -2,24 +2,24 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: vc3-teku
-  name: vc3-teku
+    app: vc0-teku
+  name: vc0-teku
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: vc3-teku
+      app: vc0-teku
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: vc3-teku
+        app: vc0-teku
     spec:
       securityContext:
         runAsUser: 0
       containers:
-        - name: vc3-teku
+        - name: vc0-teku
           image: consensys/teku:latest
           command:
             - sh
@@ -27,11 +27,9 @@ spec:
             - |
               /opt/teku/bin/teku vc \
               --network=auto \
-              --beacon-node-api-endpoint="http://node3:16002" \
-              --validator-keys="/charon/node3:/charon/node3" \
+              --beacon-node-api-endpoint="http://node0:16002" \
+              --validator-keys="/charon/node0:/charon/node0" \
               --validators-proposer-default-fee-recipient="0x0000000000000000000000000000000000000000";
-          ports:
-            - containerPort: 16000
           volumeMounts:
             - name: charon
               mountPath: /charon
@@ -40,35 +38,18 @@ spec:
       volumes:
         - name: charon
           persistentVolumeClaim:
-            claimName: charon-pvc
-      restartPolicy: Always
+            claimName: ${CLUSTER_NAME}-pvc
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: vc3-teku
+  name: vc0-teku
 spec:
   selector:
-    app: vc3-teku
+    app: vc0-teku
   ports:
   ports:
     - name: http
       protocol: TCP
       port: 16000
       targetPort: 16000
-    - name: monitoring
-      protocol: TCP
-      port: 16001
-      targetPort: 16001
-    - name: validator-api
-      protocol: TCP
-      port: 16002
-      targetPort: 16002
-    - name: p2p-tcp
-      protocol: TCP
-      port: 16003
-      targetPort: 16003
-    - name: p2p-udp
-      protocol: UDP
-      port: 16004
-      targetPort: 16004
