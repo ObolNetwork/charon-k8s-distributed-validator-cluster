@@ -1,3 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bootnode-config
+data:
+  CHARON_JAEGER_ADDRESS: "jaeger:6831"
+  CHARON_MANIFEST_FILE: "/charon/manifest.json"
+  CHARON_P2P_TCP_ADDRESS: "0.0.0.0:16003"
+  CHARON_P2P_UDP_ADDRESS: "0.0.0.0:16004"
+  CHARON_P2P_BOOTNODES: "http://bootnode:16000/enr"
+  CHARON_SIMNET_BEACON_MOCK: "false"
+  CHARON_SIMNET_VALIDATOR_MOCK: "false"
+  CHARON_LOG_LEVEL: "debug"
+  CHARON_BEACON_NODE_ENDPOINT: "${CHARON_BEACON_NODE_ENDPOINT}"
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -45,12 +60,12 @@ spec:
             - name: CHARON_P2P_EXTERNAL_HOSTNAME
               value: "bootnode"
             - name: NODES_COUNT
-              value: "4"
+              value: "3"
             - name: THRESHOLD
               value: "3"
           envFrom:
             - configMapRef:
-                name: charon-config
+                name: bootnode-config
           volumeMounts:
             - name: charon
               mountPath: /charon
@@ -62,32 +77,34 @@ spec:
           - sh
           - -ace
           - |
-            echo "Cleaning cluster manifest, node config and node keys";
             rm -rf /charon/* 2>/dev/null || true;
-            echo "Creating cluster manifests, node config and node keys";
             mkdir /charon/split_keys;
-            echo ${KEYSTORE} > /charon/split_keys/keystore-vc.json;
-            echo ${KEYSTORE_PASSWORD} > /charon/split_keys/keystore-vc.txt;
+            cp /tmp/keystore-vc.json /charon/split_keys/;
+            cp /tmp/keystore-vc.txt /charon/split_keys/;
             charon create-cluster --split-existing-keys --split-keys-dir=/charon/split_keys --cluster-dir=/charon;
-          env:
-            - name: KEYSTORE
-              valueFrom:
-                secretKeyRef:
-                  name: keystore
-                  key: keystore
-            - name: KEYSTORE_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: keystore
-                  key: password
           volumeMounts:
             - name: charon
               mountPath: /charon
+            - name: keystore
+              mountPath: /tmp/keystore-vc.json
+              subPath: keystore-vc.json
+              readOnly: true
+            - name: keystore
+              mountPath: /tmp/keystore-vc.txt
+              subPath: keystore-vc.txt
+              readOnly: true
       volumes:
         - name: charon
           persistentVolumeClaim:
-            claimName: charon-pvc
-      restartPolicy: Always
+            claimName: ${CLUSTER_NAME}-pvc
+        - name: keystore
+          secret:
+            secretName: keystore
+            items:
+              - key: keystore
+                path: ./keystore-vc.json
+              - key: password
+                path: ./keystore-vc.txt
 ---
 apiVersion: v1
 kind: Service
@@ -101,14 +118,6 @@ spec:
       protocol: TCP
       port: 16000
       targetPort: 16000
-    - name: monitoring
-      protocol: TCP
-      port: 16001
-      targetPort: 16001
-    - name: validator-api
-      protocol: TCP
-      port: 16002
-      targetPort: 16002
     - name: p2p-tcp
       protocol: TCP
       port: 16003

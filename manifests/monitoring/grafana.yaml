@@ -49,18 +49,17 @@ spec:
           configMap:
             name: grafana-config
             defaultMode: 420
-      restartPolicy: Always
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: grafana
+  namespace: ${CLUSTER_NAME}
 spec:
   selector:
     app: grafana
   ports:
-    - protocol: TCP
-      port: 3000
+    - port: 3000
       targetPort: 3000
 ---
 apiVersion: v1

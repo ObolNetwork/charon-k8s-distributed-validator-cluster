@@ -9,35 +9,61 @@ fi
 
 CLUSTER_NAME=$1
 
-# check if the namespace exists
+# check if the cluster namespace exists
 nsStatus=`kubectl get namespace ${CLUSTER_NAME} --no-headers --output=go-template={{.metadata.name}} 2>/dev/null`
 if [ -z "${nsStatus}" ]; then
-    echo "Namespace (${CLUSTER_NAME}) not found, please choose an existing namespace"
+    echo "Cluster (${CLUSTER_NAME}) is not found, please specify an existing cluster"
     exit 1;
 fi
 
 # set current namespace
-echo ">>> set the current namespace:"
+echo "set the current namespace:"
 kubectl config set-context --current --namespace=${CLUSTER_NAME}
 
-# delete the monitoring stack
-echo ">>> delete the monitoring stack."
-kubectl delete -f manifests/monitoring
+# delete the validator clients
+echo "deleting validator clients."
+eval "cat <<EOF
+$(<./manifests/validators/vc0-teku.yaml)
+EOF
+" | kubectl delete -f -
+eval "cat <<EOF
+$(<./manifests/validators/vc1-teku.yaml)
+EOF
+" | kubectl delete -f -
+eval "cat <<EOF
+$(<./manifests/validators/vc2-teku.yaml)
+EOF
+" | kubectl delete -f -
 
 # delete charon nodes
-echo ">>> delete charon nodes."
-kubectl delete -f manifests/nodes
+echo "deleting charon nodes."
+eval "cat <<EOF
+$(<./manifests/charon-nodes/node0.yaml)
+EOF
+" | kubectl delete -f -
+eval "cat <<EOF
+$(<./manifests/charon-nodes/node1.yaml)
+EOF
+" | kubectl delete -f -
+eval "cat <<EOF
+$(<./manifests/charon-nodes/node2.yaml)
+EOF
+" | kubectl delete -f -
 
 # delete charon bootnode
-echo ">>> delete charon bootnode."
-kubectl delete -f manifests/bootnode/bootnode.yaml
-kubectl delete -f manifests/bootnode/charon-config.yaml
+echo "deleting charon bootnode."
+eval "cat <<EOF
+$(<./manifests/charon-bootnode/bootnode.yaml)
+EOF
+" | kubectl delete -f -
 
 # delete charon volume
-echo ">>> delete charon volume."
-kubectl delete pvc --all
-kubectl delete pv ${CLUSTER_NAME}-pv
+echo "deleting shared volume."
+eval "cat <<EOF
+$(<./manifests/shared-pv/shared-pv.yaml)
+EOF
+" | kubectl delete -f -
 
 # delete current namespace
-echo ">>> delete namespace."
+echo "deleting namespace."
 kubectl delete ns ${CLUSTER_NAME}

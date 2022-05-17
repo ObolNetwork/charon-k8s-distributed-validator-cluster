@@ -9,19 +9,20 @@ It is still early days for the Obol Network and everything is under active devel
 Keep checking in for updates, [here](https://github.com/ObolNetwork/charon/#supported-consensus-layer-clients) is the latest on charon's supported clients and duties.
 
 # Charon Cluster Deployment
-The cluster consists of 4 charon nodes, 1 mock validator, 3 Teku validators, and 1 beacon node:
-- node0: [mock validator client](https://github.com/ObolNetwork/charon/tree/main/testutil/validatormock)
+The cluster consists of 3 charon nodes, 3 Teku validators:
+- node0: [Teku](https://github.com/ConsenSys/teku)
 - node1: [Teku](https://github.com/ConsenSys/teku)
 - node2: [Teku](https://github.com/ConsenSys/teku)
-- node3: [Teku](https://github.com/ConsenSys/teku)
 
 Please follow the following instructions to deploy a charon devnet to Kubernetes.
 
 ## Prerequisites
-- Ensure having a functional k8s cluster: You can deploy a local k8s cluster using [Minikube](https://minikube.sigs.k8s.io/docs/start, or using a public cloud provider such as (GKE, EKS, AKS, or DOKS).
+- Ensure having a functional k8s cluster:
+    - To run a local cluster, install and start [Minikube](https://minikube.sigs.k8s.io/docs/start).
 - Ensure that you have [`kubectl`](https://kubernetes.io/docs/tasks/tools/#kubectl)
 - Kubernetes 1.20+ - This is the earliest version of Kubernetes tested. Charts may work with earlier versions but it is untested.
 - Kubernetes Persistent Volume provisioner support in the underlying infrastructure.
+- If you want to deploy the public ingresses for grafana and prometheus, your Kubernetes cluster should have [nginx-ingress](https://kubernetes.github.io/ingress-nginx/), [external-dns](https://github.com/kubernetes-sigs/external-dns), and [cert-manager](https://cert-manager.io/docs/) deployed and functional.
 
 ## Copy Validator Keys
 This step assumes that you have an active validator client keys. 
@@ -42,7 +43,7 @@ cp path/to/existing/keys/keystore-*.json split_keys/keystore.json
 
 cp path/to/passwords/keystore-*.txt split_keys/keystore.txt
 ```
-> Remember: Do not connect to main net! 
+> Remember: Do not connect to mainnet! 
 
 > Remember: Please make sure any existing validator has been shut down for at least 2 finalised epochs before starting the charon cluster, otherwise slashing could occur.
 
@@ -50,16 +51,20 @@ cp path/to/passwords/keystore-*.txt split_keys/keystore.txt
 Creates a default cluster with 4 nodes (n=4) and threshold of 3 (t=3) for signature reconstruction.
 
 ```
-# Deploy the cluster
+# Deploy charon cluster
 cd charon-k8s
-export NS=<namespace>
+export CN=<cluster-name>
 export BN=<beacon-node-endpoint>
+./deploy $CN $BN
 
-# For example:
-# export NS="charon3"
-# export BN="https://sdfsdfdsfwper8923423:sfskldfjkds8924723@eth2-beacon-prater.infura.io/"
-
-./deploy $NS $BN
+# Optional: to deploy ingress and public dns for monitoring
+export CN=<cluster-name>
+export DNSNAME=<dns-name>
+./deploy-ingress $CN $DNSNAME
+example:
+export CN="charon"
+export DNSNAME="gcp.obol.tech"
+./deploy-ingress $CN $DNSNAME
 ```
 
 ## View deployments logs
@@ -90,6 +95,6 @@ kubectl -n <namespace> port-forward deployment/grafana 3001:3000
 # Delete Cluster Resources
 Delete the deployed cluster resouces:
 ```sh
-export NS=<namespace>
-./cleanup.sh $NS
+export CN=<cluster-name>
+./cleanup.sh $CN
 ```

@@ -34,7 +34,18 @@ spec:
           configMap:
             name: prometheus-conf
             defaultMode: 420
-      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  namespace: $CLUSTER_NAME
+spec:
+  selector:
+    app: prometheus
+  ports:
+    - port: 9090
+      targetPort: 9090
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -55,18 +66,3 @@ data:
       - job_name: 'node2'
         static_configs:
           - targets: ['node2:16001']
-      - job_name: 'node3'
-        static_configs:
-          - targets: ['node3:16001']
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: prometheus
-spec:
-  selector:
-    app: prometheus
-  ports:
-    - protocol: TCP
-      port: 9090
-      targetPort: 9090

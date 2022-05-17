@@ -1,3 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: node0-config
+data:
+  CHARON_JAEGER_ADDRESS: "jaeger:6831"
+  CHARON_MANIFEST_FILE: "/charon/manifest.json"
+  CHARON_MONITORING_ADDRESS: "0.0.0.0:16001"
+  CHARON_VALIDATOR_API_ADDRESS: "0.0.0.0:16002"
+  CHARON_P2P_TCP_ADDRESS: "0.0.0.0:16003"
+  CHARON_P2P_UDP_ADDRESS: "0.0.0.0:16004"
+  CHARON_P2P_BOOTNODES: "http://bootnode:16000/enr"
+  CHARON_SIMNET_BEACON_MOCK: "false"
+  CHARON_SIMNET_VALIDATOR_MOCK: "false"
+  CHARON_LOG_LEVEL: "debug"
+  CHARON_BEACON_NODE_ENDPOINT: "${CHARON_BEACON_NODE_ENDPOINT}"
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -42,9 +59,11 @@ spec:
               value: node0
             - name: CHARON_P2P_EXTERNAL_HOSTNAME
               value: node0
+            - name: CHARON_SIMNET_VALIDATOR_MOCK
+              value: "false" # Uses Teku VC0
           envFrom:
             - configMapRef:
-                name: charon-config
+                name: node0-config
           volumeMounts:
             - name: charon
               mountPath: /charon
@@ -53,8 +72,7 @@ spec:
       volumes:
         - name: charon
           persistentVolumeClaim:
-            claimName: charon-pvc
-      restartPolicy: Always
+            claimName: ${CLUSTER_NAME}-pvc
 ---
 apiVersion: v1
 kind: Service
