@@ -1,8 +1,11 @@
 #!/bin/bash
 
-usage() { echo "Usage: $0 <cluster-name> <beacon-node-endpoint>" 1>&2; exit 1; }
+usage() { 
+  echo "Usage: $0 <cluster-name> <beacon-node-endpoint>" 1>&2; 
+  exit 1; 
+}
 
-if [[ -z $1 ]]; then
+if [[ -z $1 || -z $2 ]]; then
   usage
   exit 1;
 fi
@@ -12,7 +15,7 @@ CLUSTER_NAME=$1
 # create the namespace if it does not exist
 nsStatus=`kubectl get namespace $CLUSTER_NAME --no-headers --output=go-template={{.metadata.name}} 2>/dev/null`
 if [ -z "$nsStatus" ]; then
-    echo "Namespace ($CLUSTER_NAME) not found, creating new namespace ($CLUSTER_NAME)"
+    echo "Cluster ($CLUSTER_NAME) not found, creating a new one."
     kubectl create namespace $CLUSTER_NAME --dry-run=client -o yaml | kubectl apply -f -
 fi
 
@@ -77,6 +80,7 @@ eval "cat <<EOF
 $(<./manifests/monitoring/prometheus.yaml)
 EOF
 " | kubectl apply -f -
+
 eval "cat <<EOF
 $(<./manifests/monitoring/grafana.yaml)
 EOF

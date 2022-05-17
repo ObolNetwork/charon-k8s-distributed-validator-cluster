@@ -9,27 +9,16 @@ fi
 
 CLUSTER_NAME=$1
 
-# check if the namespace exists
+# check if the cluster namespace exists
 nsStatus=`kubectl get namespace ${CLUSTER_NAME} --no-headers --output=go-template={{.metadata.name}} 2>/dev/null`
 if [ -z "${nsStatus}" ]; then
-    echo "Namespace (${CLUSTER_NAME}) not found, please choose an existing namespace"
+    echo "Cluster (${CLUSTER_NAME}) is not found, please specify an existing cluster"
     exit 1;
 fi
 
 # set current namespace
 echo "set the current namespace:"
 kubectl config set-context --current --namespace=${CLUSTER_NAME}
-
-# delete the monitoring tools
-echo "deleting the monitoring stack."
-eval "cat <<EOF
-$(<./manifests/monitoring/prometheus.yaml)
-EOF
-" | kubectl delete -f -
-eval "cat <<EOF
-$(<./manifests/monitoring/grafana.yaml)
-EOF
-" | kubectl delete -f -
 
 # delete the validator clients
 echo "deleting validator clients."

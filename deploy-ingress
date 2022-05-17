@@ -1,0 +1,37 @@
+#!/bin/bash
+
+usage() { 
+  echo "Usage: $0 <cluster-name> <dns-name>" 1>&2; 
+  exit 1; 
+}
+
+if [[ -z $1 || -z $2 ]]; then
+  usage
+  exit 1;
+fi
+
+CLUSTER_NAME=$1
+nsStatus=`kubectl get namespace $CLUSTER_NAME --no-headers --output=go-template={{.metadata.name}} 2>/dev/null`
+if [ -z "$nsStatus" ]; then
+  echo "Cluster ($CLUSTER_NAME) not found, please specify an existing one"
+  exit 1;
+fi
+
+# set current namespace
+echo "set namespace to $CLUSTER_NAME"
+kubectl config set-context --current --namespace=$CLUSTER_NAME
+
+export CLUSTER_NAME=$1
+export DNS_NAME=$2
+# ingresses deployment
+echo "deploying prometheus ingress."
+eval "cat <<EOF
+$(<./manifests/monitoring/ingresses/prometheus-ingress.yaml)
+EOF
+" | kubectl apply -f -
+
+echo "deploying grafana ingress."
+eval "cat <<EOF
+$(<./manifests/monitoring/ingresses/grafana-ingress.yaml)
+EOF
+" | kubectl apply -f -
