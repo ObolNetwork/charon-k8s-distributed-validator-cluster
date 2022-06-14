@@ -4,6 +4,7 @@ metadata:
   labels:
     app: vc2-teku
   name: vc2-teku
+  namespace: $CLUSTER_NAME
 spec:
   replicas: 1
   selector:
@@ -20,16 +21,21 @@ spec:
         runAsUser: 0
       containers:
         - name: vc2-teku
-          image: consensys/teku:latest
+          image: consensys/teku:$TEKU_VERSION
           command:
             - sh
             - -ace
             - |
               /opt/teku/bin/teku vc \
               --network=auto \
-              --beacon-node-api-endpoint="http://node2:16002" \
+              --log-destination=console \
+              --metrics-enabled=true \
+              --metrics-host-allowlist="*" \
+              --metrics-interface="0.0.0.0" \
+              --metrics-port="8008" \
               --validator-keys="/charon/node2:/charon/node2" \
-              --validators-proposer-default-fee-recipient="0x0000000000000000000000000000000000000000";
+              --validators-graffiti="Obol Distributed Validator" \
+              --beacon-node-api-endpoint="http://node2:16002";
           volumeMounts:
             - name: charon
               mountPath: /charon
@@ -44,6 +50,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: vc2-teku
+  namespace: $CLUSTER_NAME
 spec:
   selector:
     app: vc2-teku
@@ -53,3 +60,7 @@ spec:
       protocol: TCP
       port: 16000
       targetPort: 16000
+    - name: metrics
+      protocol: TCP
+      port: 8008
+      targetPort: 8008
