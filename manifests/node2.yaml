@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: node1-config
+  name: node2-config
+  namespace: $CLUSTER_NAME
 data:
   CHARON_JAEGER_ADDRESS: "jaeger:6831"
-  CHARON_MANIFEST_FILE: "/charon/manifest.json"
   CHARON_MONITORING_ADDRESS: "0.0.0.0:16001"
   CHARON_VALIDATOR_API_ADDRESS: "0.0.0.0:16002"
   CHARON_P2P_TCP_ADDRESS: "0.0.0.0:16003"
@@ -13,31 +13,36 @@ data:
   CHARON_SIMNET_BEACON_MOCK: "false"
   CHARON_SIMNET_VALIDATOR_MOCK: "false"
   CHARON_LOG_LEVEL: "debug"
-  CHARON_BEACON_NODE_ENDPOINT: "${CHARON_BEACON_NODE_ENDPOINT}"
+  CHARON_BEACON_NODE_ENDPOINT: "$CHARON_BEACON_NODE_ENDPOINT"
+  CHARON_DATA_DIR: "/charon/node2"
+  CHARON_LOCK_FILE: "/charon/cluster-lock.json"
+  CHARON_JAEGER_SERVICE: node2
+  CHARON_P2P_EXTERNAL_HOSTNAME: node2
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: node1
-  name: node1
+    app: node2
+  name: node2
+  namespace: $CLUSTER_NAME
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: node1
+      app: node2
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: node1
+        app: node2
     spec:
       securityContext:
         runAsUser: 0
       containers:
-        - name: node1
-          image: ghcr.io/obolnetwork/charon:v0.3.0
+        - name: node2
+          image: ghcr.io/obolnetwork/charon:$CHARON_VERSION
           command: ["/usr/local/bin/charon"]
           args: ["run"]
           readinessProbe:
@@ -52,18 +57,9 @@ spec:
               port: 16001
             initialDelaySeconds: 20
             periodSeconds: 5
-          env:
-            - name: CHARON_DATA_DIR
-              value: "/charon/node1"
-            - name: CHARON_JAEGER_SERVICE
-              value: "node1"
-            - name: CHARON_P2P_EXTERNAL_HOSTNAME
-              value: "node1"
-            - name: CHARON_SIMNET_VALIDATOR_MOCK
-              value: "false" # Uses Teku VC1
           envFrom:
             - configMapRef:
-                name: node1-config
+                name: node2-config
           volumeMounts:
             - name: charon
               mountPath: /charon
@@ -77,11 +73,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: node1
+  name: node2
+  namespace: $CLUSTER_NAME
 spec:
   selector:
-    app: node1
-  ports:
+    app: node2
   ports:
     - name: http
       protocol: TCP

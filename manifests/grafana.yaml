@@ -6,6 +6,7 @@ metadata:
   labels:
     app: grafana
   name: grafana
+  namespace: $CLUSTER_NAME
 spec:
   replicas: 1
   selector:
@@ -54,7 +55,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: grafana
-  namespace: ${CLUSTER_NAME}
+  namespace: $CLUSTER_NAME
 spec:
   selector:
     app: grafana
@@ -66,6 +67,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: grafana-config
+  namespace: $CLUSTER_NAME
 data:
   dashboards.yaml: |
     apiVersion: 1
@@ -124,7 +126,6 @@ data:
         version: 1
         # <bool> allow users to edit datasources from the UI.
         editable: true
-
   simnet_dash.json: |
     {
       "annotations": {

@@ -18,14 +18,14 @@ spec:
       apiVersion: v1
       kind: PersistentVolumeClaim
       name: ${CLUSTER_NAME}-pvc
-      namespace: ${CLUSTER_NAME}
+      namespace: $CLUSTER_NAME
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   labels:
   name: ${CLUSTER_NAME}-pvc
-  namespace: ${CLUSTER_NAME}
+  namespace: $CLUSTER_NAME
 spec:
   storageClassName: local
   accessModes:

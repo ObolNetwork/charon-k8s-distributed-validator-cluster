@@ -4,11 +4,11 @@
 
 This repository contains Kubernetes manifests to deploy a [charon](https://github.com/ObolNetwork/charon) cluster.
 
-# Project Status
+# Project status
 It is still early days for the Obol Network and everything is under active development. It is NOT ready for mainnet. 
 Keep checking in for updates, [here](https://github.com/ObolNetwork/charon/#supported-consensus-layer-clients) is the latest on charon's supported clients and duties.
 
-# Charon Cluster Deployment
+# Charon cluster deployment
 The cluster consists of 3 charon nodes, 3 Teku validators:
 - node0: [Teku](https://github.com/ConsenSys/teku)
 - node1: [Teku](https://github.com/ConsenSys/teku)
@@ -22,9 +22,9 @@ Please follow the following instructions to deploy a charon devnet to Kubernetes
 - Ensure that you have [`kubectl`](https://kubernetes.io/docs/tasks/tools/#kubectl)
 - Kubernetes 1.20+ - This is the earliest version of Kubernetes tested. Charts may work with earlier versions but it is untested.
 - Kubernetes Persistent Volume provisioner support in the underlying infrastructure.
-- If you want to deploy the public ingresses for grafana and prometheus, your Kubernetes cluster should have [nginx-ingress](https://kubernetes.github.io/ingress-nginx/), [external-dns](https://github.com/kubernetes-sigs/external-dns), and [cert-manager](https://cert-manager.io/docs/) deployed and functional.
+- If you want to deploy the public ingresses for grafana and prometheus, your Kubernetes cluster should have [nginx-ingress](https://kubernetes.github.io/ingress-nginx/), [external-dns](https://github.com/kubernetes-sigs/external-dns), and [cert-manager](https://cert-manager.io/docs/) deployed and functioning.
 
-## Copy Validator Keys
+## Copy validator keys
 This step assumes that you have an active validator client keys. 
 
 Checkout charon-k8s repository:
@@ -47,54 +47,21 @@ cp path/to/passwords/keystore-*.txt split_keys/keystore.txt
 
 > Remember: Please make sure any existing validator has been shut down for at least 2 finalised epochs before starting the charon cluster, otherwise slashing could occur.
 
-## Deploy the cluster
-Creates a default cluster with 4 nodes (n=4) and threshold of 3 (t=3) for signature reconstruction.
-
-```
-# Deploy charon cluster
-cd charon-k8s
-export CN=<cluster-name>
-export BN=<beacon-node-endpoint>
-./deploy $CN $BN
-
-# Optional: to deploy ingress and public dns for monitoring
-export CN=<cluster-name>
-export DNSNAME=<dns-name>
-./deploy-ingress $CN $DNSNAME
-example:
-export CN="charon"
-export DNSNAME="gcp.obol.tech"
-./deploy-ingress $CN $DNSNAME
-```
-
-## View deployments logs
-View charon nodes logs and validate the deployment:
+## Configure
+Prepare an environment variable file (requires at minimum an Infura API endpoint for your chosen chain)
 ```sh
-kubectl config set-context --current --namespace=$NAMESPACE
-
-kubectl logs -f deploy/nodeN (node0, node1, ..., nodeN)
-
-kubectl logs -f deploy/vcN-teku (vc1-teku, vc2-teku, ..., vcN-teku)
+cp .env.sample .env
 ```
 
-## Monitoring
-The deployment includes monitoring stack (Prometheus and Grafana), and they can be accessed as the following:
+## Deploy
+Creates a default cluster with 3 nodes (n=3) and threshold of 2 (t=2) for signature reconstruction.
 
-### Prometheus
 ```sh
-kubectl -n <namespace> port-forward deployment/prometheus 9091:9090
+./deploy.sh
 ```
-[Local prometheus URL](http://localhost:9091)
 
-### Grafana
-```sh
-kubectl -n <namespace> port-forward deployment/grafana 3001:3000
-```
-[Local grafana URL](http://localhost:3001)
-
-# Delete Cluster Resources
+## Cleanup
 Delete the deployed cluster resouces:
 ```sh
-export CN=<cluster-name>
-./cleanup.sh $CN
+./cleanup.sh
 ```

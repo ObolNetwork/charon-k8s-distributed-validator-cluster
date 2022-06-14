@@ -2,16 +2,22 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: bootnode-config
+  namespace: $CLUSTER_NAME
 data:
   CHARON_JAEGER_ADDRESS: "jaeger:6831"
-  CHARON_MANIFEST_FILE: "/charon/manifest.json"
   CHARON_P2P_TCP_ADDRESS: "0.0.0.0:16003"
   CHARON_P2P_UDP_ADDRESS: "0.0.0.0:16004"
-  CHARON_P2P_BOOTNODES: "http://bootnode:16000/enr"
   CHARON_SIMNET_BEACON_MOCK: "false"
   CHARON_SIMNET_VALIDATOR_MOCK: "false"
   CHARON_LOG_LEVEL: "debug"
-  CHARON_BEACON_NODE_ENDPOINT: "${CHARON_BEACON_NODE_ENDPOINT}"
+  CHARON_BEACON_NODE_ENDPOINT: "$CHARON_BEACON_NODE_ENDPOINT"
+  CHARON_BOOTNODE_HTTP_ADDRESS: "0.0.0.0:16000"
+  CHARON_MANIFEST_FILE: "/charon/cluster-lock.json"
+  CHARON_DATA_DIR: /charon/bootnode
+  CHARON_P2P_BOOTNODES: ""
+  CHARON_P2P_EXTERNAL_HOSTNAME: bootnode
+  NODES_COUNT: "3"
+  THRESHOLD: "2"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -19,6 +25,7 @@ metadata:
   labels:
     app: bootnode
   name: bootnode
+  namespace: $CLUSTER_NAME
 spec:
   replicas: 1
   selector:
@@ -35,7 +42,7 @@ spec:
         runAsUser: 0
       containers:
         - name: bootnode
-          image: ghcr.io/obolnetwork/charon:v0.3.0
+          image: ghcr.io/obolnetwork/charon:$CHARON_VERSION
           command: ["/usr/local/bin/charon"]
           args: ["bootnode"]
           readinessProbe:
@@ -50,19 +57,6 @@ spec:
               port: 16000
             initialDelaySeconds: 20
             periodSeconds: 5
-          env:
-            - name: CHARON_BOOTNODE_HTTP_ADDRESS
-              value: "0.0.0.0:16000"
-            - name: CHARON_DATA_DIR
-              value: "/charon/bootnode"
-            - name: CHARON_P2P_BOOTNODES 
-              value: ""
-            - name: CHARON_P2P_EXTERNAL_HOSTNAME
-              value: "bootnode"
-            - name: NODES_COUNT
-              value: "3"
-            - name: THRESHOLD
-              value: "3"
           envFrom:
             - configMapRef:
                 name: bootnode-config
@@ -71,17 +65,16 @@ spec:
               mountPath: /charon
           workingDir: /charon
       initContainers:
-        - name: create-config
-          image: ghcr.io/obolnetwork/charon:v0.3.0
+        - name: create-cluster
+          image: ghcr.io/obolnetwork/charon:$CHARON_VERSION
           command:
           - sh
           - -ace
           - |
             rm -rf /charon/* 2>/dev/null || true;
-            mkdir /charon/split_keys;
-            cp /tmp/keystore-vc.json /charon/split_keys/;
-            cp /tmp/keystore-vc.txt /charon/split_keys/;
-            charon create-cluster --split-existing-keys --split-keys-dir=/charon/split_keys --cluster-dir=/charon;
+            mkdir -p /charon/split_keys;
+            cp /tmp/keystore-vc* /charon/split_keys/;
+            charon create cluster --split-existing-keys --split-keys-dir=/charon/split_keys --cluster-dir="/charon";
           volumeMounts:
             - name: charon
               mountPath: /charon
@@ -110,6 +103,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: bootnode
+  namespace: $CLUSTER_NAME
 spec:
   selector:
     app: bootnode

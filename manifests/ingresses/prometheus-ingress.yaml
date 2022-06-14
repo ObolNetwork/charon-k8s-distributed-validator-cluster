@@ -4,7 +4,7 @@ metadata:
   name: prometheus
   namespace: $CLUSTER_NAME
   annotations:
-    external-dns.alpha.kubernetes.io/hostname: prometheus.$CLUSTER_NAME.$DNS_NAME.
+    external-dns.alpha.kubernetes.io/hostname: prometheus.$CLUSTER_NAME.$MONITORING_DOMAIN_NAME.
 spec:
   selector:
     app: prometheus
@@ -23,10 +23,10 @@ spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - prometheus.$CLUSTER_NAME.$DNS_NAME
+        - prometheus.$CLUSTER_NAME.$MONITORING_DOMAIN_NAME
       secretName: prometheus-$CLUSTER_NAME-letsencrypt-crt
   rules:
-  - host: prometheus.$CLUSTER_NAME.$DNS_NAME
+  - host: prometheus.$CLUSTER_NAME.$MONITORING_DOMAIN_NAME
     http:
       paths:
       - path: /
