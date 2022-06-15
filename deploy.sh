@@ -25,7 +25,11 @@ fi
 kubectl config set-context --current --namespace=$CLUSTER_NAME
 
 # create vc keystore secrets
-kubectl create secret generic keystore --from-file=keystore=./split_keys/keystore.json --from-file=password=./split_keys/keystore.txt
+echo $KEY_STORE >> keystore.json
+echo $KEY_STORE_PASSWORD >> keystore.txt
+kubectl delete secret keystore 2>/dev/null
+kubectl create secret generic keystore --from-file=keystore=./keystore.json --from-file=password=./keystore.txt
+rm keystore*
 
 # deploy charon shared pv/pvc
 eval "cat <<EOF
