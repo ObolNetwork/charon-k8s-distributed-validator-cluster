@@ -1,7 +1,9 @@
 name: Deploy charon cluster
 
-on: workflow_dispatch
-
+on: 
+    workflow_dispatch:
+    repository_dispatch:
+      types: [charon_image_published]
 env:
   CHARON_VERSION: v0.6.0
   TEKU_VERSION: 22.5.0
