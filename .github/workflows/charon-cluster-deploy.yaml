@@ -1,0 +1,48 @@
+name: Deploy charon cluster
+
+on: workflow_dispatch
+
+env:
+  CHARON_VERSION: v0.6.0
+  TEKU_VERSION: 22.5.0
+  MONITORING_DOMAIN_NAME: gcp.obol.tech
+  DEPLOY_INGRESS: true
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - id: 'auth'
+      uses: 'google-github-actions/auth@v0'
+      with:
+        credentials_json: '${{ secrets.GKE_CREDS }}'
+
+    # Get the GKE credentials so we can deploy to the cluster
+    - uses: google-github-actions/get-gke-credentials@v0
+      with:
+        cluster_name: ${{ secrets.GKE_CLUSTER }}
+        location: ${{ secrets.GKE_REGION }}
+        credentials: ${{ secrets.GKE_CREDS }}
+        project_id: ${{ secrets.PROJECT_ID }}
+
+    # Deploy the charon cluster 1
+    - name: Deploy charon cluster 1
+      run: |-
+        cat <<EOT >> .env
+        CLUSTER_NAME=charon-cluster-cd-1
+        CHARON_VERSION=${{ env.CHARON_VERSION }}
+        TEKU_VERSION=${{ env.TEKU_VERSION }}
+        DEPLOY_INGRESS=${{ env.DEPLOY_INGRESS }}
+        MONITORING_DOMAIN_NAME=${{ env.MONITORING_DOMAIN_NAME }}
+        CHARON_BEACON_NODE_ENDPOINT=${{ secrets.CHARON_BEACON_NODE_ENDPOINT }}
+        PROM_REMOTE_WRITE_USER=${{ secrets.PROM_REMOTE_WRITE_USER }}
+        PROM_REMOTE_WRITE_PASSWORD=${{ secrets.PROM_REMOTE_WRITE_PASSWORD }}
+        KEY_STORE=${{ secrets.CLUSTER_1_KEY_STORE }}
+        KEY_STORE_PASSWORD=${{ secrets.CLUSTER_1_KEY_STORE_PASSWORD }}
+        EOT
+        ./deploy.sh
