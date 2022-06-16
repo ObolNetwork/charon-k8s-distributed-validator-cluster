@@ -1,9 +1,9 @@
-name: Deploy charon cluster
+name: Deploy charon
 
 on: 
     workflow_dispatch:
     repository_dispatch:
-        types: [registry_package_published]
+        types: [charon-package-published]
     push:
         branches:
             - main
@@ -13,7 +13,7 @@ env:
   TEKU_VERSION: 22.5.0
   MONITORING_DOMAIN_NAME: gcp.obol.tech
   DEPLOY_INGRESS: true
-  CHARON_IMAGE_REGISTRY: ghcr.io/obolnetwork/test
+  CHARON_IMAGE_REGISTRY: ghcr.io/obolnetwork/charon
 
 jobs:
   deploy:
@@ -29,7 +29,7 @@ jobs:
       with:
         credentials_json: '${{ secrets.GKE_CREDS }}'
 
-    # Get the GKE credentials so we can deploy to the cluster
+    # Get the GKE credentials
     - uses: google-github-actions/get-gke-credentials@v0
       with:
         cluster_name: ${{ secrets.GKE_CLUSTER }}
@@ -42,7 +42,6 @@ jobs:
       run: |
          echo ::set-output name=tag::$(git rev-parse --short ${{ github.event.client_payload.sha }})
 
-    # Deploy charon-cluster-cd-1
     - name: Deploy charon-cluster-cd-1
       run: |-
         cat <<EOT >> .env
