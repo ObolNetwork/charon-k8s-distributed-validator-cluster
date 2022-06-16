@@ -29,12 +29,11 @@ jobs:
       with:
         credentials_json: '${{ secrets.GKE_CREDS }}'
 
-    # Get the GKE credentials
-    - uses: google-github-actions/get-gke-credentials@v0
+    - id: 'get-credentials'
+      uses: 'google-github-actions/get-gke-credentials@v0'
       with:
         cluster_name: ${{ secrets.GKE_CLUSTER }}
         location: ${{ secrets.GKE_REGION }}
-        credentials: ${{ secrets.GKE_CREDS }}
         project_id: ${{ secrets.PROJECT_ID }}
     
     - name: Get charon image tag
