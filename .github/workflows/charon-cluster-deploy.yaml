@@ -13,6 +13,7 @@ env:
   TEKU_VERSION: 22.5.0
   MONITORING_DOMAIN_NAME: gcp.obol.tech
   DEPLOY_INGRESS: true
+  CHARON_IMAGE_REGISTRY: ghcr.io/obolnetwork/test
 
 jobs:
   deploy:
@@ -36,17 +37,18 @@ jobs:
         credentials: ${{ secrets.GKE_CREDS }}
         project_id: ${{ secrets.PROJECT_ID }}
     
-    - name: get shortsha
-      id: shortsha
+    - name: get charon_image_tag
+      id: charon_image_tag
       run: |
-         echo ::set-output name=image_tag::$(git rev-parse --short ${{ github.event.client_payload.sha }})
+         echo ::set-output name=tag::$(git rev-parse --short ${{ github.event.client_payload.sha }})
 
     # Deploy charon-cluster-cd-1
     - name: Deploy charon-cluster-cd-1
       run: |-
         cat <<EOT >> .env
         CLUSTER_NAME=charon-cluster-cd-1
-        CHARON_VERSION=${{ steps.shortsha.outputs.image_tag }}
+        CHARON_IMAGE_REGISTRY=${{ env.CHARON_IMAGE_REGISTRY }}
+        CHARON_IMAGE_TAG=${{ steps.charon_image_tag.outputs.tag }}
         TEKU_VERSION=${{ env.TEKU_VERSION }}
         DEPLOY_INGRESS=${{ env.DEPLOY_INGRESS }}
         MONITORING_DOMAIN_NAME=${{ env.MONITORING_DOMAIN_NAME }}
