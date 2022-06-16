@@ -3,9 +3,15 @@ name: Deploy charon cluster
 on: 
     workflow_dispatch:
     repository_dispatch:
-      types: [charon_image_published]
+        types: [registry_package_published]
+    push:
+        branches:
+            - main
+        paths:
+            - manifests/**
+
 env:
-  CHARON_VERSION: v0.6.0
+  CHARON_VERSION: ${{ github.event.client_payload.tag }}
   TEKU_VERSION: 22.5.0
   MONITORING_DOMAIN_NAME: gcp.obol.tech
   DEPLOY_INGRESS: true
