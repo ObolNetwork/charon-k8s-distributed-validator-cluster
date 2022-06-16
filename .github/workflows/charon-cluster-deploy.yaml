@@ -9,9 +9,8 @@ on:
             - main
         paths:
             - manifests/**
-
 env:
-  CHARON_VERSION: ${{ github.event.client_payload.tag }}
+  CHARON_IMAGE_TAG: $(git rev-parse --short ${{ github.event.client_payload.sha }})
   TEKU_VERSION: 22.5.0
   MONITORING_DOMAIN_NAME: gcp.obol.tech
   DEPLOY_INGRESS: true
@@ -39,11 +38,11 @@ jobs:
         project_id: ${{ secrets.PROJECT_ID }}
 
     # Deploy the charon cluster 1
-    - name: Deploy charon cluster 1
+    - name: Deploy charon-cluster-cd-1
       run: |-
         cat <<EOT >> .env
         CLUSTER_NAME=charon-cluster-cd-1
-        CHARON_VERSION=${{ env.CHARON_VERSION }}
+        CHARON_VERSION=${{ env.CHARON_IMAGE_TAG }}
         TEKU_VERSION=${{ env.TEKU_VERSION }}
         DEPLOY_INGRESS=${{ env.DEPLOY_INGRESS }}
         MONITORING_DOMAIN_NAME=${{ env.MONITORING_DOMAIN_NAME }}
