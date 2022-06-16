@@ -37,7 +37,7 @@ jobs:
         credentials: ${{ secrets.GKE_CREDS }}
         project_id: ${{ secrets.PROJECT_ID }}
     
-    - name: get charon_image_tag
+    - name: Get charon image tag
       id: charon_image_tag
       run: |
          echo ::set-output name=tag::$(git rev-parse --short ${{ github.event.client_payload.sha }})

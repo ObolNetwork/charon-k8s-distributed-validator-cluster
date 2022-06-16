@@ -13,7 +13,7 @@ data:
   CHARON_SIMNET_BEACON_MOCK: "false"
   CHARON_SIMNET_VALIDATOR_MOCK: "false"
   CHARON_LOG_LEVEL: "debug"
-  CHARON_BEACON_NODE_ENDPOINT: "$CHARON_BEACON_NODE_ENDPOINT"
+  CHARON_BEACON_NODE_ENDPOINT: $CHARON_BEACON_NODE_ENDPOINT
   CHARON_DATA_DIR: "/charon/node1"
   CHARON_LOCK_FILE: "/charon/cluster-lock.json"
   CHARON_JAEGER_SERVICE: node1
@@ -42,7 +42,7 @@ spec:
         runAsUser: 0
       containers:
         - name: node1
-          image: ghcr.io/obolnetwork/charon:$CHARON_VERSION
+          image: $CHARON_IMAGE_REGISTRY:$CHARON_IMAGE_TAG
           command: ["/usr/local/bin/charon"]
           args: ["run"]
           readinessProbe:
