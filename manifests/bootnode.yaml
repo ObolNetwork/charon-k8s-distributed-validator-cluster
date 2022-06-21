@@ -5,13 +5,13 @@ metadata:
   namespace: $CLUSTER_NAME
 data:
   CHARON_JAEGER_ADDRESS: "jaeger:6831"
-  CHARON_P2P_TCP_ADDRESS: "0.0.0.0:16003"
-  CHARON_P2P_UDP_ADDRESS: "0.0.0.0:16004"
+  CHARON_P2P_TCP_ADDRESS: "0.0.0.0:3600"
+  CHARON_P2P_UDP_ADDRESS: "0.0.0.0:3630"
   CHARON_SIMNET_BEACON_MOCK: "false"
   CHARON_SIMNET_VALIDATOR_MOCK: "false"
   CHARON_LOG_LEVEL: "debug"
   CHARON_BEACON_NODE_ENDPOINT: $CHARON_BEACON_NODE_ENDPOINT
-  CHARON_BOOTNODE_HTTP_ADDRESS: "0.0.0.0:16000"
+  CHARON_BOOTNODE_HTTP_ADDRESS: "0.0.0.0:3640"
   CHARON_MANIFEST_FILE: "/charon/cluster-lock.json"
   CHARON_DATA_DIR: /charon/bootnode
   CHARON_P2P_BOOTNODES: ""
@@ -48,13 +48,13 @@ spec:
           readinessProbe:
             httpGet:
               path: /enr
-              port: 16000
+              port: 3640
             initialDelaySeconds: 10
             periodSeconds: 5
           livenessProbe:
             httpGet:
               path: /enr
-              port: 16000
+              port: 3640
             initialDelaySeconds: 20
             periodSeconds: 5
           envFrom:
@@ -110,13 +110,13 @@ spec:
   ports:
     - name: http
       protocol: TCP
-      port: 16000
-      targetPort: 16000
+      port: 3640
+      targetPort: 3640
     - name: p2p-tcp
       protocol: TCP
-      port: 16003
-      targetPort: 16003
+      port: 3600
+      targetPort: 3600
     - name: p2p-udp
       protocol: UDP
-      port: 16004
-      targetPort: 16004
+      port: 3630
+      targetPort: 3630
