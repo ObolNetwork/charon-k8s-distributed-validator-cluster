@@ -35,7 +35,8 @@ spec:
               --metrics-port="8008" \
               --validator-keys="/charon/node2:/charon/node2" \
               --validators-graffiti="Obol Distributed Validator" \
-              --beacon-node-api-endpoint="http://node2:3610";
+              --beacon-node-api-endpoint="http://node2:3610" \
+              --validators-proposer-default-fee-recipient: "0x0000000000000000000000000000000000000000";
           volumeMounts:
             - name: charon
               mountPath: /charon
