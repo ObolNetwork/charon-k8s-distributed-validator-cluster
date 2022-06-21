@@ -35,7 +35,7 @@ spec:
               --metrics-port="8008" \
               --validator-keys="/charon/node1:/charon/node1" \
               --validators-graffiti="Obol Distributed Validator" \
-              --beacon-node-api-endpoint="http://node1:16002";
+              --beacon-node-api-endpoint="http://node1:3620";
           volumeMounts:
             - name: charon
               mountPath: /charon
@@ -58,8 +58,8 @@ spec:
   ports:
     - name: http
       protocol: TCP
-      port: 16000
-      targetPort: 16000
+      port: 3640
+      targetPort: 3640
     - name: metrics
       protocol: TCP
       port: 8008
