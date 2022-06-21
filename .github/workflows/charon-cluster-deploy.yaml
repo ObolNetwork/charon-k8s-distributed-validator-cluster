@@ -41,19 +41,36 @@ jobs:
       run: |
          echo ::set-output name=tag::$(git rev-parse --short ${{ github.event.client_payload.sha }})
 
-    - name: Deploy charon-cluster-cd-1
+    - name: Deploy cluster-1
       run: |-
         cat <<EOT >> .env
-        CLUSTER_NAME=charon-cluster-cd-1
+        CLUSTER_NAME=charon-cluster-1
         CHARON_IMAGE_REGISTRY=${{ env.CHARON_IMAGE_REGISTRY }}
-        CHARON_IMAGE_TAG=${{ steps.charon_image_tag.outputs.tag }}
+        CHARON_IMAGE_TAG=${{ steps.charon_image_tag.outputs.tag || 'latest' }}
         TEKU_VERSION=${{ env.TEKU_VERSION }}
         DEPLOY_INGRESS=${{ env.DEPLOY_INGRESS }}
         MONITORING_DOMAIN_NAME=${{ env.MONITORING_DOMAIN_NAME }}
-        CHARON_BEACON_NODE_ENDPOINT=${{ secrets.CHARON_BEACON_NODE_ENDPOINT }}
+        CHARON_BEACON_NODE_ENDPOINT=${{ secrets.PRATER_BEACON_NODE_ENDPOINT }}
         PROM_REMOTE_WRITE_USER=${{ secrets.PROM_REMOTE_WRITE_USER }}
         PROM_REMOTE_WRITE_PASSWORD=${{ secrets.PROM_REMOTE_WRITE_PASSWORD }}
         KEY_STORE=${{ secrets.CLUSTER_1_KEY_STORE }}
         KEY_STORE_PASSWORD=${{ secrets.CLUSTER_1_KEY_STORE_PASSWORD }}
+        EOT
+        ./deploy.sh
+    
+    - name: Deploy cluster-2
+      run: |-
+        cat <<EOT >> .env
+        CLUSTER_NAME=charon-cluster-2
+        CHARON_IMAGE_REGISTRY=${{ env.CHARON_IMAGE_REGISTRY }}
+        CHARON_IMAGE_TAG=${{ steps.charon_image_tag.outputs.tag || 'latest' }}
+        TEKU_VERSION=${{ env.TEKU_VERSION }}
+        DEPLOY_INGRESS=${{ env.DEPLOY_INGRESS }}
+        MONITORING_DOMAIN_NAME=${{ env.MONITORING_DOMAIN_NAME }}
+        CHARON_BEACON_NODE_ENDPOINT=${{ secrets.KILN_BEACON_NODE_ENDPOINT }}
+        PROM_REMOTE_WRITE_USER=${{ secrets.PROM_REMOTE_WRITE_USER }}
+        PROM_REMOTE_WRITE_PASSWORD=${{ secrets.PROM_REMOTE_WRITE_PASSWORD }}
+        KEY_STORE=${{ secrets.CLUSTER_2_KEY_STORE }}
+        KEY_STORE_PASSWORD=${{ secrets.CLUSTER_2_KEY_STORE_PASSWORD }}
         EOT
         ./deploy.sh
