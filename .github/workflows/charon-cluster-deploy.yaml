@@ -10,10 +10,10 @@ on:
         paths:
             - manifests/**
 env:
-  TEKU_VERSION: 22.5.0
-  MONITORING_DOMAIN_NAME: gcp.obol.tech
-  DEPLOY_INGRESS: true
-  CHARON_IMAGE_REGISTRY: ghcr.io/obolnetwork/charon
+  CHARON_IMAGE_REGISTRY: ${{ secrets.CHARON_IMAGE_REGISTRY }}
+  TEKU_VERSION: ${{ secrets.TEKU_VERSION }}
+  DEPLOY_INGRESS: ${{ secrets.DEPLOY_INGRESS }}
+  MONITORING_DOMAIN_NAME: ${{ secrets.MONITORING_DOMAIN_NAME }}
 
 jobs:
   deploy:

@@ -16,8 +16,8 @@ data:
   CHARON_DATA_DIR: /charon/bootnode
   CHARON_P2P_BOOTNODES: ""
   CHARON_P2P_EXTERNAL_HOSTNAME: bootnode
-  NODES_COUNT: "3"
-  THRESHOLD: "2"
+  NODES_COUNT: "4"
+  THRESHOLD: "3"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -81,11 +81,11 @@ spec:
             - name: keystore
               mountPath: /tmp/keystore-vc.json
               subPath: keystore-vc.json
-              readOnly: true
+              readOnly: false
             - name: keystore
               mountPath: /tmp/keystore-vc.txt
               subPath: keystore-vc.txt
-              readOnly: true
+              readOnly: false
       volumes:
         - name: charon
           persistentVolumeClaim:
