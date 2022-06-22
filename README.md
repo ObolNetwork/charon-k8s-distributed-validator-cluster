@@ -9,10 +9,11 @@ It is still early days for the Obol Network and everything is under active devel
 Keep checking in for updates, [here](https://github.com/ObolNetwork/charon/#supported-consensus-layer-clients) is the latest on charon's supported clients and duties.
 
 # Charon cluster deployment
-The cluster consists of 3 charon nodes, 3 Teku validators:
-- node0: [Teku](https://github.com/ConsenSys/teku)
-- node1: [Teku](https://github.com/ConsenSys/teku)
-- node2: [Teku](https://github.com/ConsenSys/teku)
+The cluster consists of 4 charon nodes (node0-3) and 4 Teku validators:
+- vc0-teku: [Teku](https://github.com/ConsenSys/teku)
+- vc1-teku: [Teku](https://github.com/ConsenSys/teku)
+- vc2-teku: [Teku](https://github.com/ConsenSys/teku)
+- vc3-teku: [Teku](https://github.com/ConsenSys/teku)
 
 Please follow the following instructions to deploy a charon devnet to Kubernetes.
 
