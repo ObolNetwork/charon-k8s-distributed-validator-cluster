@@ -25,34 +25,12 @@ Please follow the following instructions to deploy a charon devnet to Kubernetes
 - Kubernetes Persistent Volume provisioner support in the underlying infrastructure.
 - If you want to deploy the public ingresses for grafana and prometheus, your Kubernetes cluster should have [nginx-ingress](https://kubernetes.github.io/ingress-nginx/), [external-dns](https://github.com/kubernetes-sigs/external-dns), and [cert-manager](https://cert-manager.io/docs/) deployed and functioning.
 
-## Copy validator keys
-This step assumes that you have an active validator client keys. 
-
-Checkout charon-k8s repository:
-```
-git clone git@github.com:ObolNetwork/charon-k8s.git
-```
-
-Copy the keystore and password files as the following:
-```
-# Each keystore-*.json requires a keystore-*.txt file containing the password.
-
-cd charon-k8s
-mkdir split_keys
-
-cp path/to/existing/keys/keystore-*.json split_keys/keystore.json
-
-cp path/to/passwords/keystore-*.txt split_keys/keystore.txt
-```
-> Remember: Do not connect to mainnet! 
-
-> Remember: Please make sure any existing validator has been shut down for at least 2 finalised epochs before starting the charon cluster, otherwise slashing could occur.
-
 ## Configure
-Prepare an environment variable file (requires at minimum an Infura API endpoint for your chosen chain)
+Prepare an environment variable file:
 ```sh
 cp .env.sample .env
 ```
+Add proper configruation values to the .env file.
 
 ## Deploy
 Creates a default cluster with 3 nodes (n=3) and threshold of 2 (t=2) for signature reconstruction.
