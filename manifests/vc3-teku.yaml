@@ -2,25 +2,25 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: vc2-teku
-  name: vc2-teku
+    app: vc3-teku
+  name: vc3-teku
   namespace: $CLUSTER_NAME
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: vc2-teku
+      app: vc3-teku
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: vc2-teku
+        app: vc3-teku
     spec:
       securityContext:
         runAsUser: 0
       containers:
-        - name: vc2-teku
+        - name: vc3-teku
           image: consensys/teku:$TEKU_VERSION
           command:
             - sh
@@ -33,9 +33,9 @@ spec:
               --metrics-host-allowlist="*" \
               --metrics-interface="0.0.0.0" \
               --metrics-port="8008" \
-              --validator-keys="/charon/node2:/charon/node2" \
+              --validator-keys="/charon/node3:/charon/node3" \
               --validators-graffiti="Obol Distributed Validator" \
-              --beacon-node-api-endpoint="http://node2:3600" \
+              --beacon-node-api-endpoint="http://node3:3600" \
               --validators-proposer-default-fee-recipient="0x0000000000000000000000000000000000000000";
           volumeMounts:
             - name: charon
@@ -50,11 +50,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: vc2-teku
+  name: vc3-teku
   namespace: $CLUSTER_NAME
 spec:
   selector:
-    app: vc2-teku
+    app: vc3-teku
   ports:
   ports:
     - name: http-bootnode
