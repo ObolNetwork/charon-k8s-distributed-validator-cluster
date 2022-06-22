@@ -89,12 +89,12 @@ spec:
       targetPort: 3620
     - name: validator-api
       protocol: TCP
-      port: 3610
-      targetPort: 3610
-    - name: p2p-tcp
-      protocol: TCP
       port: 3600
       targetPort: 3600
+    - name: p2p-tcp
+      protocol: TCP
+      port: 3610
+      targetPort: 3610
     - name: p2p-udp
       protocol: UDP
       port: 3630
