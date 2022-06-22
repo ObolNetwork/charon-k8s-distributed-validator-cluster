@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: node1-config
+  name: node3-config
   namespace: $CLUSTER_NAME
 data:
   CHARON_JAEGER_ADDRESS: "jaeger:6831"
@@ -14,34 +14,34 @@ data:
   CHARON_SIMNET_VALIDATOR_MOCK: "false"
   CHARON_LOG_LEVEL: "debug"
   CHARON_BEACON_NODE_ENDPOINT: $CHARON_BEACON_NODE_ENDPOINT
-  CHARON_DATA_DIR: "/charon/node1"
+  CHARON_DATA_DIR: "/charon/node3"
   CHARON_LOCK_FILE: "/charon/cluster-lock.json"
-  CHARON_JAEGER_SERVICE: node1
-  CHARON_P2P_EXTERNAL_HOSTNAME: node1
+  CHARON_JAEGER_SERVICE: node3
+  CHARON_P2P_EXTERNAL_HOSTNAME: node3
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: node1
-  name: node1
+    app: node3
+  name: node3
   namespace: $CLUSTER_NAME
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: node1
+      app: node3
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: node1
+        app: node3
     spec:
       securityContext:
         runAsUser: 0
       containers:
-        - name: node1
+        - name: node3
           image: $CHARON_IMAGE_REGISTRY:$CHARON_IMAGE_TAG
           command: ["/usr/local/bin/charon"]
           args: ["run"]
@@ -59,7 +59,7 @@ spec:
             periodSeconds: 5
           envFrom:
             - configMapRef:
-                name: node1-config
+                name: node3-config
           volumeMounts:
             - name: charon
               mountPath: /charon
@@ -73,12 +73,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: node1
+  name: node3
   namespace: $CLUSTER_NAME
 spec:
   selector:
-    app: node1
-  ports:
+    app: node3
   ports:
     - name: http-bootnode
       protocol: TCP

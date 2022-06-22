@@ -80,7 +80,7 @@ spec:
     app: node0
   ports:
   ports:
-    - name: http
+    - name: http-bootnode
       protocol: TCP
       port: 3640
       targetPort: 3640

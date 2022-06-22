@@ -35,7 +35,7 @@ spec:
               --metrics-port="8008" \
               --validator-keys="/charon/node0:/charon/node0" \
               --validators-graffiti="Obol Distributed Validator" \
-              --beacon-node-api-endpoint="http://node0:3610" \
+              --beacon-node-api-endpoint="http://node0:3600" \
               --validators-proposer-default-fee-recipient="0x0000000000000000000000000000000000000000";
           volumeMounts:
             - name: charon
@@ -57,7 +57,7 @@ spec:
     app: vc0-teku
   ports:
   ports:
-    - name: http
+    - name: http-bootnode
       protocol: TCP
       port: 3640
       targetPort: 3640

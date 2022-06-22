@@ -79,7 +79,7 @@ spec:
   selector:
     app: node2
   ports:
-    - name: http
+    - name: http-bootnode
       protocol: TCP
       port: 3640
       targetPort: 3640
