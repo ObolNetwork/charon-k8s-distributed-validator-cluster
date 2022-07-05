@@ -1,3 +1,5 @@
 
 .DS_Store
 split_keys*
+.env*
+helm*

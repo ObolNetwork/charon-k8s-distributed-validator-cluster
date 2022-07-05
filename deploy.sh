@@ -27,19 +27,32 @@ kubectl config set-context --current --namespace=$CLUSTER_NAME
 # create vc keystore secrets
 echo $KEY_STORE >> keystore.json
 echo $KEY_STORE_PASSWORD >> keystore.txt
-kubectl delete secret keystore 2>/dev/null
-kubectl create secret generic keystore --from-file=keystore=./keystore.json --from-file=password=./keystore.txt
-rm keystore*
+kubectl create secret generic keystore --from-file=keystore=./keystore.json --from-file=password=./keystore.txt 2>/dev/null && rm keystore*
 
-# deploy charon shared pv/pvc
+# deploy bootnode
 eval "cat <<EOF
-$(<./manifests/shared-pv/shared-pv.yaml)
+$(<./manifests/cluster/bootnode.yaml)
 EOF
 " | kubectl apply -f -
+sleep 15
 
-# deploy charon manifests
-manifests_dir="./manifests"
-for manifest in "$manifests_dir"/*
+# deploy nodes
+node_index=0
+while [[ $node_index -lt "$CLUSTER_SIZE" ]]
+do
+export NODE_NAME="node$node_index"
+export VC_INDEX="vc$node_index"
+eval "cat <<EOF
+$(<./manifests/cluster/node.yaml)
+EOF
+" | kubectl apply -f -
+((node_index=node_index+1))
+sleep 15
+done
+
+# deploy monitoring
+ingresses_dir="./manifests/monitoring"
+for manifest in "$ingresses_dir"/* 
 do
   deploy_manifest "$manifest"
 done
