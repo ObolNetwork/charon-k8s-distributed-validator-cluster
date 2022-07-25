@@ -59,10 +59,10 @@ data:
       scrape_interval: 15s
       evaluation_interval: 15s
     remote_write:
-      - url: https://prometheus-prod-10-prod-us-central-0.grafana.net/api/prom/push
-        basic_auth:
-          username: $PROM_REMOTE_WRITE_USER
-          password: $PROM_REMOTE_WRITE_PASSWORD
+      - url: $PROM_REMOTE_WRITE_END_POINT
+        authorization:
+          credentials: $PROM_METRICS_INSTANCE_ID:$PROM_REMOTE_WRITE_TOKEN
+        name: obol-prom
     scrape_configs:
       - job_name: 'node0'
         static_configs:
