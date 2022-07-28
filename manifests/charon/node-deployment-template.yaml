@@ -9,11 +9,11 @@ data:
   CHARON_VALIDATOR_API_ADDRESS: "0.0.0.0:3600"
   CHARON_P2P_TCP_ADDRESS: "0.0.0.0:3610"
   CHARON_P2P_UDP_ADDRESS: "0.0.0.0:3630"
-  CHARON_P2P_BOOTNODES: "http://bootnode:3640/enr"
+  CHARON_P2P_BOOTNODES: $CHARON_BOOT_NODE_ENDPOINT
   CHARON_SIMNET_BEACON_MOCK: "false"
   CHARON_SIMNET_VALIDATOR_MOCK: "false"
   CHARON_LOG_LEVEL: "debug"
-  CHARON_BEACON_NODE_ENDPOINT: $CHARON_BEACON_NODE_ENDPOINT
+  CHARON_BEACON_NODE_ENDPOINT: $BEACON_NODE_ENDPOINT
   CHARON_DATA_DIR: "/charon/$NODE_NAME"
   CHARON_LOCK_FILE: "/charon/cluster-lock.json"
   CHARON_JAEGER_SERVICE: $NODE_NAME
@@ -43,7 +43,7 @@ spec:
         fsGroup: 1000
       containers:
         - name: $NODE_NAME
-          image: $CHARON_IMAGE_REGISTRY:$CHARON_IMAGE_TAG
+          image: ghcr.io/obolnetwork/charon:$CHARON_VERSION
           command: ["/usr/local/bin/charon"]
           args: ["run"]
           readinessProbe:
@@ -62,23 +62,30 @@ spec:
             - configMapRef:
                 name: $NODE_NAME-config
           volumeMounts:
-            - name: charon
+            - name: keystore
+              mountPath: /charon/$NODE_NAME/validator_keys
+            - name: private-key
+              mountPath: /charon/$NODE_NAME
+            - name: cluster-lock
               mountPath: /charon
       volumes:
-        - name: $VC_INDEX-teku
+        - name: keystore
           projected:
             sources:
             - secret:
-                name: mysecret
-                items:
-                  - key: username
-                    path: my-group/my-username
+                name: $NODE_NAME-keystore
             - secret:
-                name: mysecret2
-                items:
-                  - key: password
-                    path: my-group/my-password
-                    mode: 511
+                name: $NODE_NAME-password
+        - name: private-key
+          projected:
+            sources:
+            - secret:
+                name: $NODE_NAME-charon-enr-private-key
+        - name: cluster-lock
+          projected:
+            sources:
+            - secret:
+                name: cluster-lock
 ---
 apiVersion: v1
 kind: Service
@@ -131,8 +138,26 @@ spec:
         app: $VC_INDEX-teku
     spec:
       securityContext:
-        runAsUser: 1000
         fsGroup: 1000
+        runAsUser: 1000
+      initContainers:
+        - name: init-chown
+          image: busybox
+          securityContext:
+            runAsUser: 0
+          command:
+            - sh
+            - -ac
+            - >
+              rm -rf /data/teku/validator_keys 2>/dev/null || true;
+              mkdir -p /data/teku/validator_keys;
+              cp /validator_keys/* /data/teku/validator_keys;
+              chown -R 1000:1000 /data/teku;
+          volumeMounts:
+            - name: data
+              mountPath: /data/teku
+            - name: keystore
+              mountPath: "/validator_keys"
       containers:
         - name: $VC_INDEX-teku
           image: consensys/teku:$TEKU_VERSION
@@ -143,32 +168,80 @@ spec:
               /opt/teku/bin/teku vc \
               --network=auto \
               --log-destination=console \
+              --data-base-path=/data/teku \
               --metrics-enabled=true \
               --metrics-host-allowlist="*" \
               --metrics-interface="0.0.0.0" \
               --metrics-port="8008" \
-              --validator-keys="/charon/$NODE_NAME/validator_keys:/charon/$NODE_NAME/validator_keys" \
+              --validator-keys="/data/teku/validator_keys:/data/teku/validator_keys" \
               --validators-graffiti="Obol Distributed Validator" \
               --beacon-node-api-endpoint="http://$NODE_NAME:3600" \
               --validators-proposer-default-fee-recipient="0x0000000000000000000000000000000000000000";
           volumeMounts:
-            - name: $NODE_NAME
+            - name: keystore
+              mountPath: /charon/$NODE_NAME/validator_keys
+            - name: private-key
+              mountPath: /charon/$NODE_NAME
+            - name: cluster-lock
               mountPath: /charon
+            - name: data
+              mountPath: /data/teku
       volumes:
-        - name: $VC_INDEX-teku
+        - name: keystore
           projected:
             sources:
             - secret:
-                name: mysecret
-                items:
-                  - key: username
-                    path: my-group/my-username
+                name: $NODE_NAME-keystore
             - secret:
-                name: mysecret2
-                items:
-                  - key: password
-                    path: my-group/my-password
-                    mode: 511
+                name: $NODE_NAME-password
+        - name: private-key
+          projected:
+            sources:
+            - secret:
+                name: $NODE_NAME-charon-enr-private-key
+        - name: cluster-lock
+          projected:
+            sources:
+            - secret:
+                name: cluster-lock
+        - name: data
+          persistentVolumeClaim:
+            claimName: $VC_INDEX-teku-pvc
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: $VC_INDEX-teku-pv
+  labels:
+    type: local
+spec:
+  storageClassName: local
+  capacity:
+    storage: 10Mi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /var/lib/data
+  persistentVolumeReclaimPolicy: Delete
+  claimRef:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      name: $VC_INDEX-teku-pvc
+      namespace: $CLUSTER_NAME
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+  name: $VC_INDEX-teku-pvc
+  namespace: $CLUSTER_NAME
+spec:
+  storageClassName: local
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Mi
 ---
 apiVersion: v1
 kind: Service

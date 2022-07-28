@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# override the env vars with the needed env vars for the *-deployment.yaml files
+# override the env vars with the needed env vars
 OLDIFS=$IFS
 IFS='
 '
@@ -14,5 +14,18 @@ if [ -z "${nsStatus}" ]; then
     exit 1;
 fi
 
-# delete cluster namespace
-kubectl delete ns ${CLUSTER_NAME}
+# set current namespace
+kubectl config set-context --current --namespace=${CLUSTER_NAME}
+
+# delete nodes
+node_index=0
+while [[ $node_index -lt "$CLUSTER_SIZE" ]]
+do
+export NODE_NAME="node$node_index"
+export VC_INDEX="vc$node_index"
+eval "cat <<EOF
+$(<./manifests/charon/node-deployment-template.yaml)
+EOF
+" | kubectl delete -f -
+((node_index=node_index+1))
+done
