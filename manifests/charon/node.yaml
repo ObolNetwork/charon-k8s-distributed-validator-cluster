@@ -63,20 +63,18 @@ spec:
             - configMapRef:
                 name: $NODE_NAME-config
           volumeMounts:
-            - name: keystore
+            - name: validators
               mountPath: /charon/$NODE_NAME/validator_keys
             - name: private-key
               mountPath: /charon/$NODE_NAME
             - name: cluster-lock
               mountPath: /charon
       volumes:
-        - name: keystore
+        - name: validators
           projected:
             sources:
             - secret:
-                name: $NODE_NAME-keystore
-            - secret:
-                name: $NODE_NAME-password
+                name: $NODE_NAME-validators
         - name: private-key
           projected:
             sources:
@@ -157,7 +155,7 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /data/teku
-            - name: keystore
+            - name: validators
               mountPath: "/validator_keys"
       containers:
         - name: $VC_INDEX-teku
@@ -177,9 +175,9 @@ spec:
               --validator-keys="/data/teku/validator_keys:/data/teku/validator_keys" \
               --validators-graffiti="Obol Distributed Validator" \
               --beacon-node-api-endpoint="http://$NODE_NAME:3600" \
-              --validators-proposer-default-fee-recipient="0x0000000000000000000000000000000000000000";
+              --validators-proposer-default-fee-recipient="0x9FD17880D4F5aE131D62CE6b48dF7ba7D426a410";
           volumeMounts:
-            - name: keystore
+            - name: validators
               mountPath: /charon/$NODE_NAME/validator_keys
             - name: private-key
               mountPath: /charon/$NODE_NAME
@@ -188,13 +186,11 @@ spec:
             - name: data
               mountPath: /data/teku
       volumes:
-        - name: keystore
+        - name: validators
           projected:
             sources:
             - secret:
-                name: $NODE_NAME-keystore
-            - secret:
-                name: $NODE_NAME-password
+                name: $NODE_NAME-validators
         - name: private-key
           projected:
             sources:
@@ -207,7 +203,7 @@ spec:
                 name: cluster-lock
         - name: data
           persistentVolumeClaim:
-            claimName: $VC_INDEX-teku-pvc
+            claimName: $CLUSTER_NAME-$VC_INDEX-teku-pvc
 ---
 apiVersion: v1
 kind: Service
@@ -227,7 +223,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: $VC_INDEX-teku-pv
+  name: $CLUSTER_NAME-$VC_INDEX-teku-pv
   labels:
     type: local
 spec:
@@ -242,14 +238,14 @@ spec:
   claimRef:
       apiVersion: v1
       kind: PersistentVolumeClaim
-      name: $VC_INDEX-teku-pvc
+      name: $CLUSTER_NAME-$VC_INDEX-teku-pvc
       namespace: $CLUSTER_NAME
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   labels:
-  name: $VC_INDEX-teku-pvc
+  name: $CLUSTER_NAME-$VC_INDEX-teku-pvc
   namespace: $CLUSTER_NAME
 spec:
   storageClassName: local
