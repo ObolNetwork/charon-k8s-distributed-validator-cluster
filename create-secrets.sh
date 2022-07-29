@@ -8,12 +8,26 @@ export $(< ./.env)
 IFS=$OLDIFS
 
 ns=$CLUSTER_NAME
+
+# create the namespace
+nsStatus=`kubectl get namespace $ns --no-headers --output=go-template={{.metadata.name}} 2>/dev/null`
+if [ -z "$nsStatus" ]; then
+    echo "Cluster ($ns) not found, creating a new one."
+    kubectl create namespace $ns --dry-run=client -o yaml | kubectl apply -f -
+fi
+
+# set current namespace
+kubectl config set-context --current --namespace=$ns
+
 i=0
 kubectl -n $ns create secret generic cluster-lock --from-file=cluster-lock.json=./.charon/cluster/cluster-lock.json
 while [[ $i -lt "$CLUSTER_SIZE" ]]
 do
-    kubectl -n $ns create secret generic node${i}-keystore --from-file=keystore-0.json=./.charon/cluster/node${i}/validator_keys/keystore-0.json
-    kubectl -n $ns create secret generic node${i}-password --from-file=keystore-0.txt=./.charon/cluster/node${i}/validator_keys/keystore-0.txt
+    files=""
+    for secret in ./.charon/cluster/node${i}/validator_keys/*; do
+        files="$files --from-file=./.charon/cluster/node${i}/validator_keys/$(basename $secret)"
+    done
+    kubectl -n $ns create secret generic node${i}-validators $files
     kubectl -n $ns create secret generic node${i}-charon-enr-private-key --from-file=charon-enr-private-key=./.charon/cluster/node${i}/charon-enr-private-key
     ((i=i+1))
 done
