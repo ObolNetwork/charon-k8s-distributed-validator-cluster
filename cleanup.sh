@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# override the env vars with the needed env vars
+# override the env vars
 OLDIFS=$IFS
 IFS='
 '
@@ -24,8 +24,14 @@ do
 export NODE_NAME="node$node_index"
 export VC_INDEX="vc$node_index"
 eval "cat <<EOF
-$(<./manifests/charon/node-deployment-template.yaml)
+$(<./manifests/charon/node.yaml)
 EOF
 " | kubectl delete -f -
 ((node_index=node_index+1))
 done
+
+# delete bootnode
+eval "cat <<EOF
+$(<./manifests/charon/bootnode.yaml)
+EOF
+" | kubectl delete -f -

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# override the env vars with the needed env vars
+# override the env vars
 OLDIFS=$IFS
 IFS='
 '

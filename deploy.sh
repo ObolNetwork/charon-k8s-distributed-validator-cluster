@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# override the env vars with the needed env vars
+# override the env vars
 OLDIFS=$IFS
 IFS='
 '
@@ -24,6 +24,13 @@ fi
 # set current namespace
 kubectl config set-context --current --namespace=$CLUSTER_NAME
 
+# deploy bootnode
+eval "cat <<EOF
+$(<./manifests/charon/bootnode.yaml)
+EOF
+" | kubectl apply -f -
+sleep 20s
+
 # deploy nodes
 node_index=0
 while [[ $node_index -lt "$CLUSTER_SIZE" ]]
@@ -31,7 +38,7 @@ do
 export NODE_NAME="node$node_index"
 export VC_INDEX="vc$node_index"
 eval "cat <<EOF
-$(<./manifests/charon/node-deployment-template.yaml)
+$(<./manifests/charon/node.yaml)
 EOF
 " | kubectl apply -f -
 ((node_index=node_index+1))
