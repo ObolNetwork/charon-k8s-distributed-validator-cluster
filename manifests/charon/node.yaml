@@ -10,6 +10,7 @@ data:
   CHARON_P2P_TCP_ADDRESS: "0.0.0.0:3610"
   CHARON_P2P_UDP_ADDRESS: "0.0.0.0:3630"
   CHARON_P2P_BOOTNODES: $CHARON_BOOT_NODE_ENDPOINT
+  CHARON_P2P_BOOTNODE_RELAY: "true"
   CHARON_SIMNET_BEACON_MOCK: "false"
   CHARON_SIMNET_VALIDATOR_MOCK: "false"
   CHARON_LOG_LEVEL: "debug"
@@ -209,6 +210,21 @@ spec:
             claimName: $VC_INDEX-teku-pvc
 ---
 apiVersion: v1
+kind: Service
+metadata:
+  name: $VC_INDEX-teku
+  namespace: $CLUSTER_NAME
+spec:
+  selector:
+    app: $VC_INDEX-teku
+  ports:
+  ports:
+    - name: metrics
+      protocol: TCP
+      port: 8008
+      targetPort: 8008
+---
+apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: $VC_INDEX-teku-pv
@@ -242,22 +258,4 @@ spec:
   resources:
     requests:
       storage: 10Mi
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: $VC_INDEX-teku
-  namespace: $CLUSTER_NAME
-spec:
-  selector:
-    app: $VC_INDEX-teku
-  ports:
-  ports:
-    - name: http-bootnode
-      protocol: TCP
-      port: 3640
-      targetPort: 3640
-    - name: metrics
-      protocol: TCP
-      port: 8008
-      targetPort: 8008
+
