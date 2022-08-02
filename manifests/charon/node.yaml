@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: node1-config
+  name: $NODE_NAME-config
   namespace: $CLUSTER_NAME
 data:
   CHARON_JAEGER_ADDRESS: "jaeger:6831"
@@ -9,40 +9,42 @@ data:
   CHARON_VALIDATOR_API_ADDRESS: "0.0.0.0:3600"
   CHARON_P2P_TCP_ADDRESS: "0.0.0.0:3610"
   CHARON_P2P_UDP_ADDRESS: "0.0.0.0:3630"
-  CHARON_P2P_BOOTNODES: "http://bootnode:3640/enr"
+  CHARON_P2P_BOOTNODES: $CHARON_BOOT_NODE_ENDPOINT
+  CHARON_P2P_BOOTNODE_RELAY: "true"
   CHARON_SIMNET_BEACON_MOCK: "false"
   CHARON_SIMNET_VALIDATOR_MOCK: "false"
   CHARON_LOG_LEVEL: "debug"
-  CHARON_BEACON_NODE_ENDPOINT: $CHARON_BEACON_NODE_ENDPOINT
-  CHARON_DATA_DIR: "/charon/node1"
+  CHARON_BEACON_NODE_ENDPOINT: $BEACON_NODE_ENDPOINT
+  CHARON_DATA_DIR: "/charon/$NODE_NAME"
   CHARON_LOCK_FILE: "/charon/cluster-lock.json"
-  CHARON_JAEGER_SERVICE: node1
-  CHARON_P2P_EXTERNAL_HOSTNAME: node1
+  CHARON_JAEGER_SERVICE: $NODE_NAME
+  CHARON_P2P_EXTERNAL_HOSTNAME: $NODE_NAME
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: node1
-  name: node1
+    app: $NODE_NAME
+  name: $NODE_NAME
   namespace: $CLUSTER_NAME
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: node1
+      app: $NODE_NAME
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: node1
+        app: $NODE_NAME
     spec:
       securityContext:
-        runAsUser: 0
+        runAsUser: 1000
+        fsGroup: 1000
       containers:
-        - name: node1
-          image: $CHARON_IMAGE_REGISTRY:$CHARON_IMAGE_TAG
+        - name: $NODE_NAME
+          image: ghcr.io/obolnetwork/charon:$CHARON_VERSION
           command: ["/usr/local/bin/charon"]
           args: ["run"]
           readinessProbe:
@@ -59,25 +61,39 @@ spec:
             periodSeconds: 5
           envFrom:
             - configMapRef:
-                name: node1-config
+                name: $NODE_NAME-config
           volumeMounts:
-            - name: charon
+            - name: validators
+              mountPath: /charon/$NODE_NAME/validator_keys
+            - name: private-key
+              mountPath: /charon/$NODE_NAME
+            - name: cluster-lock
               mountPath: /charon
-              readOnly: false
-          workingDir: /
       volumes:
-        - name: charon
-          persistentVolumeClaim:
-            claimName: ${CLUSTER_NAME}-pvc
+        - name: validators
+          projected:
+            sources:
+            - secret:
+                name: $NODE_NAME-validators
+        - name: private-key
+          projected:
+            sources:
+            - secret:
+                name: $NODE_NAME-charon-enr-private-key
+        - name: cluster-lock
+          projected:
+            sources:
+            - secret:
+                name: cluster-lock
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: node1
+  name: $NODE_NAME
   namespace: $CLUSTER_NAME
 spec:
   selector:
-    app: node1
+    app: $NODE_NAME
   ports:
   ports:
     - name: http-bootnode

@@ -4,7 +4,7 @@ metadata:
   name: grafana
   namespace: $CLUSTER_NAME
   annotations:
-    external-dns.alpha.kubernetes.io/hostname: grafana.$CLUSTER_NAME.$MONITORING_DOMAIN_NAME.
+    external-dns.alpha.kubernetes.io/hostname: grafana.$CLUSTER_NAME.$MONITORING_DNS_BASE.
 spec:
   selector:
     app: grafana
@@ -23,10 +23,10 @@ spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - grafana.$CLUSTER_NAME.$MONITORING_DOMAIN_NAME
+        - grafana.$CLUSTER_NAME.$MONITORING_DNS_BASE
       secretName: grafana-$CLUSTER_NAME-letsencrypt-crt
   rules:
-  - host: grafana.$CLUSTER_NAME.$MONITORING_DOMAIN_NAME
+  - host: grafana.$CLUSTER_NAME.$MONITORING_DNS_BASE
     http:
       paths:
       - path: /

@@ -62,7 +62,7 @@ data:
       - url: $PROM_REMOTE_WRITE_END_POINT
         authorization:
           credentials: $PROM_METRICS_INSTANCE_ID:$PROM_REMOTE_WRITE_TOKEN
-        name: obol-prom
+        name: obol-$CLUSTER_NAME-prom
     scrape_configs:
       - job_name: 'node0'
         static_configs:
@@ -73,6 +73,9 @@ data:
       - job_name: 'node2'
         static_configs:
           - targets: ['node2:3620']
+      - job_name: 'node3'
+        static_configs:
+          - targets: ['node3:3620']
       - job_name: 'vc0'
         static_configs:
           - targets: ['vc0-teku:8008']
@@ -82,3 +85,6 @@ data:
       - job_name: 'vc2'
         static_configs:
           - targets: ['vc2-teku:8008']
+      - job_name: 'vc3'
+        static_configs:
+          - targets: ['vc3-teku:8008']

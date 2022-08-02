@@ -1,3 +1,4 @@
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -10,14 +11,12 @@ data:
   CHARON_SIMNET_BEACON_MOCK: "false"
   CHARON_SIMNET_VALIDATOR_MOCK: "false"
   CHARON_LOG_LEVEL: "debug"
-  CHARON_BEACON_NODE_ENDPOINT: $CHARON_BEACON_NODE_ENDPOINT
+  CHARON_BEACON_NODE_ENDPOINT: $BEACON_NODE_ENDPOINT
   CHARON_BOOTNODE_HTTP_ADDRESS: "0.0.0.0:3640"
   CHARON_MANIFEST_FILE: "/charon/cluster-lock.json"
   CHARON_DATA_DIR: /charon/bootnode
   CHARON_P2P_BOOTNODES: ""
   CHARON_P2P_EXTERNAL_HOSTNAME: bootnode
-  NODES_COUNT: "4"
-  THRESHOLD: "3"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -42,7 +41,7 @@ spec:
         runAsUser: 0
       containers:
         - name: bootnode
-          image: $CHARON_IMAGE_REGISTRY:$CHARON_IMAGE_TAG
+          image: ghcr.io/obolnetwork/charon:$CHARON_VERSION
           command: ["/usr/local/bin/charon"]
           args: ["bootnode"]
           readinessProbe:
@@ -55,49 +54,25 @@ spec:
             httpGet:
               path: /enr
               port: 3640
-            initialDelaySeconds: 20
+            initialDelaySeconds: 10
             periodSeconds: 5
           envFrom:
             - configMapRef:
                 name: bootnode-config
           volumeMounts:
-            - name: charon
+            - name: cluster-lock
               mountPath: /charon
-          workingDir: /charon
-      initContainers:
-        - name: create-cluster
-          image: $CHARON_IMAGE_REGISTRY:$CHARON_IMAGE_TAG
-          command:
-          - sh
-          - -ace
-          - |
-            rm -rf /charon/* 2>/dev/null || true;
-            mkdir -p /charon/split_keys;
-            cp /tmp/keystore-vc* /charon/split_keys/;
-            charon create cluster --split-existing-keys --split-keys-dir=/charon/split_keys --cluster-dir="/charon";
-          volumeMounts:
-            - name: charon
-              mountPath: /charon
-            - name: keystore
-              mountPath: /tmp/keystore-vc.json
-              subPath: keystore-vc.json
-              readOnly: false
-            - name: keystore
-              mountPath: /tmp/keystore-vc.txt
-              subPath: keystore-vc.txt
-              readOnly: false
+            - name: data
+              mountPath: /charon/bootnode
       volumes:
-        - name: charon
-          persistentVolumeClaim:
-            claimName: ${CLUSTER_NAME}-pvc
-        - name: keystore
-          secret:
-            secretName: keystore
-            items:
-              - key: keystore
-                path: ./keystore-vc.json
-              - key: password
-                path: ./keystore-vc.txt
+        - name: data
+          emptyDir: {}
+        - name: cluster-lock
+          projected:
+            sources:
+            - secret:
+                name: cluster-lock
+      restartPolicy: Always
 ---
 apiVersion: v1
 kind: Service

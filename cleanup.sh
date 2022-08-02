@@ -1,18 +1,11 @@
 #!/bin/bash
 
-# override the env vars with the needed env vars for the *-deployment.yaml files
+# override the env vars
 OLDIFS=$IFS
 IFS='
 '
 export $(< ./.env)
 IFS=$OLDIFS
-
-delete_manifest () {
-eval "cat <<EOF
-$(<$1)
-EOF
-" | kubectl delete -f -
-}
 
 # check if the cluster namespace exists
 nsStatus=`kubectl get namespace ${CLUSTER_NAME} --no-headers --output=go-template={{.metadata.name}} 2>/dev/null`
@@ -24,27 +17,34 @@ fi
 # set current namespace
 kubectl config set-context --current --namespace=${CLUSTER_NAME}
 
-# delete charon manifests
-manifests_dir="./manifests"
-for manifest in "$manifests_dir"/*
+# delete vcs
+node_index=0
+while [[ $node_index -lt "$CLUSTER_SIZE" ]]
 do
-  delete_manifest "$manifest"
-done
-
-# delete ingresses
-ingresses_dir="./manifests/ingresses"
-if [ "$DEPLOY_INGRESS" = true ]; then
-  for manifest in "$ingresses_dir"/*
-  do
-    delete_manifest "$manifest"
-  done
-fi
-
-# delete charon shared pv/pvc
+export NODE_NAME="node$node_index"
+export VC_INDEX="vc$node_index"
 eval "cat <<EOF
-$(<./manifests/shared-pv/shared-pv.yaml)
+$(<./manifests/charon/vc.yaml)
 EOF
 " | kubectl delete -f -
+((node_index=node_index+1))
+done
 
-# delete charon cluster namespace
-kubectl delete ns ${CLUSTER_NAME}
+# delete nodes
+node_index=0
+while [[ $node_index -lt "$CLUSTER_SIZE" ]]
+do
+export NODE_NAME="node$node_index"
+export VC_INDEX="vc$node_index"
+eval "cat <<EOF
+$(<./manifests/charon/node.yaml)
+EOF
+" | kubectl delete -f -
+((node_index=node_index+1))
+done
+
+# delete bootnode
+eval "cat <<EOF
+$(<./manifests/charon/bootnode.yaml)
+EOF
+" | kubectl delete -f -
