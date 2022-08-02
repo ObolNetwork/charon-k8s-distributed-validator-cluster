@@ -29,7 +29,7 @@ eval "cat <<EOF
 $(<./manifests/charon/bootnode.yaml)
 EOF
 " | kubectl apply -f -
-sleep 20s
+sleep 30s
 
 # deploy nodes
 node_index=0
@@ -39,6 +39,20 @@ export NODE_NAME="node$node_index"
 export VC_INDEX="vc$node_index"
 eval "cat <<EOF
 $(<./manifests/charon/node.yaml)
+EOF
+" | kubectl apply -f -
+((node_index=node_index+1))
+done
+sleep 30s
+
+# deploy vcs
+node_index=0
+while [[ $node_index -lt "$CLUSTER_SIZE" ]]
+do
+export NODE_NAME="node$node_index"
+export VC_INDEX="vc$node_index"
+eval "cat <<EOF
+$(<./manifests/charon/vc.yaml)
 EOF
 " | kubectl apply -f -
 ((node_index=node_index+1))
