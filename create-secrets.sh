@@ -19,8 +19,9 @@ fi
 # set current namespace
 kubectl config set-context --current --namespace=$ns
 
-i=0
 kubectl -n $ns create secret generic cluster-lock --from-file=cluster-lock.json=./.charon/cluster/cluster-lock.json
+
+i=0
 while [[ $i -lt "$CLUSTER_SIZE" ]]
 do
     files=""
@@ -29,5 +30,6 @@ do
     done
     kubectl -n $ns create secret generic node${i}-validators $files
     kubectl -n $ns create secret generic node${i}-charon-enr-private-key --from-file=charon-enr-private-key=./.charon/cluster/node${i}/charon-enr-private-key
+    kubectl -n $ns create secret generic node${i}-cluster-lock --from-file=cluster-lock.json=./.charon/cluster/cluster-lock.json
     ((i=i+1))
 done

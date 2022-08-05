@@ -17,34 +17,34 @@ fi
 # set current namespace
 kubectl config set-context --current --namespace=${CLUSTER_NAME}
 
-# delete vcs
+# delete validator clients
 node_index=0
 while [[ $node_index -lt "$CLUSTER_SIZE" ]]
 do
 export NODE_NAME="node$node_index"
 export VC_INDEX="vc$node_index"
 eval "cat <<EOF
-$(<./manifests/charon/vc.yaml)
+$(<./templates/validator-client.yaml)
 EOF
 " | kubectl delete -f -
 ((node_index=node_index+1))
 done
 
-# delete nodes
+# delete charon nodes
 node_index=0
 while [[ $node_index -lt "$CLUSTER_SIZE" ]]
 do
 export NODE_NAME="node$node_index"
 export VC_INDEX="vc$node_index"
 eval "cat <<EOF
-$(<./manifests/charon/node.yaml)
+$(<./templates/charon-node.yaml)
 EOF
 " | kubectl delete -f -
 ((node_index=node_index+1))
 done
 
-# delete bootnode
+# delete charon bootnode
 eval "cat <<EOF
-$(<./manifests/charon/bootnode.yaml)
+$(<./templates/charon-bootnode.yaml)
 EOF
 " | kubectl delete -f -
