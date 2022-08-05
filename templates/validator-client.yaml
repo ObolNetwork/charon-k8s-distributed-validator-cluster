@@ -82,7 +82,7 @@ spec:
           projected:
             sources:
             - secret:
-                name: cluster-lock
+                name: $NODE_NAME-cluster-lock
         - name: data
           persistentVolumeClaim:
             claimName: $CLUSTER_NAME-$VC_INDEX-teku-pvc

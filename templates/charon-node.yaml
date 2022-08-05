@@ -9,8 +9,7 @@ data:
   CHARON_VALIDATOR_API_ADDRESS: "0.0.0.0:3600"
   CHARON_P2P_TCP_ADDRESS: "0.0.0.0:3610"
   CHARON_P2P_UDP_ADDRESS: "0.0.0.0:3630"
-  CHARON_P2P_BOOTNODES: $CHARON_BOOT_NODE_ENDPOINT
-  CHARON_P2P_BOOTNODE_RELAY: "true"
+  CHARON_P2P_BOOTNODES: "http://bootnode:3640/enr"
   CHARON_SIMNET_BEACON_MOCK: "false"
   CHARON_SIMNET_VALIDATOR_MOCK: "false"
   CHARON_LOG_LEVEL: "debug"
@@ -84,7 +83,7 @@ spec:
           projected:
             sources:
             - secret:
-                name: cluster-lock
+                name: $NODE_NAME-cluster-lock
 ---
 apiVersion: v1
 kind: Service
