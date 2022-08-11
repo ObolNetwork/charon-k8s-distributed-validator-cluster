@@ -22,7 +22,6 @@ eval "cat <<EOF
 $(<./templates/charon-bootnode.yaml)
 EOF
 " | kubectl apply -f -
-sleep 30s
 
 # deploy charon nodes
 node_index=0
@@ -36,7 +35,6 @@ EOF
 " | kubectl apply -f -
 ((node_index=node_index+1))
 done
-sleep 30s
 
 # deploy validator clients
 node_index=0
