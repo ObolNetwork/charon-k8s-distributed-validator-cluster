@@ -103,36 +103,15 @@ spec:
       targetPort: 8008
 ---
 apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: $CLUSTER_NAME-$VC_INDEX-teku-pv
-  labels:
-    type: local
-spec:
-  storageClassName: local
-  capacity:
-    storage: 10Mi
-  accessModes:
-    - ReadWriteOnce
-  hostPath:
-    path: /var/lib/data
-  persistentVolumeReclaimPolicy: Delete
-  claimRef:
-      apiVersion: v1
-      kind: PersistentVolumeClaim
-      name: $CLUSTER_NAME-$VC_INDEX-teku-pvc
-      namespace: $CLUSTER_NAME
----
-apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   labels:
   name: $CLUSTER_NAME-$VC_INDEX-teku-pvc
   namespace: $CLUSTER_NAME
 spec:
-  storageClassName: local
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 10Mi
+      storage: 1Gi
+  storageClassName: standard
