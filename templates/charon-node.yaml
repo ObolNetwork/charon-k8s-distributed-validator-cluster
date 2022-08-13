@@ -94,7 +94,6 @@ spec:
   selector:
     app: $NODE_NAME
   ports:
-  ports:
     - name: http-bootnode
       protocol: TCP
       port: 3640
