@@ -58,6 +58,8 @@ spec:
               --validators-graffiti="Obol Distributed Validator" \
               --beacon-node-api-endpoint="http://$NODE_NAME:3600" \
               --validators-proposer-default-fee-recipient="0x9FD17880D4F5aE131D62CE6b48dF7ba7D426a410";
+              --validators-builder-registration-default-enabled=true \
+              --validators-proposer-config="http://$NODE_NAME:3600/teku_proposer_config";
           volumeMounts:
             - name: validators
               mountPath: /charon/$NODE_NAME/validator_keys
