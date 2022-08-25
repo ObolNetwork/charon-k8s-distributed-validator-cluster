@@ -46,7 +46,6 @@ spec:
           image: ghcr.io/obolnetwork/charon:$CHARON_VERSION
           command: ["/usr/local/bin/charon"]
           args: ["run", "--builder-api=true"]
-          args: ["run"]
           readinessProbe:
             httpGet:
               path: /metrics
