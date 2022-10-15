@@ -44,7 +44,7 @@ EOF
 done
 
 # delete charon bootnode
-eval "cat <<EOF
-$(<./templates/charon-bootnode.yaml)
-EOF
-" | kubectl delete -f -
+# eval "cat <<EOF
+# $(<./templates/charon-bootnode.yaml)
+# EOF
+# " | kubectl delete -f -

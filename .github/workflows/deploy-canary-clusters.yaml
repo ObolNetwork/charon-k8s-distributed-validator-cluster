@@ -1,4 +1,4 @@
-name: Deploy charon
+name: Deploy charon canary clusters
 
 on: 
     workflow_dispatch:
@@ -41,30 +41,29 @@ jobs:
         CLUSTER_NAME=charon-prater-0
         CLUSTER_SIZE=4
         CHARON_VERSION=${{ steps.charon_image_tag.outputs.tag || 'latest' }}
-        TEKU_VERSION=${{ secrets.TEKU_VERSION }}
-        CHARON_BOOT_NODE_ENDPOINT=${{ secrets.CHARON_BOOT_NODE_ENDPOINT }}
-        BEACON_NODE_ENDPOINT=${{ secrets.PRATER_BEACON_NODE_ENDPOINT }}
-        PROM_REMOTE_WRITE_END_POINT=${{ secrets.PROM_REMOTE_WRITE_END_POINT }}
-        PROM_METRICS_INSTANCE_ID=${{ secrets.PROM_METRICS_INSTANCE_ID }}
-        PROM_REMOTE_WRITE_TOKEN=${{ secrets.PROM_REMOTE_WRITE_TOKEN }}
-        MONITORING_INGRESS_ENABLED=${{ secrets.DEPLOY_INGRESS }}
-        MONITORING_DNS_BASE=${{ secrets.MONITORING_DOMAIN_NAME }}
+        TEKU_VERSION=${{ secrets.TEKU_VERSION || 'latest' }}
+        BEACON_NODE_ENDPOINTS=${{ secrets.GOERLI_BEACON_NODE_ENDPOINTS }}
         EOT
         ./deploy.sh
-    
-    - name: Deploy charon-kiln-0
+
+    - name: Deploy charon-prater-1
       run: |-
         cat <<EOT >> .env
-        CLUSTER_NAME=charon-kiln-0
+        CLUSTER_NAME=charon-prater-1
+        CLUSTER_SIZE=4
+        CHARON_VERSION=${{ steps.charon_image_tag.outputs.tag || 'latest' }}
+        TEKU_VERSION=${{ secrets.TEKU_VERSION || 'latest' }}
+        BEACON_NODE_ENDPOINTS=${{ secrets.GOERLI_BEACON_NODE_ENDPOINTS }}
+        EOT
+        ./deploy.sh
+
+    - name: Deploy charon-ropsten-1
+      run: |-
+        cat <<EOT >> .env
+        CLUSTER_NAME=charon-ropsten-1
         CLUSTER_SIZE=7
         CHARON_VERSION=${{ steps.charon_image_tag.outputs.tag || 'latest' }}
-        TEKU_VERSION=${{ secrets.TEKU_VERSION }}
-        CHARON_BOOT_NODE_ENDPOINT=${{ secrets.CHARON_BOOT_NODE_ENDPOINT }}
-        BEACON_NODE_ENDPOINT=${{ secrets.KILN_BEACON_NODE_ENDPOINT }}
-        PROM_REMOTE_WRITE_END_POINT=${{ secrets.PROM_REMOTE_WRITE_END_POINT }}
-        PROM_METRICS_INSTANCE_ID=${{ secrets.PROM_METRICS_INSTANCE_ID }}
-        PROM_REMOTE_WRITE_TOKEN=${{ secrets.PROM_REMOTE_WRITE_TOKEN }}
-        MONITORING_INGRESS_ENABLED=${{ secrets.DEPLOY_INGRESS }}
-        MONITORING_DNS_BASE=${{ secrets.MONITORING_DOMAIN_NAME }}
+        TEKU_VERSION=${{ secrets.TEKU_VERSION || 'latest' }}
+        BEACON_NODE_ENDPOINTS=${{ secrets.ROPSTEN_BEACON_NODE_ENDPOINTS }}
         EOT
         ./deploy.sh
