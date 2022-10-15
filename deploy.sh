@@ -18,10 +18,10 @@ fi
 kubectl config set-context --current --namespace=$CLUSTER_NAME
 
 # deploy charon bootnode
-eval "cat <<EOF
-$(<./templates/charon-bootnode.yaml)
-EOF
-" | kubectl apply -f -
+# eval "cat <<EOF
+# $(<./templates/charon-bootnode.yaml)
+# EOF
+# " | kubectl apply -f -
 
 # deploy charon nodes
 node_index=0
