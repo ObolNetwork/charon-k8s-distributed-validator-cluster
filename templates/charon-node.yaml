@@ -17,6 +17,7 @@ data:
   CHARON_JAEGER_ADDRESS: "jaeger:6831"
   CHARON_JAEGER_SERVICE: $NODE_NAME
   CHARON_LOG_LEVEL: "debug"
+  CHARON_NO_VERIFY: "true"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -114,3 +115,15 @@ spec:
       protocol: UDP
       port: 3630
       targetPort: 3630
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: $NODE_NAME
+  namespace: $CLUSTER_NAME
+spec:
+  selector:
+    matchLabels:
+      app: $NODE_NAME
+  endpoints:
+  - port: monitoring

@@ -85,3 +85,31 @@ spec:
                 name: $NODE_NAME-cluster-lock
         - name: data
           emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: $VC_INDEX-teku
+  namespace: $CLUSTER_NAME
+  labels:
+    app: $VC_INDEX-teku
+spec:
+  selector:
+    app: $VC_INDEX-teku
+  ports:
+    - name: metrics
+      protocol: TCP
+      port: 8008
+      targetPort: 8008
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: $VC_INDEX-teku
+  namespace: $CLUSTER_NAME
+spec:
+  selector:
+    matchLabels:
+      app: $VC_INDEX-teku
+  endpoints:
+  - port: metrics
