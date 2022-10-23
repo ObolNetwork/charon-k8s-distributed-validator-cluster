@@ -17,12 +17,6 @@ fi
 # set current namespace
 kubectl config set-context --current --namespace=$CLUSTER_NAME
 
-# deploy charon bootnode
-# eval "cat <<EOF
-# $(<./templates/charon-bootnode.yaml)
-# EOF
-# " | kubectl apply -f -
-
 # deploy charon nodes
 node_index=0
 while [[ $node_index -lt "$CLUSTER_SIZE" ]]
@@ -30,7 +24,7 @@ do
 export NODE_NAME="node$node_index"
 export VC_INDEX="vc$node_index"
 eval "cat <<EOF
-$(<./templates/charon-node.yaml)
+$(<./templates/charon.yaml)
 EOF
 " | kubectl apply -f -
 ((node_index=node_index+1))
@@ -43,7 +37,7 @@ do
 export NODE_NAME="node$node_index"
 export VC_INDEX="vc$node_index"
 eval "cat <<EOF
-$(<./templates/validator-client.yaml)
+$(<./templates/teku-vc.yaml)
 EOF
 " | kubectl apply -f -
 ((node_index=node_index+1))
