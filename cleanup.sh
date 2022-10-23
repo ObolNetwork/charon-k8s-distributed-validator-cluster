@@ -24,7 +24,7 @@ do
 export NODE_NAME="node$node_index"
 export VC_INDEX="vc$node_index"
 eval "cat <<EOF
-$(<./templates/validator-client.yaml)
+$(<./templates/teku-vc.yaml)
 EOF
 " | kubectl delete -f -
 ((node_index=node_index+1))
@@ -37,14 +37,8 @@ do
 export NODE_NAME="node$node_index"
 export VC_INDEX="vc$node_index"
 eval "cat <<EOF
-$(<./templates/charon-node.yaml)
+$(<./templates/charon.yaml)
 EOF
 " | kubectl delete -f -
 ((node_index=node_index+1))
 done
-
-# delete charon bootnode
-# eval "cat <<EOF
-# $(<./templates/charon-bootnode.yaml)
-# EOF
-# " | kubectl delete -f -
