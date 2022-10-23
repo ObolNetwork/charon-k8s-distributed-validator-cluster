@@ -67,3 +67,14 @@ jobs:
         BEACON_NODE_ENDPOINTS=${{ secrets.ROPSTEN_BEACON_NODE_ENDPOINTS }}
         EOT
         ./deploy.sh
+    
+    - name: Deploy charon-gnosis-0
+      run: |-
+        cat <<EOT >> .env
+        CLUSTER_NAME=charon-gnosis-0
+        CLUSTER_SIZE=7
+        CHARON_VERSION=${{ steps.charon_image_tag.outputs.tag || 'latest' }}
+        TEKU_VERSION=${{ secrets.TEKU_VERSION || 'latest' }}
+        BEACON_NODE_ENDPOINTS=${{ secrets.GNOSIS_BEACON_NODE_ENDPOINTS }}
+        EOT
+        ./deploy.sh
