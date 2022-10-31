@@ -78,3 +78,9 @@ jobs:
         BEACON_NODE_ENDPOINTS=${{ secrets.GNOSIS_BEACON_NODE_ENDPOINTS }}
         EOT
         ./deploy.sh
+
+    - uses: sarisia/actions-status-discord@v1
+      if: always()
+      with:
+        webhook: ${{ secrets.DISCORD_WEBHOOK }}
+        title: "Canary clusters are released with Charon version: ${{ steps.charon_image_tag.outputs.tag || 'latest' }}"
