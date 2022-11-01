@@ -22,9 +22,9 @@ Validators keystores should be generated before hand using charon CLI. For examp
 ```sh
 charon create cluster --num-validators=1 --withdrawal-address=0x9FD17880D4F5aE131D62CE6b48dF7ba7D426a410 --network=kiln
 ```
-Make sure the generataed .charon directory is located beside the `create-secrets.sh` script, then execute it to populate the keys into k8s secrets:
+Make sure the generataed .charon directory is located beside the `create-keys.sh` script, then execute it to populate the keys into k8s secrets:
 ```sh
-./create-secrets.sh
+./create-keys.sh
 ```
 
 # Configure
