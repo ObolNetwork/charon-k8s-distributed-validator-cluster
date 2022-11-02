@@ -32,6 +32,7 @@ EOF
 else
 eval "cat <<EOF
 $(<./templates/teku-vc.yaml)
+EOF
 " | kubectl delete -f -
 fi
 ((node_index=node_index+1))
