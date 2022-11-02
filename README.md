@@ -15,7 +15,13 @@ Please follow the following instructions to deploy a charon devnet to Kubernetes
     - To run a local cluster, install and start [Minikube](https://minikube.sigs.k8s.io/docs/start).
 - Ensure that you have [`kubectl`](https://kubernetes.io/docs/tasks/tools/#kubectl)
 - Kubernetes 1.20+ - This is the earliest version of Kubernetes tested. Charts may work with earlier versions but it is untested.
-- Kubernetes Persistent Volume provisioner support in the underlying infrastructure.
+
+# Configure
+Prepare an environment variable file:
+```sh
+cp .env.sample .env
+```
+Add the required configruation values to the .env file.
 
 # Create Keystores
 Validators keystores should be generated before hand using charon CLI. For example this command will generate the required keystores for a charon cluster with 4 nodes and 1 validators.
@@ -27,12 +33,11 @@ Make sure the generataed .charon directory is located beside the `create-keys.sh
 ./create-keys.sh
 ```
 
-# Configure
-Prepare an environment variable file:
+# Create Lighthouse validators definitions
+Construct the validators definition yaml file and propagate to the k8s cluster as configmaps.
 ```sh
-cp .env.sample .env
+./create-lighthouse-validators-definitions.sh
 ```
-Add the required configruation values to the .env file.
 
 # Deploy
 Deploy a charon cluster:
@@ -42,11 +47,7 @@ Deploy a charon cluster:
 ```
 
 # Cleanup
-Delete a charon cluster:
+Delete the charon cluster:
 ```sh
 ./cleanup.sh
 ```
-
-# Enhancements
-- Create public helm charts to deploy charon bootnode and nodes
-

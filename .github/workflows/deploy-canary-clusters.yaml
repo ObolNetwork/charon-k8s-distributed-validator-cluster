@@ -35,47 +35,67 @@ jobs:
       run: |
          echo ::set-output name=tag::$(git rev-parse --short ${{ github.event.client_payload.sha }})
 
-    - name: Deploy charon-prater-0
+    - name: Deploy charon-goerli-0
       run: |-
         cat <<EOT >> .env
-        CLUSTER_NAME=charon-prater-0
+        NETWORK=goerli
+        CLUSTER_NAME=charon-goerli-0
         CLUSTER_SIZE=4
         CHARON_VERSION=${{ steps.charon_image_tag.outputs.tag || 'latest' }}
         TEKU_VERSION=${{ secrets.TEKU_VERSION || 'latest' }}
+        lIGTHTHOUSE_VERSION=${{ secrets.lIGTHTHOUSE_VERSION || 'latest' }}
         BEACON_NODE_ENDPOINTS=${{ secrets.GOERLI_BEACON_NODE_ENDPOINTS }}
+        MONITORING_TOKEN=${{ secrets.MONITORING_TOKEN }}
+        MIX_VCS=true
+        VALIDATORS=1
         EOT
         ./deploy.sh
 
-    - name: Deploy charon-prater-1
+    - name: Deploy charon-goerli-1
       run: |-
         cat <<EOT >> .env
-        CLUSTER_NAME=charon-prater-1
+        NETWORK=goerli
+        CLUSTER_NAME=charon-goerli-1
         CLUSTER_SIZE=4
         CHARON_VERSION=${{ steps.charon_image_tag.outputs.tag || 'latest' }}
         TEKU_VERSION=${{ secrets.TEKU_VERSION || 'latest' }}
+        lIGTHTHOUSE_VERSION=${{ secrets.lIGTHTHOUSE_VERSION || 'latest' }}
         BEACON_NODE_ENDPOINTS=${{ secrets.GOERLI_BEACON_NODE_ENDPOINTS }}
+        MONITORING_TOKEN=${{ secrets.MONITORING_TOKEN }}
+        MIX_VCS=false
+        VALIDATORS=25
         EOT
         ./deploy.sh
 
     - name: Deploy charon-ropsten-1
       run: |-
         cat <<EOT >> .env
+        NETWORK=ropsten
         CLUSTER_NAME=charon-ropsten-1
         CLUSTER_SIZE=7
         CHARON_VERSION=${{ steps.charon_image_tag.outputs.tag || 'latest' }}
         TEKU_VERSION=${{ secrets.TEKU_VERSION || 'latest' }}
+        lIGTHTHOUSE_VERSION=${{ secrets.lIGTHTHOUSE_VERSION || 'latest' }}
         BEACON_NODE_ENDPOINTS=${{ secrets.ROPSTEN_BEACON_NODE_ENDPOINTS }}
+        MONITORING_TOKEN=${{ secrets.MONITORING_TOKEN }}
+        MIX_VCS=true
+        VALIDATORS=20
         EOT
         ./deploy.sh
     
     - name: Deploy charon-gnosis-0
       run: |-
         cat <<EOT >> .env
+        NETWORK=gnosis
         CLUSTER_NAME=charon-gnosis-0
         CLUSTER_SIZE=7
         CHARON_VERSION=${{ steps.charon_image_tag.outputs.tag || 'latest' }}
         TEKU_VERSION=${{ secrets.TEKU_VERSION || 'latest' }}
+        lIGTHTHOUSE_VERSION=${{ secrets.lIGTHTHOUSE_VERSION || 'latest' }}
         BEACON_NODE_ENDPOINTS=${{ secrets.GNOSIS_BEACON_NODE_ENDPOINTS }}
+        MONITORING_TOKEN=${{ secrets.MONITORING_TOKEN }}
+        MIX_VCS=true
+        VALIDATORS=1
         EOT
         ./deploy.sh
 

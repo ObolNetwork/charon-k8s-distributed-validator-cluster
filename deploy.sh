@@ -36,9 +36,24 @@ while [[ $node_index -lt "$CLUSTER_SIZE" ]]
 do
 export NODE_NAME="node$node_index"
 export VC_INDEX="vc$node_index"
+if [[ "$node_index" -le "$CLUSTER_SIZE/2" ]] && [[ $MIX_VCS == "true" ]]
+then
 eval "cat <<EOF
-$(<./templates/teku-vc.yaml)
+$(<./templates/lighthouse-vc.yaml)
 EOF
 " | kubectl apply -f -
+else
+eval "cat <<EOF
+$(<./templates/teku-vc.yaml)
+" | kubectl apply -f -
+fi
 ((node_index=node_index+1))
 done
+
+# deploy prometheus agent
+export CLUSTER_NAME="$CLUSTER_NAME"
+export MONITORING_TOKEN="$MONITORING_TOKEN"
+eval "cat <<EOF
+$(<./templates/prom-agent.yaml)
+EOF
+" | kubectl apply -f -
