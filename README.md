@@ -2,52 +2,36 @@
 
 <h1 align="center">CharonxK8s</h1>
 
-This repository contains Kubernetes templates to deploy a [charon](https://github.com/ObolNetwork/charon) cluster.
+This repository contains Kubernetes manifests to deploy a [charon](https://github.com/ObolNetwork/charon) cluster.
 
-# Project status
-It is still early days for the Obol Network and everything is under active development. It is NOT ready for mainnet. 
-Keep checking in for updates, [here](https://github.com/ObolNetwork/charon/#supported-consensus-layer-clients) is the latest on charon's supported clients and duties.
-
-Please follow the following instructions to deploy a charon devnet to Kubernetes.
+Please follow the following instructions to deploy a charon cluster to Kubernetes.
 
 # Prerequisites
-- Ensure having a functional k8s cluster:
-    - To run a local cluster, install and start [Minikube](https://minikube.sigs.k8s.io/docs/start).
-- Ensure that you have [`kubectl`](https://kubernetes.io/docs/tasks/tools/#kubectl)
-- Kubernetes 1.20+ - This is the earliest version of Kubernetes tested. Charts may work with earlier versions but it is untested.
+Ensure having [`docker`](https://docs.docker.com/get-docker/), a functional [`Kubernetes`](https://kubernetes.io/) cluster and [`kubectl`](https://kubernetes.io/docs/tasks/tools/#kubectl) installed.
 
-# Configure
-Prepare an environment variable file:
+# Deployment Steps
+## Cluster Configuration
 ```sh
 cp .env.sample .env
 ```
-Add the required configruation values to the .env file.
+Edit the required configruation values in the .env file.
 
-# Create Keystores
-Validators keystores should be generated before hand using charon CLI. For example this command will generate the required keystores for a charon cluster with 4 nodes and 1 validators.
+## Generate Validators Keystores
 ```sh
-charon create cluster --num-validators=1 --withdrawal-address=0x9FD17880D4F5aE131D62CE6b48dF7ba7D426a410 --network=kiln
+docker run --rm -v "$(pwd):/opt/charon" ghcr.io/obolnetwork/charon:v0.11.0 create cluster --withdrawal-address="0x000000000000000000000000000000000000dead" --num-validators=1 --nodes 5 --threshold 3 --network=goerli
 ```
-Make sure the generataed .charon directory is located beside the `create-keys.sh` script, then execute it to populate the keys into k8s secrets:
+
+## Create Kubernetes Secrets
 ```sh
 ./create-keys.sh
 ```
 
-# Create Lighthouse validators definitions
-Construct the validators definition yaml file and propagate to the k8s cluster as configmaps.
+## Create Lighthouse validators definitions
 ```sh
 ./create-lighthouse-validators-definitions.sh
 ```
 
-# Deploy
-Deploy a charon cluster:
-
+## Deploy Charon
 ```sh
 ./deploy.sh
-```
-
-# Cleanup
-Delete the charon cluster:
-```sh
-./cleanup.sh
 ```
