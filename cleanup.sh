@@ -17,7 +17,9 @@ fi
 # set current namespace
 kubectl config set-context --current --namespace=${CLUSTER_NAME}
 
-# deploy validator clients
+echo "deleting cluster: ${CLUSTER_NAME}"
+
+# delete validator clients
 node_index=0
 while [[ $node_index -lt "$CLUSTER_SIZE" ]]
 do
@@ -38,7 +40,7 @@ fi
 ((node_index=node_index+1))
 done
 
-# deploy charon nodes
+# delete charon nodes
 node_index=0
 while [[ $node_index -lt "$CLUSTER_SIZE" ]]
 do
