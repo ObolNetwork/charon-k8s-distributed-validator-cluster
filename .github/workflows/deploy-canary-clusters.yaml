@@ -94,7 +94,7 @@ jobs:
         lIGTHTHOUSE_VERSION=${{ secrets.lIGTHTHOUSE_VERSION || 'latest' }}
         BEACON_NODE_ENDPOINTS=${{ secrets.GNOSIS_BEACON_NODE_ENDPOINTS }}
         MONITORING_TOKEN=${{ secrets.MONITORING_TOKEN }}
-        MIX_VCS=true
+        MIX_VCS=false
         VALIDATORS=1
         EOT
         ./deploy.sh

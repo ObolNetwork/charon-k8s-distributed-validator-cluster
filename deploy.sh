@@ -17,6 +17,8 @@ fi
 # set current namespace
 kubectl config set-context --current --namespace=$CLUSTER_NAME
 
+echo "deploy cluster: ${CLUSTER_NAME}"
+
 # deploy charon nodes
 node_index=0
 while [[ $node_index -lt "$CLUSTER_SIZE" ]]
