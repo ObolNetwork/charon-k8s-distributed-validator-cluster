@@ -50,6 +50,12 @@ jobs:
         VALIDATORS=1
         EOT
         ./deploy.sh
+    
+    - uses: sarisia/actions-status-discord@v1
+      if: always()
+      with:
+        webhook: ${{ secrets.DISCORD_WEBHOOK }}
+        title: "charon-goerli-0 cluster is deployed successfully [Version: ${{ steps.charon_image_tag.outputs.tag || secrets.CHARON_LATEST_RELEASE_VERSION }}]."
 
     - name: Deploy charon-goerli-1
       run: |-
@@ -67,6 +73,12 @@ jobs:
         EOT
         ./deploy.sh
 
+    - uses: sarisia/actions-status-discord@v1
+      if: always()
+      with:
+        webhook: ${{ secrets.DISCORD_WEBHOOK }}
+        title: "charon-goerli-1 cluster is deployed successfully [Version: ${{ secrets.CHARON_LATEST_RELEASE_VERSION }}]."
+
     - name: Deploy charon-gnosis-0
       run: |-
         cat <<EOT >> .env
@@ -82,9 +94,9 @@ jobs:
         VALIDATORS=1
         EOT
         ./deploy.sh
-
+    
     - uses: sarisia/actions-status-discord@v1
       if: always()
       with:
         webhook: ${{ secrets.DISCORD_WEBHOOK }}
-        title: "Canary clusters are deployed successfully [Version: ${{ steps.charon_image_tag.outputs.tag || secrets.CHARON_RELEASE_VERSION }}]."
+        title: "charon-gnosis-0 cluster is deployed successfully [Version: ${{ secrets.CHARON_OLDEST_RELEASE_VERSION }}]."
