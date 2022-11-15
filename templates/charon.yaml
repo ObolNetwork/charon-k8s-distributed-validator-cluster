@@ -14,8 +14,6 @@ data:
   CHARON_DATA_DIR: "/charon/$NODE_NAME"
   CHARON_LOCK_FILE: "/charon/cluster-lock.json"
   CHARON_P2P_EXTERNAL_HOSTNAME: ""
-  CHARON_JAEGER_ADDRESS: "jaeger:6831"
-  CHARON_JAEGER_SERVICE: $NODE_NAME
   CHARON_LOG_LEVEL: "debug"
   CHARON_NO_VERIFY: "true"
 ---
