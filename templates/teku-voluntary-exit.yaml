@@ -1,0 +1,110 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: $VC_INDEX-teku
+  name: $VC_INDEX-teku
+  namespace: $CLUSTER_NAME
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: $VC_INDEX-teku
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: $VC_INDEX-teku
+    spec:
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+      initContainers:
+        - name: init-chown
+          image: busybox
+          securityContext:
+            runAsUser: 0
+          command:
+            - sh
+            - -ac
+            - >
+              rm -rf /data/teku/validator_keys 2>/dev/null || true;
+              mkdir -p /data/teku/validator_keys;
+              cp /validator_keys/* /data/teku/validator_keys;
+              chown -R 1000:1000 /data/teku;
+          volumeMounts:
+            - name: data
+              mountPath: /data/teku
+            - name: validators
+              mountPath: "/validator_keys"
+      containers:
+        - name: $VC_INDEX-teku
+          image: consensys/teku:$TEKU_VERSION
+          command:
+            - sh
+            - -ace
+            - |
+              /opt/teku/bin/teku voluntary-exit \
+              --network=auto \
+              --confirmation-enabled=false \
+              --data-base-path=/data/teku \
+              --validator-keys="/data/teku/validator_keys:/data/teku/validator_keys" \
+              --beacon-node-api-endpoint="http://$NODE_NAME:3600" \
+              --epoch=${EXIT_EPOCH:-112260};
+          volumeMounts:
+            - name: validators
+              mountPath: /charon/$NODE_NAME/validator_keys
+            - name: private-key
+              mountPath: /charon/$NODE_NAME
+            - name: cluster-lock
+              mountPath: /charon
+            - name: data
+              mountPath: /data/teku
+      volumes:
+        - name: validators
+          projected:
+            sources:
+            - secret:
+                name: $NODE_NAME-validators
+        - name: private-key
+          projected:
+            sources:
+            - secret:
+                name: $NODE_NAME-charon-enr-private-key
+        - name: cluster-lock
+          projected:
+            sources:
+            - secret:
+                name: $NODE_NAME-cluster-lock
+        - name: data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: $VC_INDEX-teku
+  namespace: $CLUSTER_NAME
+  labels:
+    app: $VC_INDEX-teku
+spec:
+  selector:
+    app: $VC_INDEX-teku
+  ports:
+    - name: metrics
+      protocol: TCP
+      port: 8008
+      targetPort: 8008
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: $VC_INDEX-teku
+  namespace: $CLUSTER_NAME
+spec:
+  selector:
+    matchLabels:
+      app: $VC_INDEX-teku
+  endpoints:
+  - port: metrics
