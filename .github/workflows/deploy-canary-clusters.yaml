@@ -55,7 +55,7 @@ jobs:
       if: always()
       with:
         webhook: ${{ secrets.DISCORD_WEBHOOK }}
-        title: "charon-goerli-0 cluster is deployed successfully [Version: ${{ steps.charon_image_tag.outputs.tag || secrets.CHARON_LATEST_RELEASE_VERSION }}]."
+        title: "charon-goerli-0 cluster is deployed successfully [Version: ${{ steps.charon_image_tag.outputs.tag || secrets.CHARON_LATEST_TAG }}]."
 
     - name: Deploy charon-goerli-1
       run: |-
