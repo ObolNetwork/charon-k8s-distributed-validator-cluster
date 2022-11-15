@@ -41,7 +41,7 @@ jobs:
         NETWORK=goerli
         CLUSTER_NAME=charon-goerli-0
         CLUSTER_SIZE=4
-        CHARON_VERSION=${{ steps.charon_image_tag.outputs.tag || secrets.CHARON_RELEASE_VERSION }}
+        CHARON_VERSION=${{ steps.charon_image_tag.outputs.tag || secrets.CHARON_LATEST_RELEASE_VERSION }}
         TEKU_VERSION=${{ secrets.TEKU_VERSION || 'latest' }}
         lIGTHTHOUSE_VERSION=${{ secrets.lIGTHTHOUSE_VERSION || 'latest' }}
         BEACON_NODE_ENDPOINTS=${{ secrets.GOERLI_BEACON_NODE_ENDPOINTS }}
@@ -57,7 +57,7 @@ jobs:
         NETWORK=goerli
         CLUSTER_NAME=charon-goerli-1
         CLUSTER_SIZE=4
-        CHARON_VERSION=${{ steps.charon_image_tag.outputs.tag || secrets.CHARON_RELEASE_VERSION }}
+        CHARON_VERSION=${{ secrets.CHARON_LATEST_RELEASE_VERSION }}
         TEKU_VERSION=${{ secrets.TEKU_VERSION || 'latest' }}
         lIGTHTHOUSE_VERSION=${{ secrets.lIGTHTHOUSE_VERSION || 'latest' }}
         BEACON_NODE_ENDPOINTS=${{ secrets.GOERLI_BEACON_NODE_ENDPOINTS }}
@@ -73,7 +73,7 @@ jobs:
         NETWORK=gnosis
         CLUSTER_NAME=charon-gnosis-0
         CLUSTER_SIZE=7
-        CHARON_VERSION=${{ steps.charon_image_tag.outputs.tag || secrets.CHARON_RELEASE_VERSION }}
+        CHARON_VERSION=${{ secrets.CHARON_OLDEST_RELEASE_VERSION }}
         TEKU_VERSION=${{ secrets.TEKU_VERSION || 'latest' }}
         lIGTHTHOUSE_VERSION=${{ secrets.lIGTHTHOUSE_VERSION || 'latest' }}
         BEACON_NODE_ENDPOINTS=${{ secrets.GNOSIS_BEACON_NODE_ENDPOINTS }}
