@@ -1,10 +1,16 @@
 #!/bin/bash
 
+if [ "$1" = "" ]
+then
+  echo "Usage: $0 <cluster name to be deployed>"
+  exit
+fi
+
 # override the env vars
 OLDIFS=$IFS
 IFS='
 '
-export $(< ./.env)
+export $(< ./.env-$1)
 IFS=$OLDIFS
 
 ns=$CLUSTER_NAME
@@ -22,7 +28,7 @@ kubectl config set-context --current --namespace=$ns
 kubectl -n $ns create secret generic cluster-lock --from-file=cluster-lock.json=./.charon/cluster/cluster-lock.json --dry-run=client -o yaml | kubectl apply -f -
 
 i=0
-while [[ $i -lt "$CLUSTER_SIZE" ]]
+while [[ $i -lt "$NODES" ]]
 do
     files=""
     for secret in ./.charon/cluster/node${i}/validator_keys/*; do

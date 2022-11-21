@@ -1,10 +1,17 @@
 #!/bin/bash
 
 # override the env vars
+if [ "$1" = "" ]
+then
+  echo "Usage: $0 <cluster name to be deployed>"
+  exit
+fi
+
+# override the env vars
 OLDIFS=$IFS
 IFS='
 '
-export $(< ./.env)
+export $(< ./.env-$1)
 IFS=$OLDIFS
 
 # create the namespace
@@ -21,10 +28,11 @@ echo "deploy cluster: ${CLUSTER_NAME}"
 
 # deploy charon nodes
 node_index=0
-while [[ $node_index -lt "$CLUSTER_SIZE" ]]
+while [[ $node_index -lt "$NODES" ]]
 do
 export NODE_NAME="node$node_index"
 export VC_INDEX="vc$node_index"
+export CHARON_VERSION=$CHARON_LATEST_REL
 eval "cat <<EOF
 $(<./templates/charon.yaml)
 EOF
@@ -34,11 +42,11 @@ done
 
 # deploy validator clients
 node_index=0
-while [[ $node_index -lt "$CLUSTER_SIZE" ]]
+while [[ $node_index -lt "$NODES" ]]
 do
 export NODE_NAME="node$node_index"
 export VC_INDEX="vc$node_index"
-if [[ "$node_index" -le "$CLUSTER_SIZE/2" ]] && [[ $MIX_VCS == "true" ]]
+if [[ "$node_index" -le "$NODES/2" ]] && [[ $MIX_VCS == "true" ]]
 then
 eval "cat <<EOF
 $(<./templates/lighthouse-vc.yaml)
