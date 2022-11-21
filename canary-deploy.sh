@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# override the env vars
 if [ "$1" = "" ]
 then
   echo "Usage: $0 <cluster name to be deployed>"
@@ -26,13 +25,39 @@ kubectl config set-context --current --namespace=$CLUSTER_NAME
 
 echo "deploy cluster: ${CLUSTER_NAME}"
 
-# deploy charon nodes
+# deploy charon nodes using latest main
 node_index=0
-while [[ $node_index -lt "$NODES" ]]
+while [[ $node_index -lt "3" ]]
+do
+export NODE_NAME="node$node_index"
+export VC_INDEX="vc$node_index"
+export CHARON_VERSION=$CHARON_LATEST_MAIN
+eval "cat <<EOF
+$(<./templates/charon.yaml)
+EOF
+" | kubectl apply -f -
+((node_index=node_index+1))
+done
+
+# deploy charon nodes using latest release
+while [[ $node_index -lt "5" ]]
 do
 export NODE_NAME="node$node_index"
 export VC_INDEX="vc$node_index"
 export CHARON_VERSION=$CHARON_LATEST_REL
+eval "cat <<EOF
+$(<./templates/charon.yaml)
+EOF
+" | kubectl apply -f -
+((node_index=node_index+1))
+done
+
+# deploy charon nodes using oldest release
+while [[ $node_index -lt "7" ]]
+do
+export NODE_NAME="node$node_index"
+export VC_INDEX="vc$node_index"
+export CHARON_VERSION=$CHARON_OLDEST_REL
 eval "cat <<EOF
 $(<./templates/charon.yaml)
 EOF
@@ -49,12 +74,12 @@ export VC_INDEX="vc$node_index"
 if [[ "$node_index" -le "$NODES/2" ]] && [[ $MIX_VCS == "true" ]]
 then
 eval "cat <<EOF
-$(<./templates/teku-vc-exit.yaml)
+$(<./templates/lighthouse-vc.yaml)
 EOF
 " | kubectl apply -f -
 else
 eval "cat <<EOF
-$(<./templates/teku-vc-exit.yaml)
+$(<./templates/teku-vc.yaml)
 EOF
 " | kubectl apply -f -
 fi

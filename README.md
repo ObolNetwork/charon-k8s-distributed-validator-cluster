@@ -12,26 +12,26 @@ Ensure having [`docker`](https://docs.docker.com/get-docker/), a functional [`Ku
 # Deployment Steps
 ## Cluster Configuration
 ```sh
-cp .env.sample .env
+cp .env.sample .env-<cluster-name>
 ```
 Edit the required configruation values in the .env file.
 
 ## Generate Validators Keystores
 ```sh
-docker run --rm -v "$(pwd):/opt/charon" ghcr.io/obolnetwork/charon:v0.11.0 create cluster --withdrawal-address="0x000000000000000000000000000000000000dead" --num-validators=1 --nodes 5 --threshold 3 --network=goerli
+docker run --rm -v "$(pwd):/opt/charon" ghcr.io/obolnetwork/charon:v0.12.0 create cluster --withdrawal-address="0x000000000000000000000000000000000000dead" --num-validators=1 --nodes=5 --threshold=3 --network=goerli
 ```
 
 ## Create Kubernetes Secrets
 ```sh
-./create-keys.sh
+./create-keys.sh <cluster-name>
 ```
 
 ## Create Lighthouse validators definitions
 ```sh
-./create-lighthouse-validators-definitions.sh
+./create-lighthouse-validators-definitions.sh <cluster-name>
 ```
 
 ## Deploy Charon
 ```sh
-./deploy.sh
+./deploy.sh <cluster-name>
 ```

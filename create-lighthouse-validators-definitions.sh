@@ -1,10 +1,16 @@
 #!/bin/bash
 
+if [ "$1" = "" ]
+then
+  echo "Usage: $0 <cluster name to be deployed>"
+  exit
+fi
+
 # override the env vars
 OLDIFS=$IFS
 IFS='
 '
-export $(< ./.env)
+export $(< ./.env-$1)
 IFS=$OLDIFS
 
 ns=$CLUSTER_NAME
@@ -13,7 +19,7 @@ ns=$CLUSTER_NAME
 mkdir .charon/$CLUSTER_NAME-lighthouse-definitions
 i=0
 INDEX=0
-while [[ $i -lt "$CLUSTER_SIZE" ]]; do
+while [[ $i -lt "$NODES" ]]; do
     tee -a .charon/$CLUSTER_NAME-lighthouse-definitions/vc-node-$i.yaml << END
 ---
 apiVersion: v1
@@ -25,7 +31,7 @@ data:
   validator_definitions.yml: |
     ---
 END
-    while [[ $INDEX -lt "$VALIDATORS" ]]; do
+    while [[ $INDEX -lt "$NUM_VALIDATORS" ]]; do
       KEY=$(cat .charon/cluster/node$i/validator_keys/keystore-$INDEX.json | jq -r ".pubkey")
       tee -a .charon/$CLUSTER_NAME-lighthouse-definitions/vc-node-$i.yaml << END
     - enabled: true
