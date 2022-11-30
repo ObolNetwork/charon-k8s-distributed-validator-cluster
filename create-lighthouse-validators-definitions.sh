@@ -32,7 +32,7 @@ data:
     ---
 END
     while [[ $INDEX -lt "$NUM_VALIDATORS" ]]; do
-      KEY=$(cat .charon/cluster/node$i/validator_keys/keystore-$INDEX.json | jq -r ".pubkey")
+      KEY=$(cat .charon/$CLUSTER_NAME/node$i/validator_keys/keystore-$INDEX.json | jq -r ".pubkey")
       tee -a .charon/$CLUSTER_NAME-lighthouse-definitions/vc-node-$i.yaml << END
     - enabled: true
       voting_public_key: 0x$KEY

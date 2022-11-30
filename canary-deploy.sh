@@ -13,6 +13,12 @@ IFS='
 export $(< ./.env-$1)
 IFS=$OLDIFS
 
+if [[ $CANARY == "false" ]]
+then
+  echo "Please enable canary deployment in the cluster config."
+  exit 1
+fi
+
 # create the namespace
 nsStatus=`kubectl get namespace $CLUSTER_NAME --no-headers --output=go-template={{.metadata.name}} 2>/dev/null`
 if [ -z "$nsStatus" ]; then
