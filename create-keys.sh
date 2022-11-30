@@ -25,17 +25,17 @@ fi
 # set current namespace
 kubectl config set-context --current --namespace=$ns
 
-kubectl -n $ns create secret generic cluster-lock --from-file=cluster-lock.json=./.charon/cluster/cluster-lock.json --dry-run=client -o yaml | kubectl apply -f -
+kubectl -n $ns create secret generic cluster-lock --from-file=cluster-lock.json=./.charon/$CLUSTER_NAME/cluster-lock.json --dry-run=client -o yaml | kubectl apply -f -
 
 i=0
 while [[ $i -lt "$NODES" ]]
 do
     files=""
-    for secret in ./.charon/cluster/node${i}/validator_keys/*; do
-        files="$files --from-file=./.charon/cluster/node${i}/validator_keys/$(basename $secret)"
+    for secret in ./.charon/$CLUSTER_NAME/node${i}/validator_keys/*; do
+        files="$files --from-file=./.charon/$CLUSTER_NAME/node${i}/validator_keys/$(basename $secret)"
     done
     kubectl -n $ns create secret generic node${i}-validators $files --dry-run=client -o yaml | kubectl apply -f -
-    kubectl -n $ns create secret generic node${i}-charon-enr-private-key --from-file=charon-enr-private-key=./.charon/cluster/node${i}/charon-enr-private-key --dry-run=client -o yaml | kubectl apply -f -
-    kubectl -n $ns create secret generic node${i}-cluster-lock --from-file=cluster-lock.json=./.charon/cluster/cluster-lock.json --dry-run=client -o yaml | kubectl apply -f -
+    kubectl -n $ns create secret generic node${i}-charon-enr-private-key --from-file=charon-enr-private-key=./.charon/$CLUSTER_NAME/node${i}/charon-enr-private-key --dry-run=client -o yaml | kubectl apply -f -
+    kubectl -n $ns create secret generic node${i}-cluster-lock --from-file=cluster-lock.json=./.charon/$CLUSTER_NAME/cluster-lock.json --dry-run=client -o yaml | kubectl apply -f -
     ((i=i+1))
 done

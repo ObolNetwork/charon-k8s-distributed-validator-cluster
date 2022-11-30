@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# override the env vars
 if [ "$1" = "" ]
 then
   echo "Usage: $0 <cluster name to be deployed>"

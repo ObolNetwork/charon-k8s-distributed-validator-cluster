@@ -19,6 +19,8 @@ Edit the required configruation values in the .env file.
 ## Generate Validators Keystores
 ```sh
 docker run --rm -v "$(pwd):/opt/charon" ghcr.io/obolnetwork/charon:v0.12.0 create cluster --withdrawal-address="0x000000000000000000000000000000000000dead" --num-validators=1 --nodes=5 --threshold=3 --network=goerli
+# rename cluster director to the <cluster_name>
+mv .charon/cluster .charon/<cluster_name>
 ```
 
 ## Create Kubernetes Secrets
