@@ -11,7 +11,7 @@ fi
 CLUSTER_NAME=$1
 
 # download cluster config
-gsutil cp gs://charon-clusters-config/${CLUSTER_NAME}/${CLUSTER_NAME}.env .
+gcloud storage cp gs://charon-clusters-config/${CLUSTER_NAME}/${CLUSTER_NAME}.env .
 
 # override the env vars
 OLDIFS=$IFS

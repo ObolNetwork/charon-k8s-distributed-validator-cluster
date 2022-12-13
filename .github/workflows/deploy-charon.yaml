@@ -21,13 +21,14 @@ jobs:
     - id: 'auth'
       uses: 'google-github-actions/auth@v0'
       with:
-        credentials_json: '${{ secrets.GKE_CREDS }}'
+        credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
 
     - id: 'get-credentials'
       uses: 'google-github-actions/get-gke-credentials@v0'
       with:
         cluster_name: ${{ secrets.GKE_CLUSTER }}
         location: ${{ secrets.GKE_REGION }}
+        credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
         project_id: ${{ secrets.PROJECT_ID }}
     
     - name: Get charon image tag
@@ -35,29 +36,29 @@ jobs:
       run: |
          echo ::set-output name=tag::$(git rev-parse --short ${{ github.event.client_payload.sha }})
 
-    - name: Deploy canary-goerli-0
-      run: |-
-        ./canary-deploy.sh charon-goerli-0
-    
-    - uses: sarisia/actions-status-discord@v1
-      if: always()
-      with:
-        webhook: ${{ secrets.DISCORD_WEBHOOK }}
-        title: "canary-goerli-0"
-
     - name: Deploy canary-goerli-1
-      run: |-
-        ./canary-deploy.sh charon-goerli-1
-
+      run: ./canary-deploy.sh canary-goerli-1
+      shell: bash
+    
     - uses: sarisia/actions-status-discord@v1
       if: always()
       with:
         webhook: ${{ secrets.DISCORD_WEBHOOK }}
         title: "canary-goerli-1"
 
+    - name: Deploy canary-goerli-2
+      run: ./canary-deploy.sh canary-goerli-2
+      shell: bash
+
+    - uses: sarisia/actions-status-discord@v1
+      if: always()
+      with:
+        webhook: ${{ secrets.DISCORD_WEBHOOK }}
+        title: "canary-goerli-2"
+
     - name: Deploy charon-gnosis-0
-      run: |-
-        ./deploy.sh charon-gnosis-0
+      run: ./deploy.sh charon-gnosis-0
+      shell: bash
     
     - uses: sarisia/actions-status-discord@v1
       if: always()
@@ -66,8 +67,8 @@ jobs:
         title: "charon-gnosis-0"
 
     - name: Deploy charon-prater-0
-      run: |-
-        ./deploy.sh charon-prater-0
+      run: ./deploy.sh charon-prater-0
+      shell: bash
     
     - uses: sarisia/actions-status-discord@v1
       if: always()
@@ -76,8 +77,8 @@ jobs:
         title: "charon-prater-0"
 
     - name: Deploy charon-prater-1
-      run: |-
-        ./deploy.sh charon-prater-1
+      run: ./deploy.sh charon-prater-1
+      shell: bash
     
     - uses: sarisia/actions-status-discord@v1
       if: always()
