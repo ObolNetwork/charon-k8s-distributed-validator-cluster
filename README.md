@@ -12,7 +12,7 @@ Ensure having [`docker`](https://docs.docker.com/get-docker/), a functional [`Ku
 # Deployment Steps
 ## Cluster Configuration
 ```sh
-cp .env.sample .env-<cluster-name>
+cp .env.sample <cluster_name>.env
 ```
 Edit the required configruation values in the .env file.
 
@@ -23,17 +23,28 @@ docker run --rm -v "$(pwd):/opt/charon" ghcr.io/obolnetwork/charon:v0.12.0 creat
 mv .charon/cluster .charon/<cluster_name>
 ```
 
+## Upload Cluster Config to GCS
+```sh
+gcloud storage -m cp -R .charon/<cluster_name> gs://charon-clusters-config
+gcloud storage cp gs://charon-clusters-config/<cluster_name>/<cluster_name>.env .
+```
+
+## Generate Lighthouse validators definitions
+```sh
+./generate-lighthouse-validators-definitions.sh <cluster-name>
+```
+
 ## Create Kubernetes Secrets
 ```sh
-./create-keys.sh <cluster-name>
+./create-k8s-secrets.sh <cluster-name>
 ```
 
-## Create Lighthouse validators definitions
-```sh
-./create-lighthouse-validators-definitions.sh <cluster-name>
-```
-
-## Deploy Charon
+## Deploy Charon Cluster
 ```sh
 ./deploy.sh <cluster-name>
+```
+
+## Deploy Charon Canary Cluster
+```sh
+./canary-deploy.sh <cluster-name>
 ```
