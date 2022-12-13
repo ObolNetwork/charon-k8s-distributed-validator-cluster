@@ -25,8 +25,8 @@ mv .charon/cluster .charon/<cluster_name>
 
 ## Upload Cluster Config to GCS
 ```sh
-gsutil -m cp -R .charon/<cluster_name> gs://charon-clusters-config
-gsutil cp gs://charon-clusters-config/<cluster_name>.env .
+gcloud storage -m cp -R .charon/<cluster_name> gs://charon-clusters-config
+gcloud storage cp gs://charon-clusters-config/<cluster_name>.env .
 ```
 
 ## Generate Lighthouse validators definitions
