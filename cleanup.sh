@@ -1,17 +1,26 @@
 #!/bin/bash
 
+set -uo pipefail
+
 if [ "$1" = "" ]
 then
   echo "Usage: $0 <cluster name to be deployed>"
   exit
 fi
 
+CLUSTER_NAME=$1
+
+# download cluster config
+gsutil cp gs://charon-clusters-config/${CLUSTER_NAME}/${CLUSTER_NAME}.env .
+
 # override the env vars
 OLDIFS=$IFS
 IFS='
 '
-export $(< ./.env-$1)
+export $(< ./${CLUSTER_NAME}.env)
 IFS=$OLDIFS
+
+rm ./${CLUSTER_NAME}.env
 
 # check if the cluster namespace exists
 nsStatus=`kubectl get namespace ${CLUSTER_NAME} --no-headers --output=go-template={{.metadata.name}} 2>/dev/null`

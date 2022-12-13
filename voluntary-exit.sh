@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -uo pipefail
+
 # override the env vars
 if [ "$1" = "" ]
 then
