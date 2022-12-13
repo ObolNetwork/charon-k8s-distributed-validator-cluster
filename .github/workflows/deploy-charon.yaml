@@ -37,7 +37,7 @@ jobs:
 
     - name: Deploy canary-goerli-1
       run: |-
-        ./canary-deploy.sh charon-goerli-1
+        ./canary-deploy.sh canary-goerli-1
     
     - uses: sarisia/actions-status-discord@v1
       if: always()
@@ -47,7 +47,7 @@ jobs:
 
     - name: Deploy canary-goerli-2
       run: |-
-        ./canary-deploy.sh charon-goerli-2
+        ./canary-deploy.sh canary-goerli-2
 
     - uses: sarisia/actions-status-discord@v1
       if: always()
