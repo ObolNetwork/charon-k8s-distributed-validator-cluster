@@ -21,14 +21,14 @@ jobs:
     - id: 'auth'
       uses: 'google-github-actions/auth@v0'
       with:
-        credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+        credentials_json: '${{ secrets.GKE_CREDS }}'
 
     - id: 'get-credentials'
       uses: 'google-github-actions/get-gke-credentials@v0'
       with:
         cluster_name: ${{ secrets.GKE_CLUSTER }}
         location: ${{ secrets.GKE_REGION }}
-        credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
+        credentials: ${{ secrets.GKE_CREDS }}
         project_id: ${{ secrets.PROJECT_ID }}
     
     - name: Get charon image tag
