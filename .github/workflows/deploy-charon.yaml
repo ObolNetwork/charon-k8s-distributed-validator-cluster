@@ -35,25 +35,25 @@ jobs:
       run: |
          echo ::set-output name=tag::$(git rev-parse --short ${{ github.event.client_payload.sha }})
 
-    - name: Deploy canary-goerli-0
+    - name: Deploy canary-goerli-1
       run: |-
-        ./canary-deploy.sh charon-goerli-0
+        ./canary-deploy.sh charon-goerli-1
     
     - uses: sarisia/actions-status-discord@v1
       if: always()
       with:
         webhook: ${{ secrets.DISCORD_WEBHOOK }}
-        title: "canary-goerli-0"
+        title: "canary-goerli-1"
 
-    - name: Deploy canary-goerli-1
+    - name: Deploy canary-goerli-2
       run: |-
-        ./canary-deploy.sh charon-goerli-1
+        ./canary-deploy.sh charon-goerli-2
 
     - uses: sarisia/actions-status-discord@v1
       if: always()
       with:
         webhook: ${{ secrets.DISCORD_WEBHOOK }}
-        title: "canary-goerli-1"
+        title: "canary-goerli-2"
 
     - name: Deploy charon-gnosis-0
       run: |-
