@@ -11,7 +11,7 @@ fi
 CLUSTER_NAME=$1
 
 # download cluster config
-gsutil cp gs://charon-clusters-config/${CLUSTER_NAME}/${CLUSTER_NAME}.env .
+gcloud storage cp gs://charon-clusters-config/${CLUSTER_NAME}/${CLUSTER_NAME}.env .
 
 # override the env vars
 OLDIFS=$IFS
@@ -32,7 +32,7 @@ fi
 
 # download cluster config
 mkdir -p ./.charon
-gsutil cp -r gs://charon-clusters-config/${CLUSTER_NAME} ./.charon/
+gcloud storage cp -r gs://charon-clusters-config/${CLUSTER_NAME} ./.charon/
 
 # set current namespace
 kubectl config set-context --current --namespace=${CLUSTER_NAME}

@@ -16,7 +16,7 @@ CLUSTER_NAME=$1
 
 # download cluster config
 mkdir -p ./.charon
-gsutil cp -r gs://charon-clusters-config/${CLUSTER_NAME} ./.charon/
+gcloud storage cp -r gs://charon-clusters-config/${CLUSTER_NAME} ./.charon/
 
 definitions_dir="./.charon/${CLUSTER_NAME}/lighthouse-validators-definitions"
 
@@ -59,7 +59,7 @@ END
     INDEX=0
 done
 
-gsutil -m cp -R ${definitions_dir} gs://charon-clusters-config/${CLUSTER_NAME}
+gcloud storage -m cp -R ${definitions_dir} gs://charon-clusters-config/${CLUSTER_NAME}
 
 # delete cluster config before exit
 rm -rf ./.charon/${CLUSTER_NAME}
