@@ -16,6 +16,7 @@ data:
   CHARON_P2P_EXTERNAL_HOSTNAME: ""
   CHARON_LOG_LEVEL: "debug"
   CHARON_NO_VERIFY: "true"
+  CHARON_P2P_DISABLE_REUSEPORT: "true"
 ---
 apiVersion: apps/v1
 kind: Deployment
