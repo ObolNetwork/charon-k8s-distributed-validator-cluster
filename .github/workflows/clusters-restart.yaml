@@ -1,0 +1,78 @@
+name: Canary Clusters Restart
+
+on: 
+    workflow_dispatch:
+    repository_dispatch:
+        types: [charon-package-published]
+
+jobs:
+  Restart:
+    name: Restart the canary clusters
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - id: 'auth'
+      uses: 'google-github-actions/auth@v0'
+      with:
+        credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+
+    - id: 'get-credentials'
+      uses: 'google-github-actions/get-gke-credentials@v0'
+      with:
+        cluster_name: ${{ secrets.GKE_CLUSTER }}
+        location: ${{ secrets.GKE_REGION }}
+        credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
+        project_id: ${{ secrets.PROJECT_ID }}
+    
+    - name: Restart canary-goerli-1
+      run: ./restart-cluster.sh canary-goerli-1
+      shell: bash
+    
+    - uses: sarisia/actions-status-discord@v1
+      if: always()
+      with:
+        webhook: ${{ secrets.DISCORD_WEBHOOK }}
+        title: "canary-goerli-1"
+
+    - name: Restart canary-goerli-2
+      run: ./restart-cluster.sh canary-goerli-2
+      shell: bash
+
+    - uses: sarisia/actions-status-discord@v1
+      if: always()
+      with:
+        webhook: ${{ secrets.DISCORD_WEBHOOK }}
+        title: "canary-goerli-2"
+
+    - name: Restart charon-gnosis-0
+      run: ./restart-cluster.sh charon-gnosis-0
+      shell: bash
+    
+    - uses: sarisia/actions-status-discord@v1
+      if: always()
+      with:
+        webhook: ${{ secrets.DISCORD_WEBHOOK }}
+        title: "charon-gnosis-0"
+
+    - name: Restart charon-prater-0
+      run: ./restart-cluster.sh charon-prater-0
+      shell: bash
+    
+    - uses: sarisia/actions-status-discord@v1
+      if: always()
+      with:
+        webhook: ${{ secrets.DISCORD_WEBHOOK }}
+        title: "charon-prater-0"
+
+    - name: Restart charon-prater-1
+      run: ./restart-cluster.sh charon-prater-1
+      shell: bash
+    
+    - uses: sarisia/actions-status-discord@v1
+      if: always()
+      with:
+        webhook: ${{ secrets.DISCORD_WEBHOOK }}
+        title: "charon-prater-1"
