@@ -1,0 +1,112 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: $VC_INDEX-lodestar
+  name: $VC_INDEX-lodestar
+  namespace: $CLUSTER_NAME
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: $VC_INDEX-lodestar
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: $VC_INDEX-lodestar
+    spec:
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+      initContainers:
+        - name: init-chown
+          image: busybox
+          securityContext:
+            runAsUser: 0
+          command:
+            - sh
+            - -ac
+            - >
+              rm -rf /data/lodestar/validator_keys 2>/dev/null || true;
+              mkdir -p /data/lodestar/validator_keys;
+              cp /validator_keys/* /data/lodestar/validator_keys;
+              chown -R 1000:1000 /data/lodestar;
+          volumeMounts:
+            - name: data
+              mountPath: /data/lodestar
+            - name: validators
+              mountPath: "/validator_keys"
+      containers:
+        - name: $VC_INDEX-lodestar
+          image: chainsafe/lodestar:v1.4.1
+          imagePullPolicy: Always
+          command:
+            - sh
+            - -ace
+            - |
+              node /usr/app/packages/cli/bin/lodestar validator \
+              --network=goerli \
+              --metrics=true \
+              --metrics.address="0.0.0.0" \
+              --metrics.port=5064 \
+              --importKeystores="/data/lodestar/validator_keys" \
+              --importKeystoresPassword="/data/lodestar/validator_keys/keystore-0.txt" \
+              --beaconNodes="http://$NODE_NAME:3600";
+          volumeMounts:
+            - name: validators
+              mountPath: /charon/$NODE_NAME/validator_keys
+            - name: private-key
+              mountPath: /charon/$NODE_NAME
+            - name: cluster-lock
+              mountPath: /charon
+            - name: data
+              mountPath: /data/lodestar
+      volumes:
+        - name: validators
+          projected:
+            sources:
+            - secret:
+                name: $NODE_NAME-validators
+        - name: private-key
+          projected:
+            sources:
+            - secret:
+                name: $NODE_NAME-charon-enr-private-key
+        - name: cluster-lock
+          projected:
+            sources:
+            - secret:
+                name: $NODE_NAME-cluster-lock
+        - name: data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: $VC_INDEX-lodestar
+  namespace: $CLUSTER_NAME
+  labels:
+    app: $VC_INDEX-lodestar
+spec:
+  selector:
+    app: $VC_INDEX-lodestar
+  ports:
+    - name: metrics
+      protocol: TCP
+      port: 8008
+      targetPort: 8008
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: $VC_INDEX-lodestar
+  namespace: $CLUSTER_NAME
+spec:
+  selector:
+    matchLabels:
+      app: $VC_INDEX-lodestar
+  endpoints:
+  - port: metrics
