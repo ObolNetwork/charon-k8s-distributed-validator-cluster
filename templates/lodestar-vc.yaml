@@ -41,7 +41,7 @@ spec:
               mountPath: "/validator_keys"
       containers:
         - name: $VC_INDEX-lodestar
-          image: chainsafe/lodestar:v1.4.1
+          image: chainsafe/lodestar:$LODESTAR_VERSION
           imagePullPolicy: Always
           command:
             - sh
