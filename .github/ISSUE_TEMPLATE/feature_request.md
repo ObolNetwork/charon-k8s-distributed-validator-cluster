@@ -1,32 +1,54 @@
 ---
-name: Feature request
-about: Suggest an idea for this project
-title: ''
-labels: ''
-assignees: ''
-
+name: "\U0001F41E Bug report"
+about: Report a bug or problem with running this repo
+labels: Bug
 ---
+<!--
 
----
-name: Feature request
-about: Suggest an idea for this project
-title: ''
-labels: ''
-assignees: ''
+Hey there!
 
----
+To help us tend to your issue faster, please search our currently open issues before submitting a new one.
+Existing issues often contain information about workarounds, resolution, or progress updates.
 
-**Problem to be solved**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+]-->
 
-**Proposed solution**
-A clear and concise description of what you want to happen.
+# 🐞 Bug Report
 
-**Out of scope**
-If there is anything to highlight as out of scope for this issue, please outline it here.
+### Description
 
-**Describe alternatives you've considered**
-A clear and concise description of any alternative solutions or features you've considered.
+<!-- ✍️--> A clear and concise description of the problem...
 
-**Additional context**
-Add any other context or screenshots about the feature request here.
+## 🔬 Minimal Reproduction
+
+<!--
+Please let us know how we can reproduce this issue. Include the exact commands you are running with any flags used in your beacon chain and/or validator. Make sure you don't upload any confidential files or private keys!
+-->
+
+## 🔥 Error
+
+<pre><code>
+<!-- If the issue is accompanied by an error, please share the error logs with us below. If you have a lot of logs, place make a paste bin with your logs and share the link with us here: -->
+<!-- ✍️-->
+
+</code></pre>
+
+
+## 🌍  Your Environment
+
+**Operating System:**
+
+<pre>
+  <code>
+
+  </code>
+</pre>
+
+**What version of Charon are you running? (Which release)**
+
+<pre>
+  <code>
+
+  </code>
+</pre>
+
+**Anything else relevant (validator index / public key)?**
