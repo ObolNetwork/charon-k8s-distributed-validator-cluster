@@ -1,54 +1,40 @@
 ---
-name: "\U0001F41E Bug report"
-about: Report a bug or problem with running this repo
-labels: Bug
+name: "\U0001F680 Feature or Improvement Ticket"
+about: Create a new feature or suggest an improvement
+labels: Enhancement
 ---
-<!--
 
-Hey there!
+# 🎯 Problem to be solved
 
-To help us tend to your issue faster, please search our currently open issues before submitting a new one.
-Existing issues often contain information about workarounds, resolution, or progress updates.
+<!--Describe in detail the problem to be solved by this feature/enhancement and why it is important. -->
 
-]-->
+# 🛠️ Proposed solution
 
-# 🐞 Bug Report
+- [ ] Approved design doc: *link*
+- [ ] Core team consensus on the proposed solution
 
-### Description
+### Detailed proposed solution
+<!--Describe the solution to be implemented-->
 
-<!-- ✍️--> A clear and concise description of the problem...
+# 🧪 Tests
 
-## 🔬 Minimal Reproduction
+<!--Delete any irrelevant item and add other mandatory tests that should be passing-->
 
-<!--
-Please let us know how we can reproduce this issue. Include the exact commands you are running with any flags used in your beacon chain and/or validator. Make sure you don't upload any confidential files or private keys!
--->
+- [ ] Works in local docker-compose
+- [ ] Has a attested on a testnet at least once
 
-## 🔥 Error
+# 👐 Additional acceptance criteria
 
-<pre><code>
-<!-- If the issue is accompanied by an error, please share the error logs with us below. If you have a lot of logs, place make a paste bin with your logs and share the link with us here: -->
-<!-- ✍️-->
+<!--List any additional acceptance criteria for this issue to be marked as closed.-->
 
-</code></pre>
+# ❌ Out of Scope
 
+<!--If there is anything to highlight as out of scope for this issue, please outline it here.-->
 
-## 🌍  Your Environment
+<!--# ✅ Issue Creation Checklist
 
-**Operating System:**
-
-<pre>
-  <code>
-
-  </code>
-</pre>
-
-**What version of Charon are you running? (Which release)**
-
-<pre>
-  <code>
-
-  </code>
-</pre>
-
-**Anything else relevant (validator index / public key)?**
+Delete this section once you have validated that this ticket is
+- [ ] Feasible: it can be completed in one sprint (2 weeks) by a single person, otherwise split the ticket into multiple issues
+- [ ] Actionable: any contributor must be able to determine immediately what needs to be done to complete the ticket
+- [ ] Clear: all contributors have a shared understanding of what it means
+- [ ] Testable: there is an effective way to determine if the functionality works as expected -->
