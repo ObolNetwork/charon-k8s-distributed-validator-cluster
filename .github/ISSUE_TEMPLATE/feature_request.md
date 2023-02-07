@@ -10,7 +10,7 @@ labels: Enhancement
 
 # 🛠️ Proposed solution
 
-- [ ] Approved design doc: *link*
+- [ ] Approved design doc: [link](*url*)
 - [ ] Core team consensus on the proposed solution
 
 ### Detailed proposed solution
@@ -21,7 +21,7 @@ labels: Enhancement
 <!--Delete any irrelevant item and add other mandatory tests that should be passing-->
 
 - [ ] Works in local docker-compose
-- [ ] Has a attested on a testnet at least once
+- [ ] Has attested on a testnet at least once
 
 # 👐 Additional acceptance criteria
 
