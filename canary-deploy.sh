@@ -80,21 +80,27 @@ EOF
 ((node_index=node_index+1))
 done
 
-# deploy validator clients
+# Deploy Validator client of required type for each charon node. 
+IFS=','
+read -a vcs <<< "$VC_TYPES"
 node_index=0
-while [[ $node_index -lt "$NODES" ]]
+for vc in "${vcs[@]}"
 do
 export NODE_NAME="node$node_index"
 export VC_INDEX="vc$node_index"
-if [[ "$node_index" -le "$NODES/2" ]] && [[ $MIX_VCS == "true" ]]
-then
+if [ $vc -eq 0 ]; then
+eval "cat <<EOF
+$(<./templates/teku-vc.yaml)
+EOF
+" | kubectl apply -f -
+elif [ $vc -eq 1 ]; then
 eval "cat <<EOF
 $(<./templates/lighthouse-vc.yaml)
 EOF
 " | kubectl apply -f -
-else
+elif [ $vc -eq 2 ]; then
 eval "cat <<EOF
-$(<./templates/teku-vc.yaml)
+$(<./templates/lodestar-vc.yaml)
 EOF
 " | kubectl apply -f -
 fi
