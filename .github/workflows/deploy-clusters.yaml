@@ -1,4 +1,4 @@
-name: Canary Clusters Deployment
+name: Deploy Canary Clusters
 
 on: 
     workflow_dispatch:
@@ -37,7 +37,7 @@ jobs:
          echo ::set-output name=tag::$(git rev-parse --short ${{ github.event.client_payload.sha }})
 
     - name: Deploy canary-goerli-1
-      run: ./canary-deploy.sh canary-goerli-1
+      run: ./deploy-cluster.sh canary-goerli-1
       shell: bash
     
     - uses: sarisia/actions-status-discord@v1
@@ -47,7 +47,7 @@ jobs:
         title: "canary-goerli-1"
 
     - name: Deploy canary-goerli-2
-      run: ./canary-deploy.sh canary-goerli-2
+      run: ./deploy-cluster.sh canary-goerli-2
       shell: bash
 
     - uses: sarisia/actions-status-discord@v1
@@ -57,7 +57,7 @@ jobs:
         title: "canary-goerli-2"
 
     - name: Deploy charon-gnosis-0
-      run: ./deploy.sh charon-gnosis-0
+      run: ./deploy-cluster.sh charon-gnosis-0
       shell: bash
     
     - uses: sarisia/actions-status-discord@v1
@@ -67,7 +67,7 @@ jobs:
         title: "charon-gnosis-0"
 
     - name: Deploy charon-prater-0
-      run: ./deploy.sh charon-prater-0
+      run: ./deploy-cluster.sh charon-prater-0
       shell: bash
     
     - uses: sarisia/actions-status-discord@v1
@@ -77,7 +77,7 @@ jobs:
         title: "charon-prater-0"
 
     - name: Deploy charon-prater-1
-      run: ./deploy.sh charon-prater-1
+      run: ./deploy-cluster.sh charon-prater-1
       shell: bash
     
     - uses: sarisia/actions-status-discord@v1

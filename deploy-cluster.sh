@@ -1,12 +1,12 @@
 #!/bin/bash
 
-set -uo pipefail
-
 if [ "$1" = "" ]
 then
   echo "Usage: $0 <cluster name to be deployed>"
-  exit
+  exit -1
 fi
+
+set -uo pipefail
 
 CLUSTER_NAME=$1
 
@@ -22,12 +22,6 @@ IFS=$OLDIFS
 
 rm ./${CLUSTER_NAME}.env
 
-if [[ $CANARY == "true" ]]
-then
-  echo "Please use canary-deploy.sh script."
-  exit 1
-fi
-
 # create the namespace
 nsStatus=`kubectl get namespace ${CLUSTER_NAME} --no-headers --output=go-template={{.metadata.name}} 2>/dev/null`
 if [ -z "$nsStatus" ]; then
@@ -38,15 +32,17 @@ fi
 # set current namespace
 kubectl config set-context --current --namespace=${CLUSTER_NAME}
 
-echo "deploy cluster: ${CLUSTER_NAME}"
+echo "deploying cluster: ${CLUSTER_NAME}"
 
-# deploy charon nodes
+# Deploy charon nodes
+IFS=','
+read -a versions <<< "$CHARON_VERSIONS"
 node_index=0
-while [[ $node_index -lt "$NODES" ]]
+for version in "${versions[@]}"
 do
 export NODE_NAME="node$node_index"
 export VC_INDEX="vc$node_index"
-export CHARON_VERSION=$CHARON_LATEST_REL
+export CHARON_VERSION=$version
 eval "cat <<EOF
 $(<./templates/charon.yaml)
 EOF
@@ -54,21 +50,27 @@ EOF
 ((node_index=node_index+1))
 done
 
-# deploy validator clients
+# Deploy Validator client of required type for each charon node. 
+IFS=','
+read -a vcs <<< "$VC_TYPES"
 node_index=0
-while [[ $node_index -lt "$NODES" ]]
+for vc in "${vcs[@]}"
 do
 export NODE_NAME="node$node_index"
 export VC_INDEX="vc$node_index"
-if [[ "$node_index" -le "$NODES/2" ]] && [[ $MIX_VCS == "true" ]]
-then
+if [ $vc -eq 0 ]; then
+eval "cat <<EOF
+$(<./templates/teku-vc.yaml)
+EOF
+" | kubectl apply -f -
+elif [ $vc -eq 1 ]; then
 eval "cat <<EOF
 $(<./templates/lighthouse-vc.yaml)
 EOF
 " | kubectl apply -f -
-else
+elif [ $vc -eq 2 ]; then
 eval "cat <<EOF
-$(<./templates/teku-vc.yaml)
+$(<./templates/lodestar-vc.yaml)
 EOF
 " | kubectl apply -f -
 fi
