@@ -10,10 +10,6 @@ fi
 
 CLUSTER_NAME=$1
 
-# set current namespace
-kubectl config set-context --current --namespace=${CLUSTER_NAME}
-
-echo "deploy cluster: ${CLUSTER_NAME}"
-
 # restart cluster
+echo "restarting cluster: ${CLUSTER_NAME}"
 kubectl delete --all pods --namespace=${CLUSTER_NAME}
