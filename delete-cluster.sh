@@ -1,12 +1,12 @@
 #!/bin/bash
 
-set -uo pipefail
-
 if [ "$1" = "" ]
 then
-  echo "Usage: $0 <cluster name to be deployed>"
-  exit
+  echo "Usage: $0 <cluster name to delete>"
+  exit 1
 fi
+
+set -uo pipefail
 
 CLUSTER_NAME=$1
 
@@ -18,4 +18,4 @@ if [ -z "${nsStatus}" ]; then
 fi
 
 echo "deleting cluster: ${CLUSTER_NAME}"
-kubectl delete all --all -n ${CLUSTER_NAME}
+kubectl delete pods --all -n ${CLUSTER_NAME}
