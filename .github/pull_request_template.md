@@ -13,6 +13,6 @@
 -->
 body...
 
-category: bug feature refactor docs test fixbuild misc
+category: upgrade bug feature refactor docs test fixbuild misc
 
 ticket: #000
