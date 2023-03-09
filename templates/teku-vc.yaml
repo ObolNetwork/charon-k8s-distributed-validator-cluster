@@ -59,12 +59,6 @@ spec:
               --beacon-node-api-endpoint="http://$NODE_NAME:3600" \
               --validators-proposer-default-fee-recipient="0x9FD17880D4F5aE131D62CE6b48dF7ba7D426a410";
           volumeMounts:
-            - name: validators
-              mountPath: /charon/$NODE_NAME/validator_keys
-            - name: private-key
-              mountPath: /charon/$NODE_NAME
-            - name: cluster-lock
-              mountPath: /charon
             - name: data
               mountPath: /data/teku
       volumes:
@@ -73,16 +67,6 @@ spec:
             sources:
             - secret:
                 name: $NODE_NAME-validators
-        - name: private-key
-          projected:
-            sources:
-            - secret:
-                name: $NODE_NAME-charon-enr-private-key
-        - name: cluster-lock
-          projected:
-            sources:
-            - secret:
-                name: $NODE_NAME-cluster-lock
         - name: data
           emptyDir: {}
 ---

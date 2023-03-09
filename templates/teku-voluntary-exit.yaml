@@ -54,12 +54,6 @@ spec:
               --beacon-node-api-endpoint="http://$NODE_NAME:3600" \
               --epoch=${EXIT_EPOCH:-112260};
           volumeMounts:
-            - name: validators
-              mountPath: /charon/$NODE_NAME/validator_keys
-            - name: private-key
-              mountPath: /charon/$NODE_NAME
-            - name: cluster-lock
-              mountPath: /charon
             - name: data
               mountPath: /data/teku
       volumes:
@@ -68,16 +62,6 @@ spec:
             sources:
             - secret:
                 name: $NODE_NAME-validators
-        - name: private-key
-          projected:
-            sources:
-            - secret:
-                name: $NODE_NAME-charon-enr-private-key
-        - name: cluster-lock
-          projected:
-            sources:
-            - secret:
-                name: $NODE_NAME-cluster-lock
         - name: data
           emptyDir: {}
 ---

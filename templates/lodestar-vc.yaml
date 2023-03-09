@@ -56,12 +56,6 @@ spec:
               --importKeystoresPassword="/data/lodestar/validator_keys/keystore-0.txt" \
               --beaconNodes="http://$NODE_NAME:3600";
           volumeMounts:
-            - name: validators
-              mountPath: /charon/$NODE_NAME/validator_keys
-            - name: private-key
-              mountPath: /charon/$NODE_NAME
-            - name: cluster-lock
-              mountPath: /charon
             - name: data
               mountPath: /data/lodestar
       volumes:
@@ -70,16 +64,6 @@ spec:
             sources:
             - secret:
                 name: $NODE_NAME-validators
-        - name: private-key
-          projected:
-            sources:
-            - secret:
-                name: $NODE_NAME-charon-enr-private-key
-        - name: cluster-lock
-          projected:
-            sources:
-            - secret:
-                name: $NODE_NAME-cluster-lock
         - name: data
           emptyDir: {}
 ---
