@@ -16,7 +16,7 @@ labels: Enhancement
 
 <!--Delete any irrelevant item and add other mandatory tests that should be passing-->
 
-- [ ] Works in local docker-compose
+- [ ] Cluster is deployed successfully to k8s
 - [ ] Has attested on a testnet at least once
 
 # 👐 Additional acceptance criteria
