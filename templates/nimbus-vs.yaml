@@ -45,19 +45,10 @@ spec:
             volume_mount:
               - name: validators
                 mount_path: /charon/node$NODE_INDEX/validator_keys
-              - name: private-key
-                mount_path: /charon/node$NODE_INDEX
-              - name: cluster-lock
-                mount_path: /charon
               - name: data
                 mount_path: /data/nimbus
         volumes:
             - name: validators
-              projected:
-                sources:
-                - secret:
-                    name: node$NODE_INDEX-validators
-            - name: cluster-lock
               projected:
                 sources:
                 - secret:
