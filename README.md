@@ -18,9 +18,15 @@ Edit the required configruation values in the .env file.
 
 ## Generate Validators Keystores
 ```sh
-docker run --rm -v "$(pwd):/opt/charon" ghcr.io/obolnetwork/charon:v0.14.3 create cluster --withdrawal-address="0x000000000000000000000000000000000000dead" --num-validators=1 --nodes=5 --threshold=3 --network=goerli
-# rename cluster director to the <cluster_name>
-mv .charon/cluster .charon/<cluster_name>
+# Enter required validator addresses
+WITHDRAWAL_ADDR=<ENTER YOUR WITHDRAWAL ADDRESS HERE>
+FEE_RECIPIENT_ADDR=<ENTER YOUR FEE RECIPIENT ADDRESS HERE>
+
+# Create a distributed validator cluster
+docker run --rm -v "$(pwd):/opt/charon" obolnetwork/charon:v0.14.4 create cluster --name="mycluster" --withdrawal-addresses="${WITHDRAWAL_ADDR}" --fee-recipient-addresses="${FEE_RECIPIENT_ADDR}" --nodes 6 --threshold 5
+
+# rename cluster directory to the <cluster_name>
+mv .charon/cluster .charon/mycluster
 ```
 
 ## Upload Cluster Config to GCS
