@@ -15,6 +15,7 @@ data:
   CHARON_LOG_LEVEL: "debug"
   CHARON_NO_VERIFY: "true"
   CHARON_P2P_DISABLE_REUSEPORT: "true"
+  CHARON_PRIVATE_KEY_FILE_LOCK: "false"
 ---
 apiVersion: apps/v1
 kind: Deployment
