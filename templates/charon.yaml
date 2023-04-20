@@ -109,10 +109,6 @@ spec:
       protocol: TCP
       port: 3610
       targetPort: 3610
-    - name: p2p-udp
-      protocol: UDP
-      port: 3630
-      targetPort: 3630
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
