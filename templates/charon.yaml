@@ -109,7 +109,6 @@ spec:
       protocol: TCP
       port: 3610
       targetPort: 3610
-
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
