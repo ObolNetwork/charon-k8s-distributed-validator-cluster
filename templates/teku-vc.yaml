@@ -47,7 +47,7 @@ spec:
             - -ace
             - |
               /opt/teku/bin/teku vc \
-              --network=auto \
+              --network=$NETWORK \
               --log-destination=console \
               --data-base-path=/data/teku \
               --metrics-enabled=true \
@@ -57,7 +57,7 @@ spec:
               --validator-keys="/data/teku/validator_keys:/data/teku/validator_keys" \
               --validators-graffiti="Obol Distributed Validator" \
               --beacon-node-api-endpoint="http://$NODE_NAME:3600" \
-              --validators-proposer-default-fee-recipient="0x9FD17880D4F5aE131D62CE6b48dF7ba7D426a410";
+              --validators-proposer-default-fee-recipient="0xf6f9eaE9FF22219B933744049EB89f2f0da77baC";
           volumeMounts:
             - name: data
               mountPath: /data/teku
@@ -65,8 +65,8 @@ spec:
         - name: validators
           projected:
             sources:
-            - secret:
-                name: $NODE_NAME-validators
+              - secret:
+                  name: $NODE_NAME-validators
         - name: data
           emptyDir: {}
 ---
@@ -96,4 +96,4 @@ spec:
     matchLabels:
       app: $VC_INDEX-teku
   endpoints:
-  - port: metrics
+    - port: metrics

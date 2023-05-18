@@ -73,6 +73,11 @@ eval "cat <<EOF
 $(<./templates/lodestar-vc.yaml)
 EOF
 " | kubectl apply -f -
+elif [ $vc -eq 3 ]; then
+eval "cat <<EOF
+$(<./templates/nimbus-vc.yaml)
+EOF
+" | kubectl apply -f -
 fi
 ((node_index=node_index+1))
 done

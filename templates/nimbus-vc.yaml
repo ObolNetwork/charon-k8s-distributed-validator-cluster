@@ -1,76 +1,87 @@
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: vc$NODE_INDEX-nimbus
-  name: vc$NODE_INDEX-nimbus
+    app: $VC_INDEX-nimbus
+  name: $VC_INDEX-nimbus
   namespace: $CLUSTER_NAME
 spec:
   replicas: 1
-    selector:
-      match_labels:
-        app: vc$NODE_INDEX-nimbus
-    strategy:
-      type: Recreate
-    template:
-      metadata:
-       labels:
-          app: vc$NODE_INDEX-nimbus
-          index: $NODE_INDEX
-        spec:
-        security_context:
-          run_as_user: 0
-        init_container:
-          - name: init-nimbus
-            image: statusim/nimbus-eth2:$NIMBUS_VERSION
-            command:
-              - sh
-              - -ac
-              - "tmp=/data/nimbus/nimbus-keystores \n mkdir -p $${tmp}\n for f in /validator_keys/keystore-*.json; do\n  cp $${f} $${tmp}\n  cat $${f%.*}.txt | \\\n  /home/user/nimbus_beacon_node deposits import \\\n  --log-level=debug \\\n --data-dir=/data/nimbus \\\n  /data/nimbus/nimbus-keystores \n  rm $${tmp}/$(basename $${f}) \n done\n"
-            volume_mount:
-              - name: data
-                mount_path: /data/nimbus
-              - name: validators
-                mount_path: /validator_keys
-            security_context:
-              run_as_user: 0
-        container:
-          - name: vc$NODE_INDEX-nimbus
-            image: statusim/nimbus-validator-client:$NIMBUS_VERSION
-            command:
-              - sh
-              - -ac
-              - "./nimbus_validator_client \\\n --log-level=debug \\\n--data-dir=/data/nimbus \\\n--metrics \\\n--metrics-address=\"0.0.0.0\" \\\n--metrics-port=\"8008\" \\\n--beacon-node=\"http://node$NODE_INDEX:3600\" \\\n--doppelganger-detection=false \n"
-            volume_mount:
-              - name: validators
-                mount_path: /charon/node$NODE_INDEX/validator_keys
-              - name: data
-                mount_path: /data/nimbus
-        volumes:
+  selector:
+    matchLabels:
+      app: $VC_INDEX-nimbus
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: $VC_INDEX-nimbus
+    spec:
+      securityContext:
+        runAsUser: 0
+      initContainers:
+        - name: init-nimbus
+          image: statusim/nimbus-eth2:$NIMBUS_VERSION
+          command:
+            - sh
+            - -eu
+            - |
+              tmpkeys="/data/nimbus/nimbus-keystores";
+              mkdir -p ${tmpkeys};
+              for f in /validator_keys/keystore-*.json; do
+                echo "Importing key ${f}";
+                password=$(<"${f//json/txt}");
+                cp "${f}" "${tmpkeys}";
+                echo "$password" | /home/user/nimbus_beacon_node deposits import --data-dir=/home/user/data/${NODE} /home/validator_keys/tmpkeys;
+                filename="$(basename ${f})";
+                rm "${tmpkeys}/${filename}";
+              done;
+              rm -r ${tmpkeys};
+          volumeMounts:
+            - name: data
+              mountPath: /data/nimbus
             - name: validators
-              projected:
-                sources:
-                - secret:
-                    name: node$NODE_INDEX-validators
-            name: data
-            emptyDir: {}
+              mountPath: /validator_keys
+          securityContext:
+            runAsUser: 0
+      containers:
+        - name: $VC_INDEX-nimbus
+          image: statusim/nimbus-validator-client:$NIMBUS_VERSION
+          command:
+            - sh
+            - -ac
+            - "./nimbus_validator_client \\\n --log-level=debug \\\n--data-dir=/data/nimbus \\\n--metrics \\\n--metrics-address=\"0.0.0.0\" \\\n--beacon-node=\"http://$NODE_NAME:3600\" \\\n--doppelganger-detection=false \n"
+          volumeMounts:
+            - name: validators
+              mountPath: /validator_keys
+            - name: data
+              mountPath: /data/nimbus
+      volumes:
+        - name: validators
+          projected:
+            sources:
+              - secret:
+                  name: $NODE_NAME-validators
+        - name: data
+          emptyDir: {}
+
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: vc$NODE_INDEX-nimbus
-    namespace: $CLUSTER_NAME
-    labels:
-      app: vc$NODE_INDEX-nimbus
+  name: $VC_INDEX-nimbus
+  namespace: $CLUSTER_NAME
+  labels:
+    app: $VC_INDEX-nimbus
 spec:
   selector:
-    app: vc$NODE_INDEX-nimbus
+    app: $VC_INDEX-nimbus
   ports:
     - name: metrics
       protocol: TCP
       port: 8008
-      target_port: "8008"
+      targetPort: "8008-tcp"
+
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
@@ -82,4 +93,4 @@ spec:
     matchLabels:
       app: $VC_INDEX-nimbus
   endpoints:
-  - port: metrics
+    - port: metrics

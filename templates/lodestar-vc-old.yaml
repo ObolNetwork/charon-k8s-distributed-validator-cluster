@@ -1,3 +1,4 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -28,12 +29,11 @@ spec:
           command:
             - sh
             - -ac
-            - |
+            - >
               rm -rf /data/lodestar/validator_keys 2>/dev/null || true;
               mkdir -p /data/lodestar/validator_keys;
               cp /validator_keys/* /data/lodestar/validator_keys;
               chown -R 1000:1000 /data/lodestar;
-              /usr/app/packages/cli/bin/lodestar validator import --network=$NETWORK --importKeystores="/data/lodestar/validator_keys" --importKeystoresPassword="/data/lodestar/validator_keys/keystore-0.txt"
           volumeMounts:
             - name: data
               mountPath: /data/lodestar
@@ -41,19 +41,20 @@ spec:
               mountPath: "/validator_keys"
       containers:
         - name: $VC_INDEX-lodestar
-          image: nflaig/lodestar:$LODESTAR_VERSION
+          image: chainsafe/lodestar:$LODESTAR_VERSION
           imagePullPolicy: Always
           command:
             - sh
             - -ace
             - |
               node /usr/app/packages/cli/bin/lodestar validator \
-              --network=$NETWORK \
+              --network=goerli \
               --metrics=true \
               --metrics.address="0.0.0.0" \
               --metrics.port=5064 \
-              --beaconNodes="http://$NODE_NAME:3600" \
-              --distributed;
+              --importKeystores="/data/lodestar/validator_keys" \
+              --importKeystoresPassword="/data/lodestar/validator_keys/keystore-0.txt" \
+              --beaconNodes="http://$NODE_NAME:3600";
           volumeMounts:
             - name: data
               mountPath: /data/lodestar
@@ -61,11 +62,10 @@ spec:
         - name: validators
           projected:
             sources:
-              - secret:
-                  name: $NODE_NAME-validators
+            - secret:
+                name: $NODE_NAME-validators
         - name: data
           emptyDir: {}
-
 ---
 apiVersion: v1
 kind: Service
@@ -82,7 +82,6 @@ spec:
       protocol: TCP
       port: 8008
       targetPort: 8008
-
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
@@ -94,4 +93,4 @@ spec:
     matchLabels:
       app: $VC_INDEX-lodestar
   endpoints:
-    - port: metrics
+  - port: metrics
