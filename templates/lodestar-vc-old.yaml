@@ -16,7 +16,7 @@ spec:
   template:
     metadata:
       labels:
-        app: $VC_INDEX-lodestar
+        app: $VC_INDEX-init-lodestar
     spec:
       securityContext:
         fsGroup: 1000
@@ -62,8 +62,8 @@ spec:
         - name: validators
           projected:
             sources:
-            - secret:
-                name: $NODE_NAME-validators
+              - secret:
+                  name: $NODE_NAME-validators
         - name: data
           emptyDir: {}
 ---
@@ -93,4 +93,4 @@ spec:
     matchLabels:
       app: $VC_INDEX-lodestar
   endpoints:
-  - port: metrics
+    - port: metrics

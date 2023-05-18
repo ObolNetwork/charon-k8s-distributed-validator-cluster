@@ -21,39 +21,41 @@ spec:
         fsGroup: 1000
         runAsUser: 1000
       initContainers:
-        - name: init-chown
-          image: busybox
+        - name: $VC_INDEX-lodestar-init
+          image: nflaig/lodestar:$LODESTAR_VERSION
           securityContext:
             runAsUser: 0
           command:
             - sh
             - -ac
-            - |
+            - >
               rm -rf /data/lodestar/validator_keys 2>/dev/null || true;
               mkdir -p /data/lodestar/validator_keys;
               cp /validator_keys/* /data/lodestar/validator_keys;
               chown -R 1000:1000 /data/lodestar;
-              /usr/app/packages/cli/bin/lodestar validator import --network=$NETWORK --importKeystores="/data/lodestar/validator_keys" --importKeystoresPassword="/data/lodestar/validator_keys/keystore-0.txt"
+              node /usr/app/packages/cli/bin/lodestar validator import --network="$NETWORK" --importKeystores="/data/lodestar/validator_keys" --importKeystoresPassword="/data/lodestar/validator_keys/keystore-0.txt"
           volumeMounts:
             - name: data
               mountPath: /data/lodestar
             - name: validators
-              mountPath: "/validator_keys"
+              mountPath: /validator_keys
       containers:
         - name: $VC_INDEX-lodestar
           image: nflaig/lodestar:$LODESTAR_VERSION
           imagePullPolicy: Always
           command:
             - sh
-            - -ace
-            - |
+            - -ac
+            - >
               node /usr/app/packages/cli/bin/lodestar validator \
               --network=$NETWORK \
               --metrics=true \
               --metrics.address="0.0.0.0" \
               --metrics.port=5064 \
               --beaconNodes="http://$NODE_NAME:3600" \
-              --distributed;
+              --importKeystores="/data/lodestar/validator_keys" \
+              --importKeystoresPassword="/data/lodestar/validator_keys/keystore-0.txt" \
+              --distributed
           volumeMounts:
             - name: data
               mountPath: /data/lodestar
