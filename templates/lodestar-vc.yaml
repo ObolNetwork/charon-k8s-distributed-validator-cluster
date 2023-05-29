@@ -1,3 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: import-script-config
+  namespace: $CLUSTER_NAME
+data:
+  import-script.sh: |
+    #!/bin/sh
+    for f in /validator_keys/keystore-*.json; do
+      echo "Importing key ${f//json/json}"
+      node /usr/app/packages/cli/bin/lodestar validator import \
+          --dataDir="/opt/data" \
+          --network="$NETWORK" \
+          --importKeystores="${f//json/json}" \
+          --importKeystoresPassword="${f//json/txt}"
+    done
+    node /usr/app/packages/cli/bin/lodestar validator \
+              --dataDir="/opt/data" \
+              --network=$NETWORK \
+              --metrics=true \
+              --metrics.address="0.0.0.0" \
+              --metrics.port=5064 \
+              --beaconNodes="http://$NODE_NAME:3600" \
+              --distributed
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -22,6 +46,21 @@ spec:
         fsGroup: 1000
         runAsUser: 1000
       initContainers:
+        - name: copy-script
+          image: busybox
+          command:
+            - sh
+            - -ac
+            - cp /config/import-script.sh /opt/scripts/import-script.sh
+          volumeMounts:
+            - name: data
+              mountPath: "/opt/data"
+            - name: validators
+              mountPath: "/validator_keys"
+            - name: config
+              mountPath: "/config"
+            - name: scripts
+              mountPath: "/opt/scripts"
         - name: init-chown
           image: busybox
           securityContext:
@@ -29,16 +68,14 @@ spec:
           command:
             - sh
             - -ac
-            - >
-              rm -rf /data/lodestar/validator_keys 2>/dev/null || true;
-              mkdir -p /data/lodestar/validator_keys;
-              cp /validator_keys/* /data/lodestar/validator_keys;
-              chown -R 1000:1000 /data/lodestar;
+            - chmod +x /opt/scripts/import-script.sh
           volumeMounts:
-            - name: data
-              mountPath: /data/lodestar
             - name: validators
               mountPath: "/validator_keys"
+            - name: data
+              mountPath: "/opt/data"
+            - name: scripts
+              mountPath: "/opt/scripts"
       containers:
         - name: $VC_INDEX-lodestar
           image: chainsafe/lodestar:$LODESTAR_VERSION
@@ -46,25 +83,27 @@ spec:
           command:
             - sh
             - -ace
-            - |
-              node /usr/app/packages/cli/bin/lodestar validator \
-              --network=goerli \
-              --metrics=true \
-              --metrics.address="0.0.0.0" \
-              --metrics.port=5064 \
-              --importKeystores="/data/lodestar/validator_keys" \
-              --importKeystoresPassword="/data/lodestar/validator_keys/keystore-0.txt" \
-              --beaconNodes="http://$NODE_NAME:3600";
+            - >
+              /opt/scripts/import-script.sh;
           volumeMounts:
+            - name: validators
+              mountPath: "/validator_keys"
             - name: data
-              mountPath: /data/lodestar
+              mountPath: "/opt/data"
+            - name: scripts
+              mountPath: "/opt/scripts"
       volumes:
         - name: validators
           projected:
             sources:
-            - secret:
-                name: $NODE_NAME-validators
+              - secret:
+                  name: $NODE_NAME-validators
         - name: data
+          emptyDir: {}
+        - name: config
+          configMap:
+            name: import-script-config
+        - name: scripts
           emptyDir: {}
 ---
 apiVersion: v1

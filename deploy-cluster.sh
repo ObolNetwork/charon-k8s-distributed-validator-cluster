@@ -69,10 +69,9 @@ $(<./templates/lighthouse-vc.yaml)
 EOF
 " | kubectl apply -f -
 elif [ $vc -eq 2 ]; then
-eval "cat <<EOF
-$(<./templates/lodestar-vc.yaml)
-EOF
-" | kubectl apply -f -
+envsubst < ./templates/lodestar-vc.yaml | kubectl apply -f -
+elif [ $vc -eq 3 ]; then	
+envsubst < ./templates/nimbus-vc.yaml | kubectl apply -f -
 fi
 ((node_index=node_index+1))
 done
