@@ -13,7 +13,6 @@ then
 fi
 
 CLUSTER_NAME=$1
-SUGGESTED_FEE_RECIPIENT=$2
 
 # download cluster config
 mkdir -p ./.charon
