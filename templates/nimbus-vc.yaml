@@ -6,11 +6,16 @@ metadata:
 data:
   import-script.sh: |
     #!/bin/sh
+    tmpkeys="/data/nimbus/tmpkeys"
+    mkdir -p ${tmpkeys:="/validator_keys/tmpkeys"}
     for f in /validator_keys/keystore-*.json; do
+      cp "${f:="/validator_keys/keystore-0.json"}" "${tmpkeys:="/validator_keys/tmpkeys"}"
+      cp "${f%.*}.txt" "${tmpkeys:="/validator_keys/tmpkeys"}"
       cat "${f%.*}.txt" |
       /data/nimbus/nimbus_beacon_node deposits import \
       --data-dir=/data/nimbus/${NODE_NAME} \
-      /validator_keys
+      ${tmpkeys:="/validator_keys/tmpkeys"}
+      rm "${tmpkeys:="/validator_keys/tmpkeys"}/$(basename "${f:="/validator_keys/keystore-0.json"}")"
     done
     exec /home/user/nimbus_validator_client \
       --data-dir=/data/nimbus/"${NODE_NAME}" \
@@ -60,7 +65,7 @@ spec:
             - >
               cp /config/import-script.sh /data/nimbus/import-script.sh;
               chmod +x /data/nimbus/import-script.sh;
-              /data/nimbus/import-script.sh;
+              /data/nimbus/import-script.sh
           volumeMounts:
             - name: config
               mountPath: /config
