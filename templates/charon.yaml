@@ -49,13 +49,13 @@ spec:
           args: ["run"]
           readinessProbe:
             httpGet:
-              path: /metrics
+              path: /readyz
               port: 3620
             initialDelaySeconds: 5
             periodSeconds: 3
           livenessProbe:
             httpGet:
-              path: /metrics
+              path: /livez
               port: 3620
             initialDelaySeconds: 10
             periodSeconds: 5
