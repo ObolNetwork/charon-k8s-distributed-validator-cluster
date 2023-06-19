@@ -23,7 +23,7 @@ WITHDRAWAL_ADDR=<ENTER YOUR WITHDRAWAL ADDRESS HERE>
 FEE_RECIPIENT_ADDR=<ENTER YOUR FEE RECIPIENT ADDRESS HERE>
 
 # Create a distributed validator cluster
-docker run --rm -v "$(pwd):/opt/charon" obolnetwork/charon:v0.15.0 create cluster --name="mycluster" --withdrawal-addresses="${WITHDRAWAL_ADDR}" --fee-recipient-addresses="${FEE_RECIPIENT_ADDR}" --nodes 6 --threshold 5
+docker run --rm -v "$(pwd):/opt/charon" obolnetwork/charon:v0.16.0 create cluster --name="mycluster" --withdrawal-addresses="${WITHDRAWAL_ADDR}" --fee-recipient-addresses="${FEE_RECIPIENT_ADDR}" --nodes 6 --threshold 5
 
 # rename cluster directory to the <cluster_name>
 mv .charon/cluster .charon/mycluster
