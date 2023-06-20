@@ -83,7 +83,7 @@ spec:
         - name: cluster-lock
           projected:
             sources:
-            - secret:
+            - configMap:
                 name: $NODE_NAME-cluster-lock
 ---
 apiVersion: v1
