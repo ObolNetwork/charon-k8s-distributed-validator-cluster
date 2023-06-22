@@ -41,6 +41,8 @@ spec:
       securityContext:
         runAsUser: 1000
         fsGroup: 1000
+      serviceAccount: charon-sa
+      serviceAccountName: charon-sa
       volumes:
         - name: validators
           projected:
@@ -60,8 +62,7 @@ spec:
           command: ["/bin/sh", "-c"]
           args:
             - |
-              gcloud config set account ACCOUNT
-              gcloud storage cp gs://charon-clusters-config/charon-perf-1/cluster-lock.json /charon/cluster-lock.json
+              gcloud storage cp gs://charon-clusters-config/${CLUSTER_NAME}/cluster-lock.json /charon/cluster-lock.json
           volumeMounts:
             - name: cluster-lock
               mountPath: /charon
