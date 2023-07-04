@@ -1,0 +1,33 @@
+name: Deploy Canary Clusters
+
+on: 
+    workflow_dispatch:
+jobs:
+  deploy:
+    name: DKG run with AWS and GCP Relays
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - id: 'auth'
+      uses: 'google-github-actions/auth@v0'
+      with:
+        credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+
+    - id: 'get-credentials'
+      uses: 'google-github-actions/get-gke-credentials@v0'
+      with:
+        cluster_name: ${{ secrets.GKE_CLUSTER }}
+        location: ${{ secrets.GKE_REGION }}
+        credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
+        project_id: ${{ secrets.PROJECT_ID }}
+
+    - name: Run DKG with Relay 1
+      run: ./dkg-run charon-dkg-test https://1.relay.obol.tech
+      shell: bash
+    
+    - name: Run DKG with Relay 2
+      run: ./dkg-run charon-dkg-test https://2.relay.obol.tech
+      shell: bash
