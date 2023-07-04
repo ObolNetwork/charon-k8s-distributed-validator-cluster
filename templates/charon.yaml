@@ -41,8 +41,6 @@ spec:
       securityContext:
         runAsUser: 1000
         fsGroup: 1000
-      serviceAccount: charon-sa
-      serviceAccountName: charon-sa
       volumes:
         - name: validators
           projected:
@@ -55,17 +53,10 @@ spec:
               - secret:
                   name: $NODE_NAME-charon-enr-private-key
         - name: cluster-lock
-          emptyDir: {}
-      initContainers:
-        - name: download-cluster-lock
-          image: gcr.io/google.com/cloudsdktool/google-cloud-sdk:latest
-          command: ["/bin/sh", "-c"]
-          args:
-            - |
-              gcloud storage cp gs://charon-clusters-config/${CLUSTER_NAME}/cluster-lock.json /charon/cluster-lock.json
-          volumeMounts:
-            - name: cluster-lock
-              mountPath: /charon
+          projected:
+            sources:
+            - secret:
+                name: $NODE_NAME-cluster-lock
       containers:
         - name: $NODE_NAME
           image: ghcr.io/obolnetwork/charon:$CHARON_VERSION
