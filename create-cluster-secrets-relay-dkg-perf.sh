@@ -3,9 +3,9 @@
 set -uo pipefail
 
 CLUSTER_NAME_PREFIX="relay-dkg-perf"
-NUM_ITERATIONS=100
+NUM_ITERATIONS=300
 
-for ((INDEX = 1; INDEX <= NUM_ITERATIONS; INDEX++)); do
+for ((INDEX = 296; INDEX <= NUM_ITERATIONS; INDEX++)); do
     CLUSTER_NAME="${CLUSTER_NAME_PREFIX}-${INDEX}"
     
     # create the namespace

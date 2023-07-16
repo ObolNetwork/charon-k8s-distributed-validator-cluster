@@ -9,7 +9,7 @@ set -uo pipefail
 
 COPY_FROM_CLUSTER_NAME="charon-dkg-test"
 CLUSTER_NAME=$1
-NODES=7
+# NODES=7
 
 # download cluster config
 gcloud storage cp gs://charon-clusters-config/${COPY_FROM_CLUSTER_NAME}/${COPY_FROM_CLUSTER_NAME}.env .

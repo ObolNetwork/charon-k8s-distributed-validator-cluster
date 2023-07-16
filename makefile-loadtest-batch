@@ -1,0 +1,21 @@
+# Set the environment variables
+export NETWORK=goerli
+export CHARON_VERSION=v0.16.0
+export CHARON_P2P_RELAYS=https://2.relay.obol.tech
+
+.PHONY: deploy
+# Generate the cluster names using the indices
+CLUSTER_NAMES := $(addprefix relay-dkg-perf-,$(shell seq $(CLUSTER_INDEX_START) $(CLUSTER_INDEX_END)))
+deploy: $(CLUSTER_NAMES)
+
+$(CLUSTER_NAMES):
+	@./dkg-run-multi-ns-deploy.sh $@
+
+# Get the values for CLUSTER_INDEX_START and CLUSTER_INDEX_END from command-line arguments
+ifdef CLUSTER_INDEX_START
+override CLUSTER_INDEX_START := $(CLUSTER_INDEX_START)
+endif
+
+ifdef CLUSTER_INDEX_END
+override CLUSTER_INDEX_END := $(CLUSTER_INDEX_END)
+endif

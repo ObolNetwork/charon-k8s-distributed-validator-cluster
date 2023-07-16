@@ -9,15 +9,13 @@ CLUSTER_NAMES := $(addprefix relay-dkg-perf-,$(shell seq $(CLUSTER_INDEX_START) 
 export NETWORK=goerli
 export CHARON_VERSION=v0.16.0
 export CHARON_P2P_RELAYS=https://2.relay.obol.tech
+REPORT_FILE := Report-$(CLUSTER_INDEX_END).txt
 
 .PHONY: report
-
-# deploy: $(CLUSTER_NAMES)
-
-# $(CLUSTER_NAMES):
-# 	@./dkg-run-multi-ns-deploy.sh $@
 
 report: $(CLUSTER_NAMES)
 
 $(CLUSTER_NAMES):
-	@./dkg-run-multi-ns-report.sh $@
+	@for cluster_name in $(CLUSTER_NAMES); do \
+		./dkg-run-multi-ns-report.sh $$cluster_name >> $(REPORT_FILE) ; \
+	done

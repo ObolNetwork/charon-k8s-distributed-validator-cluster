@@ -1,6 +1,6 @@
 # Define the range of indices for generating cluster names
 CLUSTER_INDEX_START := 1
-CLUSTER_INDEX_END := 100
+CLUSTER_INDEX_END := 50
 
 # Generate the cluster names using the indices
 CLUSTER_NAMES := $(addprefix relay-dkg-perf-,$(shell seq $(CLUSTER_INDEX_START) $(CLUSTER_INDEX_END)))
