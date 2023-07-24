@@ -37,7 +37,12 @@ gcloud storage cp .env gs://charon-clusters-config/<cluster_name>/<cluster_name>
 
 ## Generate Lighthouse validators definitions
 ```sh
-./generate-lighthouse-validators-definitions.sh <cluster-name>
+./create-lighthouse-validators-definitions.sh <cluster-name>
+```
+
+## Generate Lodestar validators definitions
+```sh
+./create-lodestar-validators-definitions.sh <cluster-name>
 ```
 
 ## Create Kubernetes Secrets

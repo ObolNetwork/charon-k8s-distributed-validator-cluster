@@ -53,5 +53,7 @@ done
 # create the lighthouse validators definitions configmaps
 kubectl apply -f ./.charon/${CLUSTER_NAME}/lighthouse-validators-definitions/
 
+#TODO create the lodestar validators definitions configmaps
+
 # delete cluster config before exit
 rm -rf ./.charon/${CLUSTER_NAME}
