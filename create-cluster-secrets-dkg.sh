@@ -43,8 +43,6 @@ do
     kubectl -n ${CLUSTER_NAME} create secret generic node${i}-charon-enr-private-key --from-file=charon-enr-private-key=./.charon/${CLUSTER_NAME}/node${i}/charon-enr-private-key --dry-run=client -o yaml | kubectl apply -f -
     kubectl -n ${CLUSTER_NAME} create secret generic node${i}-cluster-definition --from-file=cluster-definition.json=./.charon/${CLUSTER_NAME}/cluster-definition.json --dry-run=client -o yaml | kubectl apply -f -
     ((i=i+1))
-    #exit loop after first iteration
-    # break
 done
 
 # delete cluster config before exit
