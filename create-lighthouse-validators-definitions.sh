@@ -51,7 +51,7 @@ END
       type: local_keystore
       voting_keystore_path: /data/lighthouse/validator_keys/keystore-$INDEX.json
       voting_keystore_password_path: /data/lighthouse/validator_keys/keystore-$INDEX.txt
-      suggested_fee_recipient: 0x9FD17880D4F5aE131D62CE6b48dF7ba7D426a410
+      suggested_fee_recipient: ${PROPOSER_DEFAULT_FEE_RECIPIENT}
 END
         ((INDEX=INDEX+1))
     done
@@ -59,7 +59,7 @@ END
     INDEX=0
 done
 
-gcloud storage -m cp -R ${definitions_dir} gs://charon-clusters-config/${CLUSTER_NAME}
+gcloud storage cp -R ${definitions_dir} gs://charon-clusters-config/${CLUSTER_NAME}
 
 # delete cluster config before exit
 rm -rf ./.charon/${CLUSTER_NAME}

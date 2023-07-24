@@ -31,13 +31,18 @@ mv .charon/cluster .charon/mycluster
 
 ## Upload Cluster Config to GCS
 ```sh
-gcloud storage -m cp -R .charon/<cluster_name> gs://charon-clusters-config
-gcloud storage cp gs://charon-clusters-config/<cluster_name>/<cluster_name>.env .
+gcloud storage cp -R .charon/<cluster_name> gs://charon-clusters-config
+gcloud storage cp .env gs://charon-clusters-config/<cluster_name>/<cluster_name>.env .
 ```
 
 ## Generate Lighthouse validators definitions
 ```sh
-./generate-lighthouse-validators-definitions.sh <cluster-name>
+./create-lighthouse-validators-definitions.sh <cluster-name>
+```
+
+## Generate Lodestar validators definitions
+```sh
+./create-lodestar-validators-definitions.sh <cluster-name>
 ```
 
 ## Create Kubernetes Secrets

@@ -1,0 +1,16 @@
+BATCH_SIZE := 10
+CLUSTER_INDEX_START := 1
+CLUSTER_INDEX_END := 50
+WAIT_TIME := 10
+
+.PHONY: deploy-batches
+
+deploy-batches:
+	@for i in $$(seq $(CLUSTER_INDEX_START) $(BATCH_SIZE) $(CLUSTER_INDEX_END)); do \
+		start=$$i; \
+		end=$$(($$i + $(BATCH_SIZE) - 1)); \
+		echo "Running make deploy for cluster indices $$start-$$end"; \
+		make -f makefile-loadtest-batch CLUSTER_INDEX_START=$$start CLUSTER_INDEX_END=$$end deploy -j; \
+		echo "Waiting for $(WAIT_TIME) seconds before the next batch..."; \
+		sleep $(WAIT_TIME); \
+	done
