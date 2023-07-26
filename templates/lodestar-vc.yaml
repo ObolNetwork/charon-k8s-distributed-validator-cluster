@@ -22,6 +22,8 @@ data:
               --metrics.port=5064 \
               --beaconNodes="http://$NODE_NAME:3600" \
               --distributed
+              --builder="true"
+              --builder.selection="builderonly"
 ---
 apiVersion: apps/v1
 kind: Deployment
