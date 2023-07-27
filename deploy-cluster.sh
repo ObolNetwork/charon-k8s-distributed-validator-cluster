@@ -10,12 +10,15 @@ set -uo pipefail
 
 CLUSTER_NAME=$1
 
+gcloud storage cp gs://charon-clusters-config/tokens/tokens.env .
 # override the env vars
 OLDIFS=$IFS
 IFS='
 '
 export $(< ./${CLUSTER_NAME}.env)
+export $(< ./tokens.env)
 IFS=$OLDIFS
+rm ./tokens.env
 
 # create the namespace
 nsStatus=`kubectl get namespace ${CLUSTER_NAME} --no-headers --output=go-template={{.metadata.name}} 2>/dev/null`
