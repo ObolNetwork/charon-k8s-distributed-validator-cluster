@@ -11,8 +11,6 @@ set -uo pipefail
 CLUSTER_NAME=$1
 CHARON_IMAGE_TAG="${2:-"latest"}"
 
-# upload cluster config
-gcloud storage cp ./${CLUSTER_NAME}.env gs://charon-clusters-config/${CLUSTER_NAME}/${CLUSTER_NAME}.env
 gcloud storage cp gs://charon-clusters-config/tokens/tokens.env .
 
 # override the env vars
