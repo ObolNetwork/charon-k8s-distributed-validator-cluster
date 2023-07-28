@@ -18,4 +18,4 @@ if [ -z "${nsStatus}" ]; then
 fi
 
 echo "deleting cluster: ${CLUSTER_NAME}"
-kubectl delete pods --all -n ${CLUSTER_NAME}
+kubectl delete deployments --all -n ${CLUSTER_NAME}
