@@ -6,29 +6,22 @@ then
   exit -1
 fi
 
-if [ "$2" = "" ]
-then
-  echo "Usage: $0 <charon image tag to deploy>"
-  exit -1
-fi
-
 set -uo pipefail
 
 CLUSTER_NAME=$1
-CHARON_IMAGE_TAG=$2
+CHARON_IMAGE_TAG="${2:-"latest"}"
 
-# download cluster config
-gcloud storage cp gs://charon-clusters-config/${CLUSTER_NAME}/${CLUSTER_NAME}.env .
+gcloud storage cp gs://charon-clusters-config/tokens/tokens.env .
 
 # override the env vars
 OLDIFS=$IFS
 IFS='
 '
 export $(< ./${CLUSTER_NAME}.env)
+export $(< ./tokens.env)
 IFS=$OLDIFS
 
-rm ./${CLUSTER_NAME}.env
-
+rm ./tokens.env
 # create the namespace
 nsStatus=`kubectl get namespace ${CLUSTER_NAME} --no-headers --output=go-template={{.metadata.name}} 2>/dev/null`
 if [ -z "$nsStatus" ]; then
@@ -80,10 +73,9 @@ $(<./templates/lighthouse-vc.yaml)
 EOF
 " | kubectl apply -f -
 elif [ $vc -eq 2 ]; then
-eval "cat <<EOF
-$(<./templates/lodestar-vc.yaml)
-EOF
-" | kubectl apply -f -
+envsubst < ./templates/lodestar-vc.yaml | kubectl apply -f -
+elif [ $vc -eq 3 ]; then	
+envsubst < ./templates/nimbus-vc.yaml | kubectl apply -f -
 fi
 ((node_index=node_index+1))
 done
