@@ -13,16 +13,10 @@ data:
       cp "${f%.*}.txt" "${tmpkeys:="/validator_keys/tmpkeys"}"
       cat "${f%.*}.txt" |
       /data/nimbus/nimbus_beacon_node deposits import \
-      --data-dir=/data/nimbus/${NODE_NAME} \
+      --data-dir=/data/nimbus \
       ${tmpkeys:="/validator_keys/tmpkeys"}
       rm "${tmpkeys:="/validator_keys/tmpkeys"}/$(basename "${f:="/validator_keys/keystore-0.json"}")"
     done
-    exec /home/user/nimbus_validator_client \
-      --data-dir=/data/nimbus/"${NODE_NAME}" \
-      --beacon-node="http://$NODE_NAME:3600" \
-      --doppelganger-detection=false \
-      --metrics \
-      --metrics-address=0.0.0.0
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -62,10 +56,16 @@ spec:
           command:
             - sh
             - -ac
-            - >
+            - |
               cp /config/import-script.sh /data/nimbus/import-script.sh;
               chmod +x /data/nimbus/import-script.sh;
-              /data/nimbus/import-script.sh
+              /data/nimbus/import-script.sh;
+              exec /home/user/nimbus_validator_client \
+              --data-dir=/data/nimbus \
+              --beacon-node="http://$NODE_NAME:3600" \
+              --doppelganger-detection=false \
+              --metrics \
+              --metrics-address=0.0.0.0
           volumeMounts:
             - name: config
               mountPath: /config

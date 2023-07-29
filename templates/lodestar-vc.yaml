@@ -14,15 +14,6 @@ data:
           --importKeystores="${f//json/json}" \
           --importKeystoresPassword="${f//json/txt}"
     done
-    node /usr/app/packages/cli/bin/lodestar validator \
-              --dataDir="/opt/data" \
-              --network=$NETWORK \
-              --metrics=true \
-              --metrics.address="0.0.0.0" \
-              --metrics.port=5064 \
-              --beaconNodes="http://$NODE_NAME:3600" \
-              --distributed \
-              $LODESTAR_VC_EXTRA_ARGS
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -84,8 +75,17 @@ spec:
           command:
             - sh
             - -ace
-            - >
-              /opt/scripts/import-script.sh;
+            - |
+              /opt/scripts/import-script.sh
+              node /usr/app/packages/cli/bin/lodestar validator \
+              --dataDir="/opt/data" \
+              --network=$NETWORK \
+              --metrics=true \
+              --metrics.address="0.0.0.0" \
+              --metrics.port=5064 \
+              --beaconNodes="http://$NODE_NAME:3600" \
+              --distributed \
+              $LODESTAR_VC_EXTRA_ARGS
           volumeMounts:
             - name: validators
               mountPath: "/validator_keys"
