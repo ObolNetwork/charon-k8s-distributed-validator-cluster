@@ -25,9 +25,9 @@ jobs:
         project_id: ${{ secrets.PROJECT_ID }}
 
     - name: Run DKG with Relay 1
-      run: ./dkg-run charon-dkg-test https://1.relay.obol.tech
+      run: ./dkg-run.sh charon-dkg-test https://1.relay.obol.tech
       shell: bash
     
     - name: Run DKG with Relay 2
-      run: ./dkg-run charon-dkg-test https://2.relay.obol.tech
+      run: ./dkg-run.sh charon-dkg-test https://2.relay.obol.tech
       shell: bash
