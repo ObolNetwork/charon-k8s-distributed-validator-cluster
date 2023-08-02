@@ -1,4 +1,4 @@
-name: Deploy Canary Clusters
+name: DKG Run
 
 on: 
     workflow_dispatch:
