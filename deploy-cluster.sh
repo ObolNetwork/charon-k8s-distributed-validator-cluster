@@ -38,14 +38,26 @@ read -a versions <<< "$CHARON_VERSIONS"
 node_index=0
 for version in "${versions[@]}"
 do
-export NODE_NAME="node$node_index"
-export VC_INDEX="vc$node_index"
-export CHARON_VERSION=$version
-eval "cat <<EOF
+  if [[ $node_index -lt $CHARON_FUZZ_NODES ]]; then
+    # For the CHARON_FUZZ_NODES nodes, use charon-fuzzer.yaml
+    export NODE_NAME="node$node_index"
+    export VC_INDEX="vc$node_index"
+    export CHARON_VERSION=$version
+    eval "cat <<EOF
+$(<./templates/charon-fuzzer.yaml)
+EOF
+" | kubectl apply -f -
+  else
+    # For the rest of the nodes, use charon.yaml
+    export NODE_NAME="node$node_index"
+    export VC_INDEX="vc$node_index"
+    export CHARON_VERSION=$version
+    eval "cat <<EOF
 $(<./templates/charon.yaml)
 EOF
 " | kubectl apply -f -
-((node_index=node_index+1))
+  fi
+  ((node_index=node_index+1))
 done
 
 # Deploy Validator client of required type for each charon node. 
