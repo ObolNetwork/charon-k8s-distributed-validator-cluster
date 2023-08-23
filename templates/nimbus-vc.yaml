@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: import-script-config
+  name: $VC_INDEX-import-script-config
   namespace: $CLUSTER_NAME
 data:
-  import-script.sh: |
+  import-nimbus-script.sh: |
     #!/bin/sh
     tmpkeys="/data/nimbus/tmpkeys"
     mkdir -p ${tmpkeys:="/validator_keys/tmpkeys"}
@@ -57,9 +57,9 @@ spec:
             - sh
             - -ac
             - |
-              cp /config/import-script.sh /data/nimbus/import-script.sh;
-              chmod +x /data/nimbus/import-script.sh;
-              /data/nimbus/import-script.sh;
+              cp /config/import-nimbus-script.sh /data/nimbus/import-nimbus-script.sh;
+              chmod +x /data/nimbus/import-nimbus-script.sh;
+              /data/nimbus/import-nimbus-script.sh;
               exec /home/user/nimbus_validator_client \
               --data-dir=/data/nimbus \
               --beacon-node="http://$NODE_NAME:3600" \
@@ -77,7 +77,7 @@ spec:
       volumes:
         - name: config
           configMap:
-            name: import-script-config
+            name: $VC_INDEX-import-script-config
         - name: validators
           projected:
             sources:

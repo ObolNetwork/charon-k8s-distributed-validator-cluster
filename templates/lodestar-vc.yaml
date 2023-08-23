@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: import-script-config
+  name: $VC_INDEX-import-script-config
   namespace: $CLUSTER_NAME
 data:
-  import-script.sh: |
+  import-lodestar-script.sh: |
     #!/bin/sh
     for f in /validator_keys/keystore-*.json; do
       echo "Importing key ${f//json/json}"
@@ -43,7 +43,7 @@ spec:
           command:
             - sh
             - -ac
-            - cp /config/import-script.sh /opt/scripts/import-script.sh
+            - cp /config/import-lodestar-script.sh /opt/scripts/import-lodestar-script.sh
           volumeMounts:
             - name: data
               mountPath: "/opt/data"
@@ -60,7 +60,7 @@ spec:
           command:
             - sh
             - -ac
-            - chmod +x /opt/scripts/import-script.sh
+            - chmod +x /opt/scripts/import-lodestar-script.sh
           volumeMounts:
             - name: validators
               mountPath: "/validator_keys"
@@ -76,7 +76,7 @@ spec:
             - sh
             - -ace
             - |
-              /opt/scripts/import-script.sh
+              /opt/scripts/import-lodestar-script.sh
               node /usr/app/packages/cli/bin/lodestar validator \
               --dataDir="/opt/data" \
               --network=$NETWORK \
@@ -103,7 +103,7 @@ spec:
           emptyDir: {}
         - name: config
           configMap:
-            name: import-script-config
+            name: $VC_INDEX-import-script-config
         - name: scripts
           emptyDir: {}
 ---
