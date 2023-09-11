@@ -130,12 +130,12 @@ jobs:
               {
                 "stream": {
                   "charon_deployment_event": ${{ env.CLUSTER_NAME }} ,
-                  "release_version": ${{ env.RELEASE_VERSION }}
+                  "release_version": ${{ steps.charon_image_tag.outputs.tag }}
                 },
                 "values": [
                   [
                     "${{ env.CURR_DATE_TIME }}",
-                    "Deployed Charon version ${{ env.RELEASE_VERSION }} to ${{ env.CLUSTER_NAME }}"
+                    "Charon Version Deployment"
                   ]
                 ]
               }
