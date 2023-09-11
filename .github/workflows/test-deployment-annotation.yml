@@ -23,12 +23,13 @@ jobs:
 
 
     - name: Post Annotation to Loki
-      uses: actionsflow/axios@v1
+      uses: fjogeleit/http-request-action@v1
       with:
         url: ${{ secrets.LOKI_URL }}
         method: 'POST'
-        content-type: application/json
-        basic-auth: ${{ secrets.LOKI_USERNAME }}:${{ secrets.LOKI_PASSWORD }}
+        customHeaders: '{"Content-Type": "application/json"}'
+        username: ${{ secrets.LOKI_USERNAME }}
+        password: ${{ secrets.LOKI_PASSWORD }}
         data: >
           {
             "streams": [
