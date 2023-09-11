@@ -35,12 +35,12 @@ jobs:
             "streams": [
               {
                 "stream": {
-                    "charon_deployment_event": "CLUSTER_NAME",
+                    "charon_deployment_event": "${{ env.CLUSTER_NAME }}",
                     "release_version": "v0.17"
                 },
                 "values": [
                   [
-                    "Timestamp",
+                    "${{ env.CURR_DATE_TIME }}",
                     "Deployed Charon version "Message here"
                   ]
                 ]
