@@ -41,7 +41,7 @@ jobs:
                 "values": [
                   [
                     "${{ env.CURR_DATE_TIME }}",
-                    "Deployed Charon version "Message here"
+                    "Deployed Charon version Message here"
                   ]
                 ]
               }
