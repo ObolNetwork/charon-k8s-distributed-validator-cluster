@@ -39,6 +39,7 @@ jobs:
                 },
                 "values": [
                   [
+                    "${{ env.CLUSTER_NAME }}",
                     "Deployed Charon version ${{ env.RELEASE_VERSION }} to ${{ env.CLUSTER_NAME }}"
                   ]
                 ]
