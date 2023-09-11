@@ -36,7 +36,7 @@ jobs:
               {
                 "stream": {
                     "charon_deployment_event": ${{ env.CLUSTER_NAME }} ,
-                    "release_version": ${{ env.RELEASE_VERSION }}
+                    "release_version": "v0.17"
                 },
                 "values": [
                   [
