@@ -114,7 +114,7 @@ jobs:
       run: |
         echo "CURR_DATE_TIME=$(($(date +%s)))" >> $GITHUB_ENV
         echo "RELEASE_VERSION=$(git tag --sort=committerdate | grep -E '^v[0-9]' | tail -1 )" >> $GITHUB_ENV
-        echo "CLUSTER_NAME=CANARY_GOERLI_1, CANARY_GOERLI_2" >> $GITHUB_ENV
+        echo "CLUSTER_NAME=CANARY_GOERLI_1" >> $GITHUB_ENV
 
 
     - name: Post Annotation to Loki
@@ -129,7 +129,8 @@ jobs:
             "streams": [
               {
                 "stream": {
-                  "label": "{version=${{ env.RELEASE_VERSION }}, Cluster_name=${{ env.CLUSTER_NAME }}}"
+                  "charon_deployment_event": ${{ env.CLUSTER_NAME }} ,
+                  "release_version": ${{ env.RELEASE_VERSION }}
                 },
                 "values": [
                   [

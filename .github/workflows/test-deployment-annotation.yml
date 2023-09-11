@@ -17,7 +17,7 @@ jobs:
 
     - name: Set Annotation Variables
       run: |
-        echo "CURR_DATE_TIME=$(date +%s)" >> $GITHUB_ENV
+        echo "CURR_DATE_TIME=$(date +%s)000000000" >> $GITHUB_ENV
         echo "RELEASE_VERSION=v0.17" >> $GITHUB_ENV
         echo "CLUSTER_NAME=CANARY_GOERLI_1" >> $GITHUB_ENV
 
@@ -35,11 +35,12 @@ jobs:
             "streams": [
               {
                 "stream": {
-                  "label": "{version=${{ env.RELEASE_VERSION }}, Cluster_name=${{ env.CLUSTER_NAME }}}"
+                    "charon_deployment_event": ${{ env.CLUSTER_NAME }} ,
+                    "release_version": ${{ env.RELEASE_VERSION }}
                 },
                 "values": [
                   [
-                    "${{ env.CLUSTER_NAME }}",
+                    "${{ env.CURR_DATE_TIME }}",
                     "Deployed Charon version ${{ env.RELEASE_VERSION }} to ${{ env.CLUSTER_NAME }}"
                   ]
                 ]
