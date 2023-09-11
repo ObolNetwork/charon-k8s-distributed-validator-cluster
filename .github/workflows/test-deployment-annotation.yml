@@ -1,0 +1,53 @@
+name: Deploy Canary Clusters
+
+on: 
+    workflow_dispatch:
+    push:
+        branches:
+            - setup-annotation-for-cluster-deployments
+       
+jobs:
+  deploy:
+    name: Deploy the canary clusters
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Set Annotation Variables
+      run: |
+        echo "CURR_DATE_TIME=$(($(date +%s)))" >> $GITHUB_ENV
+        echo "RELEASE_VERSION=$(git tag --sort=committerdate | grep -E '^v[0-9]' | tail -1 )" >> $GITHUB_ENV
+        echo "CLUSTER_NAME=CANARY_GOERLI_1, CANARY_GOERLI_2" >> $GITHUB_ENV
+
+
+    - name: Post Annotation to Loki
+      uses: actionsflow/axios@v1
+      with:
+        url: ${{ secrets.LOKI_URL }}
+        method: 'POST'
+        content-type: application/json
+        basic-auth: ${{ secrets.LOKI_USERNAME }}:${{ secrets.LOKI_PASSWORD }}
+        data: >
+          {
+            "streams": [
+              {
+                "stream": {
+                  "label": "{version=${{ env.RELEASE_VERSION }}, Cluster_name=${{ env.CLUSTER_NAME }}}"
+                },
+                "values": [
+                  [
+                    "${{ env.CURR_DATE_TIME }}",
+                    "Deployed Charon version ${{ env.RELEASE_VERSION }} to ${{ env.CLUSTER_NAME }}"
+                  ]
+                ]
+              }
+            ]
+          }
+    
+    - uses: sarisia/actions-status-discord@v1
+      if: always()
+      with:
+        webhook: ${{ secrets.DISCORD_WEBHOOK }}
+        title: "charon-sepolia-1780"
