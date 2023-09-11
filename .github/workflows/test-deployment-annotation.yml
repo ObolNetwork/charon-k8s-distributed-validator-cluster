@@ -18,9 +18,8 @@ jobs:
     - name: Set Annotation Variables
       run: |
         echo "CURR_DATE_TIME=$(date +%s)" >> $GITHUB_ENV
-        echo "RELEASE_VERSION=$(git tag --sort=committerdate | grep -E '^v[0-9]' | tail -1 )" >> $GITHUB_ENV
+        echo "RELEASE_VERSION=v0.17" >> $GITHUB_ENV
         echo "CLUSTER_NAME=CANARY_GOERLI_1" >> $GITHUB_ENV
-        echo $RELEASE_VERSION-$CURR_DATE_TIME
 
 
     - name: Post Annotation to Loki
@@ -48,8 +47,4 @@ jobs:
             ]
           }
     
-    - uses: sarisia/actions-status-discord@v1
-      if: always()
-      with:
-        webhook: ${{ secrets.DISCORD_WEBHOOK }}
-        title: "charon-sepolia-1780"
+   
