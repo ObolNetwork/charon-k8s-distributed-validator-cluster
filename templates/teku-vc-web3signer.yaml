@@ -42,7 +42,7 @@ spec:
             - -ace
             - |
               /opt/teku/bin/teku vc \
-              --network=auto \
+              --network=$NETWORK \
               --log-destination=console \
               --data-base-path=/data/teku \
               --metrics-enabled=true \
@@ -52,7 +52,7 @@ spec:
               --validators-external-signer-public-keys="http://web3signer:9000/api/v1/eth2/publicKeys" \
               --validators-external-signer-url="http://web3signer:9000" \
               --validators-graffiti="Obol Distributed Validator" \
-              --beacon-node-api-endpoint="http://node3:3600" \
+              --beacon-node-api-endpoint="http://$NODE_NAME:3600" \
               --validators-proposer-default-fee-recipient="0x9FD17880D4F5aE131D62CE6b48dF7ba7D426a410";
           volumeMounts:
             - name: data

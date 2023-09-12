@@ -5,3 +5,5 @@ split_keys*
 .charon*
 *ignore*
 Report-*
+utils/.env*
+utils/go-utils/web3signerHex/*.yaml

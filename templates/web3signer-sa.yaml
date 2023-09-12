@@ -1,0 +1,90 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: web3signer
+  name: web3signer
+  namespace: $CLUSTER_NAME
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web3signer
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: web3signer
+    spec:
+      serviceAccountName: charon-sa
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+      initContainers:
+        # - name: init-chown
+        #   image: busybox
+        #   securityContext:
+        #     runAsUser: 0
+        #   command:
+        #     - sh
+        #     - -ac
+        #     - >
+        #       mkdir -p /data/web3signer;
+        #       mkdir -p /data/keystore;
+        #       chown -R 1000:1000 /data;
+        #   volumeMounts:
+        #     - name: data
+        #       mountPath: /data
+        #     - name: keystore
+        #       mountPath: "/data/keystore"
+        - name: download-vault
+          image: gcr.io/google.com/cloudsdktool/google-cloud-cli:latest
+          command:
+            - sh
+            - -ac
+            - >
+              mkdir -p /data/web3signer;
+              mkdir -p /data/keystore;
+              gcloud storage cp gs://charon-clusters-config/$CLUSTER_NAME/keystore.yaml /data/keystore/keystore.yaml;
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      containers:
+        - name: web3signer
+          image: consensys/web3signer:latest
+          command:
+            - sh
+            - -ace
+            - |
+              /opt/web3signer/bin/web3signer \
+              --data-path=/data/web3signer \
+              --key-store-path=/data/keystore \
+              --http-listen-port=9000 \
+              --http-listen-host=0.0.0.0 \
+              --http-host-allowlist=* \
+              --logging=ALL \
+              eth2 --slashing-protection-enabled=false --network=goerli;
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web3signer
+  namespace: $CLUSTER_NAME
+  labels:
+    app: web3signer
+spec:
+  selector:
+    app: web3signer
+  ports:
+    - name: http
+      protocol: TCP
+      port: 9000
+      targetPort: 9000
