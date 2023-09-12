@@ -9,6 +9,7 @@ on:
             - main
         paths:
             - templates/**
+
 jobs:
   deploy:
     name: Deploy the canary clusters
@@ -108,6 +109,38 @@ jobs:
     - name: Deploy charon-sepolia-1780
       run: ./deploy-cluster-with-charon-tag.sh charon-sepolia-1780 ${{ steps.charon_image_tag.outputs.tag }}
       shell: bash
+
+    - name: Set Annotation Variables
+      run: |
+        echo "CURR_DATE_TIME=$(($(date +%s)))" >> $GITHUB_ENV
+        echo "RELEASE_VERSION=$(git tag --sort=committerdate | grep -E '^v[0-9]' | tail -1 )" >> $GITHUB_ENV
+        echo "CLUSTER_NAME=CANARY_GOERLI_1" >> $GITHUB_ENV
+
+
+    - name: Post Annotation to Loki
+      uses: actionsflow/axios@v1
+      with:
+        url: ${{ secrets.LOKI_URL }}
+        method: 'POST'
+        content-type: application/json
+        basic-auth: ${{ secrets.LOKI_USERNAME }}:${{ secrets.LOKI_PASSWORD }}
+        data: >
+          {
+            "streams": [
+              {
+                "stream": {
+                  "charon_deployment_event": ${{ env.CLUSTER_NAME }} ,
+                  "release_version": ${{ steps.charon_image_tag.outputs.tag }}
+                },
+                "values": [
+                  [
+                    "${{ env.CURR_DATE_TIME }}",
+                    "Charon Version Deployment"
+                  ]
+                ]
+              }
+            ]
+          }
     
     - uses: sarisia/actions-status-discord@v1
       if: always()
