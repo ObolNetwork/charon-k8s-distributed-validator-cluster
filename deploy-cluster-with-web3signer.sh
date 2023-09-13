@@ -22,6 +22,12 @@ export $(< ./tokens.env)
 IFS=$OLDIFS
 
 rm ./tokens.env
+# create the namespace
+nsStatus=`kubectl get namespace ${CLUSTER_NAME} --no-headers --output=go-template={{.metadata.name}} 2>/dev/null`
+if [ -z "$nsStatus" ]; then
+    echo "Cluster (${CLUSTER_NAME}) not found, creating a new one."
+    kubectl create namespace ${CLUSTER_NAME} --dry-run=client -o yaml | kubectl apply -f -
+fi
 
 # set current namespace
 kubectl config set-context --current --namespace=${CLUSTER_NAME}
@@ -36,13 +42,17 @@ for version in "${versions[@]}"
 do
 export NODE_NAME="node$node_index"
 export VC_INDEX="vc$node_index"
-((node_index=node_index+1))
-done
-
+if [ "$version" = "latest" ]; then
+    export CHARON_VERSION="${CHARON_IMAGE_TAG}"
+else
+    export CHARON_VERSION="$version"
+fi
 eval "cat <<EOF
-$(<./templates/web3signer-sa.yaml)
+$(<./templates/charon.yaml)
 EOF
 " | kubectl apply -f -
+((node_index=node_index+1))
+done
 
 # Deploy Validator client of required type for each charon node. 
 IFS=','
@@ -52,6 +62,12 @@ for vc in "${vcs[@]}"
 do
 export NODE_NAME="node$node_index"
 export VC_INDEX="vc$node_index"
+
+eval "cat <<EOF
+$(<./templates/web3signer.yaml)
+EOF
+" | kubectl apply -f -
+
 if [ $vc -eq 0 ]; then
 eval "cat <<EOF
 $(<./templates/teku-vc-web3signer.yaml)
