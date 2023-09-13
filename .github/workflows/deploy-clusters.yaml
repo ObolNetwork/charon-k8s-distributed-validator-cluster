@@ -75,32 +75,31 @@ jobs:
         webhook: ${{ secrets.DISCORD_WEBHOOK }}
         title: "charon-gnosis-0"
 
-    # Disable charon-prater-0 automation until web3signer experiment is completed
-    # - name: Delete charon-prater-0
-    #   run: ./delete-cluster.sh charon-prater-0
-    #   shell: bash
-    # - name: Deploy charon-prater-0
-    #   run: ./deploy-cluster-with-charon-tag.sh charon-prater-0 ${{ steps.charon_image_tag.outputs.tag }}
-    #   shell: bash
-    
-    # - uses: sarisia/actions-status-discord@v1
-    #   if: always()
-    #   with:
-    #     webhook: ${{ secrets.DISCORD_WEBHOOK }}
-    #     title: "charon-prater-0"
-
-    - name: Delete charon-prater-1
-      run: ./delete-cluster.sh charon-prater-1
+    - name: Delete charon-prater-0
+      run: ./delete-cluster.sh charon-prater-0
       shell: bash
-    - name: Deploy charon-prater-1
-      run: ./deploy-cluster-with-charon-tag.sh charon-prater-1 ${{ steps.charon_image_tag.outputs.tag }}
+    - name: Deploy charon-prater-0
+      run: ./deploy-cluster-with-charon-tag.sh charon-prater-0 ${{ steps.charon_image_tag.outputs.tag }}
       shell: bash
     
     - uses: sarisia/actions-status-discord@v1
       if: always()
       with:
         webhook: ${{ secrets.DISCORD_WEBHOOK }}
-        title: "charon-prater-1"
+        title: "charon-prater-0"
+
+    # - name: Delete charon-prater-1
+    #   run: ./delete-cluster.sh charon-prater-1
+    #   shell: bash
+    # - name: Deploy charon-prater-1
+    #   run: ./deploy-cluster-with-charon-tag.sh charon-prater-1 ${{ steps.charon_image_tag.outputs.tag }}
+    #   shell: bash
+    
+    # - uses: sarisia/actions-status-discord@v1
+    #   if: always()
+    #   with:
+    #     webhook: ${{ secrets.DISCORD_WEBHOOK }}
+    #     title: "charon-prater-1"
 
     - name: Delete charon-sepolia-1780
       run: ./delete-cluster.sh charon-sepolia-1780

@@ -49,8 +49,8 @@ spec:
               --metrics-host-allowlist="*" \
               --metrics-interface="0.0.0.0" \
               --metrics-port="8008" \
-              --validators-external-signer-public-keys="http://web3signer:9000/api/v1/eth2/publicKeys" \
-              --validators-external-signer-url="http://web3signer:9000" \
+              --validators-external-signer-public-keys="http://$VC_INDEX-web3signer:9000/api/v1/eth2/publicKeys" \
+              --validators-external-signer-url="http://$VC_INDEX-web3signer:9000" \
               --validators-graffiti="Obol Distributed Validator" \
               --beacon-node-api-endpoint="http://$NODE_NAME:3600" \
               --validators-proposer-default-fee-recipient="0x9FD17880D4F5aE131D62CE6b48dF7ba7D426a410";

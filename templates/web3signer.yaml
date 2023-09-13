@@ -3,20 +3,20 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: web3signer
-  name: web3signer
+    app: $VC_INDEX-web3signer
+  name: $VC_INDEX-web3signer
   namespace: $CLUSTER_NAME
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: web3signer
+      app: $VC_INDEX-web3signer
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: web3signer
+        app: $VC_INDEX-web3signer
     spec:
       securityContext:
         fsGroup: 1000
@@ -62,20 +62,20 @@ spec:
           projected:
             sources:
             - secret:
-                name: keystore
+                name: $NODE_NAME-web3signer-keystore
         - name: data
           emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: web3signer
+  name: $VC_INDEX-web3signer
   namespace: $CLUSTER_NAME
   labels:
-    app: web3signer
+    app: $VC_INDEX-web3signer
 spec:
   selector:
-    app: web3signer
+    app: $VC_INDEX-web3signer
   ports:
     - name: http
       protocol: TCP

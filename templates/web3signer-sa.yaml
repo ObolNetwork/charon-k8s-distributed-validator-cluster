@@ -23,22 +23,6 @@ spec:
         fsGroup: 1000
         runAsUser: 1000
       initContainers:
-        # - name: init-chown
-        #   image: busybox
-        #   securityContext:
-        #     runAsUser: 0
-        #   command:
-        #     - sh
-        #     - -ac
-        #     - >
-        #       mkdir -p /data/web3signer;
-        #       mkdir -p /data/keystore;
-        #       chown -R 1000:1000 /data;
-        #   volumeMounts:
-        #     - name: data
-        #       mountPath: /data
-        #     - name: keystore
-        #       mountPath: "/data/keystore"
         - name: download-vault
           image: gcr.io/google.com/cloudsdktool/google-cloud-cli:latest
           command:
