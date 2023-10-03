@@ -9,7 +9,7 @@ CLUSTER_NAMES := $(addprefix relay-dkg-perf-,$(shell seq $(CLUSTER_INDEX_START) 
 deploy: $(CLUSTER_NAMES)
 
 $(CLUSTER_NAMES):
-	@./dkg-run-multi-ns-deploy.sh $@
+	@./scripts/dkg-run-multi-ns-deploy.sh $@
 
 # Get the values for CLUSTER_INDEX_START and CLUSTER_INDEX_END from command-line arguments
 ifdef CLUSTER_INDEX_START
