@@ -4,11 +4,11 @@ on:
     workflow_dispatch:
     # repository_dispatch:
     #     types: [charon-package-published]
-    push:
-        branches:
-            - main
-        paths:
-            - templates/**
+    # push:
+    #    branches:
+    #        - main
+    #    paths:
+    #        - templates/**
 
 jobs:
   delete-gke-canaries:
