@@ -2,8 +2,8 @@ name: Deploy AWS Canary Clusters
 
 on: 
     workflow_dispatch:
-    repository_dispatch:
-        types: [charon-package-published]
+    # repository_dispatch:
+    #     types: [charon-package-published]
     push:
         branches:
             - main
