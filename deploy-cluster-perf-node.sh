@@ -54,7 +54,7 @@ export NODE_NAME="node$node_index"
 export VC_INDEX="vc$node_index"
 if [ $vc -eq 0 ]; then
 eval "cat <<EOF
-$(<./templates/teku-vc-web3signer.yaml)
+$(<./templates/teku-vc-web3signer-perf.yaml)
 EOF
 " | kubectl apply -f -
 elif [ $vc -eq 1 ]; then
