@@ -24,7 +24,7 @@ definitions_dir="./.charon/${CLUSTER_NAME}/lighthouse-validators-definitions"
 OLDIFS=$IFS
 IFS='
 '
-export $(< ./.charon/${CLUSTER_NAME}/${CLUSTER_NAME}.env)
+export $(< ../envs/${CLUSTER_NAME}.env)
 IFS=$OLDIFS
 
 # create lighthouse validators definitions

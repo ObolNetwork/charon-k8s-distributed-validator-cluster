@@ -17,5 +17,5 @@ report: $(CLUSTER_NAMES)
 
 $(CLUSTER_NAMES):
 	@for cluster_name in $(CLUSTER_NAMES); do \
-		./dkg-run-multi-ns-report.sh $$cluster_name >> $(REPORT_FILE) ; \
+		./scripts/dkg-run-multi-ns-report.sh $$cluster_name >> $(REPORT_FILE) ; \
 	done

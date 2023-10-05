@@ -10,18 +10,12 @@ fi
 
 CLUSTER_NAME=$1
 
-# download cluster config
-gcloud storage cp gs://charon-clusters-config/${CLUSTER_NAME}/${CLUSTER_NAME}.env .
-
 # override the env vars
 OLDIFS=$IFS
 IFS='
 '
-export $(< ./${CLUSTER_NAME}.env)
+export $(< ../envs/${CLUSTER_NAME}.env)
 IFS=$OLDIFS
-
-# delete cluster env vars file
-rm ./${CLUSTER_NAME}.env
 
 # create the namespace
 nsStatus=$(kubectl get namespace ${CLUSTER_NAME} --no-headers --output=go-template={{.metadata.name}} 2>/dev/null)
@@ -40,10 +34,20 @@ kubectl config set-context --current --namespace=${CLUSTER_NAME}
 i=0
 while [[ $i -lt "$NODES" ]]
 do
+    files=""
+    for secret in ./.charon/${CLUSTER_NAME}/node${i}/validator_keys/*; do
+        files="$files --from-file=./.charon/${CLUSTER_NAME}/node${i}/validator_keys/$(basename $secret)"
+    done
+    kubectl -n ${CLUSTER_NAME} create secret generic node${i}-validators $files --dry-run=client -o yaml | kubectl apply -f -
     kubectl -n ${CLUSTER_NAME} create secret generic node${i}-charon-enr-private-key --from-file=charon-enr-private-key=./.charon/${CLUSTER_NAME}/node${i}/charon-enr-private-key --dry-run=client -o yaml | kubectl apply -f -
-    kubectl -n ${CLUSTER_NAME} create secret generic node${i}-cluster-definition --from-file=cluster-definition.json=./.charon/${CLUSTER_NAME}/cluster-definition.json --dry-run=client -o yaml | kubectl apply -f -
+    kubectl -n ${CLUSTER_NAME} create secret generic node${i}-cluster-lock --from-file=cluster-lock.json=./.charon/${CLUSTER_NAME}/cluster-lock.json --dry-run=client -o yaml | kubectl apply -f -
     ((i=i+1))
 done
+
+# create the lighthouse validators definitions configmaps
+kubectl apply -f ./.charon/${CLUSTER_NAME}/lighthouse-validators-definitions/
+
+#TODO create the lodestar validators definitions configmaps
 
 # delete cluster config before exit
 rm -rf ./.charon/${CLUSTER_NAME}

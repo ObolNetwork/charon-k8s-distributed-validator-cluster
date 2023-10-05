@@ -12,7 +12,7 @@ Ensure having [`docker`](https://docs.docker.com/get-docker/), a functional [`Ku
 # Deployment Steps
 ## Cluster Configuration
 ```sh
-cp .env.sample <cluster_name>.env
+cp ./envs/.env.sample ./envs/<cluster_name>.env
 ```
 Edit the required configruation values in the .env file.
 
@@ -37,25 +37,20 @@ gcloud storage cp .env gs://charon-clusters-config/<cluster_name>/<cluster_name>
 
 ## Generate Lighthouse validators definitions
 ```sh
-./create-lighthouse-validators-definitions.sh <cluster-name>
+./scripts/create-lighthouse-validators-definitions.sh <cluster-name>
 ```
 
 ## Generate Lodestar validators definitions
 ```sh
-./create-lodestar-validators-definitions.sh <cluster-name>
+./scripts/create-lodestar-validators-definitions.sh <cluster-name>
 ```
 
 ## Create Kubernetes Secrets
 ```sh
-./create-k8s-secrets.sh <cluster-name>
+./scripts/create-k8s-secrets.sh <cluster-name>
 ```
 
 ## Deploy Charon Cluster
 ```sh
-./deploy.sh <cluster-name>
-```
-
-## Deploy Charon Canary Cluster
-```sh
-./canary-deploy.sh <cluster-name>
+./deploy-cluster-with-charon-tag.sh <cluster-name> <commit-sha>
 ```

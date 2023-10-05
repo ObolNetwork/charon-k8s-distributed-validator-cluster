@@ -14,7 +14,7 @@ CLUSTER_NAME=$1
 OLDIFS=$IFS
 IFS='
 '
-export $(< ./${CLUSTER_NAME}.env)
+export $(< ../envs/${CLUSTER_NAME}.env)
 IFS=$OLDIFS
 
 # Check if the custom P2P relays argument is provided

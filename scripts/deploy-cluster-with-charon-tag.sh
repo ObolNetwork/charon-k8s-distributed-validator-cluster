@@ -9,17 +9,19 @@ fi
 set -uo pipefail
 
 CLUSTER_NAME=$1
+CHARON_IMAGE_TAG="${2:-"latest"}"
 
 gcloud storage cp gs://charon-clusters-config/tokens/tokens.env .
+
 # override the env vars
 OLDIFS=$IFS
 IFS='
 '
-export $(< ./${CLUSTER_NAME}.env)
+export $(< ../envs/${CLUSTER_NAME}.env)
 export $(< ./tokens.env)
 IFS=$OLDIFS
-rm ./tokens.env
 
+rm ./tokens.env
 # create the namespace
 nsStatus=`kubectl get namespace ${CLUSTER_NAME} --no-headers --output=go-template={{.metadata.name}} 2>/dev/null`
 if [ -z "$nsStatus" ]; then
@@ -38,26 +40,18 @@ read -a versions <<< "$CHARON_VERSIONS"
 node_index=0
 for version in "${versions[@]}"
 do
-  if [[ $node_index -lt $CHARON_FUZZ_NODES ]]; then
-    # For the CHARON_FUZZ_NODES nodes, use charon-fuzzer.yaml
-    export NODE_NAME="node$node_index"
-    export VC_INDEX="vc$node_index"
-    export CHARON_VERSION=$version
-    eval "cat <<EOF
-$(<./templates/charon-fuzzer.yaml)
+export NODE_NAME="node$node_index"
+export VC_INDEX="vc$node_index"
+if [ "$version" = "latest" ]; then
+    export CHARON_VERSION="${CHARON_IMAGE_TAG}"
+else
+    export CHARON_VERSION="$version"
+fi
+eval "cat <<EOF
+$(<../templates/charon.yaml)
 EOF
 " | kubectl apply -f -
-  else
-    # For the rest of the nodes, use charon.yaml
-    export NODE_NAME="node$node_index"
-    export VC_INDEX="vc$node_index"
-    export CHARON_VERSION=$version
-    eval "cat <<EOF
-$(<./templates/charon.yaml)
-EOF
-" | kubectl apply -f -
-  fi
-  ((node_index=node_index+1))
+((node_index=node_index+1))
 done
 
 # Deploy Validator client of required type for each charon node. 
@@ -70,18 +64,18 @@ export NODE_NAME="node$node_index"
 export VC_INDEX="vc$node_index"
 if [ $vc -eq 0 ]; then
 eval "cat <<EOF
-$(<./templates/teku-vc.yaml)
+$(<../templates/teku-vc.yaml)
 EOF
 " | kubectl apply -f -
 elif [ $vc -eq 1 ]; then
 eval "cat <<EOF
-$(<./templates/lighthouse-vc.yaml)
+$(<../templates/lighthouse-vc.yaml)
 EOF
 " | kubectl apply -f -
 elif [ $vc -eq 2 ]; then
-envsubst < ./templates/lodestar-vc.yaml | kubectl apply -f -
+envsubst < ../templates/lodestar-vc.yaml | kubectl apply -f -
 elif [ $vc -eq 3 ]; then	
-envsubst < ./templates/nimbus-vc.yaml | kubectl apply -f -
+envsubst < ../templates/nimbus-vc.yaml | kubectl apply -f -
 fi
 ((node_index=node_index+1))
 done
@@ -90,6 +84,6 @@ done
 export CLUSTER_NAME="${CLUSTER_NAME}"
 export MONITORING_TOKEN="$MONITORING_TOKEN"
 eval "cat <<EOF
-$(<./templates/prom-agent.yaml)
+$(<../templates/prom-agent.yaml)
 EOF
 " | kubectl apply -f -

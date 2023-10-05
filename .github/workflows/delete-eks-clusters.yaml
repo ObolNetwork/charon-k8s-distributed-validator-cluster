@@ -1,0 +1,51 @@
+name: Delete EKS Canary Clusters
+
+on: 
+    workflow_dispatch:
+    workflow_call:
+
+jobs:
+  deploy:
+    name: Delete the canary clusters from EKS
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # This is required for requesting the JWT
+      contents: read  # This is required for actions/checkout
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+   
+    - name: Configure aws credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        role-to-assume: ${{ secrets.GHA_AWS_IAM_ROLE }}
+        role-session-name: github-actions-aws
+        aws-region: ${{ env.AWS_DEFAULT_REGION }}
+
+    - name: Update kube config
+      run: aws eks update-kubeconfig --region ${{ env.AWS_DEFAULT_REGION }}--name ${{ secrets.EKS_DEV_CLUSTER }}
+
+    - name: Delete canary-goerli-1
+      run: ./scripts/delete-cluster.sh canary-goerli-1
+      shell: bash
+   
+    - name: Delete canary-goerli-2
+      run: ./scripts/delete-cluster.sh canary-goerli-2
+      shell: bash
+   
+    - name: Delete charon-gnosis-0
+      run: ./scripts/delete-cluster.sh charon-gnosis-0
+      shell: bash
+    
+    - name: Delete charon-prater-1
+      run: ./scripts/delete-cluster.sh charon-prater-1
+      shell: bash
+ 
+    - name: Delete charon-sepolia-1780
+      run: ./scripts/delete-cluster.sh charon-sepolia-1780
+      shell: bash
+
+    - name: Delete canary-holesky-1
+      run: ./scripts/delete-cluster.sh canary-holesky-1
+      shell: bash

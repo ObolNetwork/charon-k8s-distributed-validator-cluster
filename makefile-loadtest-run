@@ -15,4 +15,4 @@ export CHARON_P2P_RELAYS=https://2.relay.obol.tech
 deploy: $(CLUSTER_NAMES)
 
 $(CLUSTER_NAMES):
-	@./dkg-run-multi-ns-deploy.sh $@
+	@./scripts/dkg-run-multi-ns-deploy.sh $@

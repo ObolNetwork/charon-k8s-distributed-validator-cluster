@@ -9,19 +9,17 @@ fi
 set -uo pipefail
 
 CLUSTER_NAME=$1
-CHARON_IMAGE_TAG="${2:-"latest"}"
 
 gcloud storage cp gs://charon-clusters-config/tokens/tokens.env .
-
 # override the env vars
 OLDIFS=$IFS
 IFS='
 '
-export $(< ./${CLUSTER_NAME}.env)
+export $(< ../envs/${CLUSTER_NAME}.env)
 export $(< ./tokens.env)
 IFS=$OLDIFS
-
 rm ./tokens.env
+
 # create the namespace
 nsStatus=`kubectl get namespace ${CLUSTER_NAME} --no-headers --output=go-template={{.metadata.name}} 2>/dev/null`
 if [ -z "$nsStatus" ]; then
@@ -40,18 +38,26 @@ read -a versions <<< "$CHARON_VERSIONS"
 node_index=0
 for version in "${versions[@]}"
 do
-export NODE_NAME="node$node_index"
-export VC_INDEX="vc$node_index"
-if [ "$version" = "latest" ]; then
-    export CHARON_VERSION="${CHARON_IMAGE_TAG}"
-else
-    export CHARON_VERSION="$version"
-fi
-eval "cat <<EOF
+  if [[ $node_index -lt $CHARON_FUZZ_NODES ]]; then
+    # For the CHARON_FUZZ_NODES nodes, use charon-fuzzer.yaml
+    export NODE_NAME="node$node_index"
+    export VC_INDEX="vc$node_index"
+    export CHARON_VERSION=$version
+    eval "cat <<EOF
+$(<./templates/charon-fuzzer.yaml)
+EOF
+" | kubectl apply -f -
+  else
+    # For the rest of the nodes, use charon.yaml
+    export NODE_NAME="node$node_index"
+    export VC_INDEX="vc$node_index"
+    export CHARON_VERSION=$version
+    eval "cat <<EOF
 $(<./templates/charon.yaml)
 EOF
 " | kubectl apply -f -
-((node_index=node_index+1))
+  fi
+  ((node_index=node_index+1))
 done
 
 # Deploy Validator client of required type for each charon node. 
