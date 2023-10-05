@@ -18,8 +18,7 @@ OLDIFS=$IFS
 IFS='
 '
 
-ls ..
-export $(< ../envs/${CLUSTER_NAME}.env)
+export $(< ./envs/${CLUSTER_NAME}.env)
 export $(< ./tokens.env)
 IFS=$OLDIFS
 
