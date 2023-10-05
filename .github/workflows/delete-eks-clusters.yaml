@@ -20,11 +20,10 @@ jobs:
       uses: aws-actions/configure-aws-credentials@v2
       with:
         role-to-assume: ${{ secrets.GHA_AWS_IAM_ROLE }}
-        role-session-name: github-actions-aws
-        aws-region: ${{ env.AWS_DEFAULT_REGION }}
+        aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
 
     - name: Update kube config
-      run: aws eks update-kubeconfig --region ${{ env.AWS_DEFAULT_REGION }}--name ${{ secrets.EKS_DEV_CLUSTER }}
+      run: aws eks update-kubeconfig --region ${{ secrets.AWS_DEFAULT_REGION }}--name ${{ secrets.EKS_DEV_CLUSTER }}
 
     - name: Delete canary-goerli-1
       run: ./scripts/delete-cluster.sh canary-goerli-1
