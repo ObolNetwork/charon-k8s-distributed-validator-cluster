@@ -31,7 +31,7 @@ jobs:
         aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
 
     - name: Update kube config
-      run: aws eks update-kubeconfig --region ${{ secrets.AWS_DEFAULT_REGION }}--name ${{ secrets.EKS_DEV_CLUSTER }}
+      run: aws eks update-kubeconfig --region ${{ secrets.AWS_DEFAULT_REGION }} --name ${{ secrets.EKS_DEV_CLUSTER }}
 
     - name: Get charon image tag
       id: charon_image_tag
