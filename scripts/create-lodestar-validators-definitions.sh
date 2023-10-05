@@ -15,7 +15,7 @@ fi
 CLUSTER_NAME=$1
 
 # create lodestar validators definitions dir
-lodestar_dir="../config/vc/lodestar"
+lodestar_dir="./config/vc/lodestar"
 definitions_dir="./.charon/${CLUSTER_NAME}/lodestar-validators-definitions"
 
 # download cluster config
@@ -26,7 +26,7 @@ mkdir -p ${definitions_dir}
 OLDIFS=$IFS
 IFS='
 '
-export $(< ../envs/${CLUSTER_NAME}.env)
+export $(< ./envs/${CLUSTER_NAME}.env)
 IFS=$OLDIFS
 
 # create docker compose file for lodestar validators definitions

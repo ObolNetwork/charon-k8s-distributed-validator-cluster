@@ -15,7 +15,7 @@ gcloud storage cp gs://charon-clusters-config/tokens/tokens.env .
 OLDIFS=$IFS
 IFS='
 '
-export $(< ../envs/${CLUSTER_NAME}.env)
+export $(< ./envs/${CLUSTER_NAME}.env)
 export $(< ./tokens.env)
 IFS=$OLDIFS
 rm ./tokens.env

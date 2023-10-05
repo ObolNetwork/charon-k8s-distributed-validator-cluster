@@ -14,9 +14,8 @@ CLUSTER_NAME=$1
 nsStatus=`kubectl get namespace ${CLUSTER_NAME} --no-headers --output=go-template={{.metadata.name}} 2>/dev/null`
 if [ -z "${nsStatus}" ]; then
     echo "Cluster (${CLUSTER_NAME}) is not found, please use an existing cluster"
-    exit 1;
+else
+  echo "deleting cluster: ${CLUSTER_NAME}"
+  kubectl delete deployments --all -n ${CLUSTER_NAME}
+  kubectl delete services --all -n ${CLUSTER_NAME}
 fi
-
-echo "deleting cluster: ${CLUSTER_NAME}"
-kubectl delete deployments --all -n ${CLUSTER_NAME}
-kubectl delete services --all -n ${CLUSTER_NAME}
