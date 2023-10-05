@@ -4,12 +4,9 @@ on:
     workflow_dispatch:
     # repository_dispatch:
     #     types: [charon-package-published]
-    # push:
-    #    branches:
-    #        - main
-    #    paths:
-    #        - templates/**
-
+    push:
+       branches:
+           - first-eks
 jobs:
   delete-gke-canaries:
     uses: ObolNetwork/charon-k8s-distributed-validator-cluster/.github/workflows/delete-gke-clusters.yaml@main
