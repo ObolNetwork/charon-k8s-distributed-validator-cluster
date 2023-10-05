@@ -24,6 +24,10 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
 
+    - uses: 'google-github-actions/auth@v0'
+      with:
+        credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+
     - name: Configure aws credentials
       uses: aws-actions/configure-aws-credentials@v2
       with:
@@ -36,6 +40,7 @@ jobs:
     - name: Get charon image tag
       id: charon_image_tag
       run: |
+         ls -al
          echo ::set-output name=tag::$(git rev-parse --short ${{ github.event.client_payload.sha }})
 
     - name: Delete canary-goerli-1
