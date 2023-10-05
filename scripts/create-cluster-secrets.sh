@@ -14,7 +14,7 @@ CLUSTER_NAME=$1
 OLDIFS=$IFS
 IFS='
 '
-export $(< ../envs/${CLUSTER_NAME}.env)
+export $(< ./envs/${CLUSTER_NAME}.env)
 IFS=$OLDIFS
 
 # create the namespace

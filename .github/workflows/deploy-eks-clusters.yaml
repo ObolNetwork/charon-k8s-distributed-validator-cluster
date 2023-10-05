@@ -1,12 +1,13 @@
 name: Deploy AWS Canary Clusters
 
 on: 
-    workflow_dispatch:
-    # repository_dispatch:
-    #     types: [charon-package-published]
+    repository_dispatch:
+        types: [charon-package-published]
     push:
        branches:
-           - first-eks
+           - main
+       paths:
+           - templates/** 
 jobs:
   delete-gke-canaries:
     uses: ObolNetwork/charon-k8s-distributed-validator-cluster/.github/workflows/delete-gke-clusters.yaml@main
