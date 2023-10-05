@@ -29,10 +29,10 @@ jobs:
       with:
         role-to-assume: ${{ secrets.GHA_AWS_IAM_ROLE }}
         role-session-name: canary-deploy-aws
-        aws-region: ${{ env.AWS_DEFAULT_REGION }}
+        aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
 
     - name: Update kube config
-      run: aws eks update-kubeconfig --region ${{ env.AWS_DEFAULT_REGION }}--name ${{ secrets.EKS_DEV_CLUSTER }}
+      run: aws eks update-kubeconfig --region ${{ secrets.AWS_DEFAULT_REGION }}--name ${{ secrets.EKS_DEV_CLUSTER }}
 
     - name: Get charon image tag
       id: charon_image_tag
