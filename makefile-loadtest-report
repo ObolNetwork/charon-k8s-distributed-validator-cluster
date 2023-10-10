@@ -14,8 +14,10 @@ REPORT_FILE := Report-$(CLUSTER_INDEX_END).txt
 .PHONY: report
 
 report: $(CLUSTER_NAMES)
+	@wait  # Wait for all background tasks to complete
+	@echo "All background tasks have completed."
 
 $(CLUSTER_NAMES):
 	@for cluster_name in $(CLUSTER_NAMES); do \
-		./scripts/dkg-run-multi-ns-report.sh $$cluster_name >> $(REPORT_FILE) ; \
+		./scripts/dkg-run-multi-ns-report.sh $$cluster_name >> $(REPORT_FILE) & \
 	done

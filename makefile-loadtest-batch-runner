@@ -1,15 +1,15 @@
 include ./envs/charon-dkg-test.env
 
-BATCH_SIZE := 5
+BATCH_SIZE := 1
 CLUSTER_INDEX_START := 1
 # CLUSTER_INDEX_END := FROM ENV
 # Calculate CLUSTER_INDEX_END based on CLUSTERS and BATCH_SIZE
 CLUSTER_INDEX_END := $(shell echo $$((${CLUSTERS} / ${BATCH_SIZE})))
 WAIT_TIME := 5
 
-.PHONY: deploy-batches
+.PHONY: deploy-batches run-shell-script
 
-deploy-batches:
+deploy-batches: run-shell-script
 	@for i in $$(seq $(CLUSTER_INDEX_START) $(BATCH_SIZE) $(CLUSTER_INDEX_END)); do \
 		start=$$i; \
 		end=$$(($$i + $(BATCH_SIZE) - 1)); \
@@ -18,3 +18,9 @@ deploy-batches:
 		echo "Waiting for $(WAIT_TIME) seconds before the next batch..."; \
 		sleep $(WAIT_TIME); \
 	done
+	@wait  # Wait for all background jobs to complete
+	make -f makefile-loadtest-report  # Run makefile-loadtest-report after deploy-batches
+	make -f makefile-delete-ns  # Run makefile-delete-ns after loadtest-report
+
+run-shell-script:
+	./scripts/create-dkg-perf-data.sh
