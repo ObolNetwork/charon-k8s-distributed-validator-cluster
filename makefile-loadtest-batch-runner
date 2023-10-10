@@ -2,8 +2,6 @@ include ./envs/charon-dkg-test.env
 
 BATCH_SIZE := 1
 CLUSTER_INDEX_START := 1
-# CLUSTER_INDEX_END := FROM ENV
-# Calculate CLUSTER_INDEX_END based on CLUSTERS and BATCH_SIZE
 CLUSTER_INDEX_END := $(shell echo $$((${CLUSTERS} / ${BATCH_SIZE})))
 WAIT_TIME := 5
 

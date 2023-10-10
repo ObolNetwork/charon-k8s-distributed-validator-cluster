@@ -2,11 +2,6 @@
 #!/bin/bash
 set -uo pipefail
 CLUSTER_NAME_PREFIX="relay-dkg-perf"
-# CLUSTERS=2
-# NODES=3
-# NUM_VALIDATORS=1
-# NETWORK='goerli'
-# CHARON_VERSION='v0.17.0'
 
 COPY_FROM_CLUSTER_NAME="charon-dkg-test"
 
