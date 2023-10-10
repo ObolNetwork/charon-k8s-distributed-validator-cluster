@@ -2,7 +2,6 @@ include ./envs/charon-dkg-test.env
 
 # Define the range of indices for generating cluster names
 CLUSTER_INDEX_START := 1
-# CLUSTER_INDEX_END := 50
 CLUSTER_INDEX_END := $(shell echo ${CLUSTERS})
 
 # Generate the cluster names using the indices
