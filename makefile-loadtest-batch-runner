@@ -20,7 +20,6 @@ deploy-batches: run-shell-script
 	done
 	@wait  # Wait for all background jobs to complete
 	make -f makefile-loadtest-report  # Run makefile-loadtest-report after deploy-batches
-	make -f makefile-delete-ns  # Run makefile-delete-ns after loadtest-report
 
 run-shell-script:
 	./scripts/create-dkg-perf-data.sh
