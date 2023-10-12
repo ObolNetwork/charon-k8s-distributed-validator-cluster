@@ -35,6 +35,7 @@ Port forward the vault pod to your local machine:
 ```sh
 nohup kubectl port-forward vault-0 8200:8200 -n vault > /dev/null 2>&1 &
 export VAULT_ADDR=http://127.0.0.1:8200
+vault login
 ```
 
 ## Upload Keys to Vault
