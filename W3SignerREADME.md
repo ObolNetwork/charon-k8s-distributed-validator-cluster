@@ -45,10 +45,10 @@ VAULT_TOKEN="enter the token you had saved earlier"
 CTRL+D
 ```
 Now run the following command to upload the keys to the vault:
-Note: You need to run this command for each ```charon``` node
+Note: You need to run this command for each ```charon``` node (assuming you have the CDVC or CDVN node folders)
 ```sh
-go run main.go ./canary-goerli-1/node0/validator_keys canary-goerli-1-node0
-go run main.go ./canary-goerli-1/node1/validator_keys canary-goerli-1-node1
+go run main.go ./<cluster-name>/node0/validator_keys <cluster-name>-node0
+go run main.go ./<cluster-name>/node1/validator_keys <cluster-name>-node1
 ... and likewise for the other nodes
 ```
 When complete, it displays the following message(s):
@@ -65,6 +65,16 @@ Now you can check the vault to see if the keys are uploaded successfully
 Navigate to Project root folder
 ```sh
 ./scripts/create-web3signer-secrets.sh <cluster-name>
+```
+If successful, it displays the following message, you should see the secret
+```sh
+kubectl get secrets -n <cluster-name>
+``` 
+example
+```sh
+node0-web3signer-keystore
+node1-web3signer-keystore
+etc
 ```
 
 ## Deploy Charon Cluster
