@@ -18,7 +18,7 @@ data:
   CHARON_NO_VERIFY: "true"
   CHARON_P2P_DISABLE_REUSEPORT: "true"
   CHARON_PRIVATE_KEY_FILE_LOCK: "false"
-  CHARON_BUILDER_API: "true"
+  CHARON_BUILDER_API: ${CHARON_BUILDER_API:-"true"}
 ---
 apiVersion: apps/v1
 kind: Deployment
