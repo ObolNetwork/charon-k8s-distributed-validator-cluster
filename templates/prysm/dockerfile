@@ -1,0 +1,10 @@
+FROM prysmaticlabs/prysm-validator:HEAD-280632 as prysm-validator
+
+FROM debian:buster-slim
+COPY --from=prysm-validator /app/cmd/validator/validator validator
+
+ADD run.sh /home/prysm/run.sh
+
+RUN chmod +x /home/prysm/run.sh
+
+ENTRYPOINT [ "/home/prysm/run.sh" ]

@@ -77,6 +77,8 @@ elif [ $vc -eq 2 ]; then
 envsubst < ./templates/lodestar-vc.yaml | kubectl apply -f -
 elif [ $vc -eq 3 ]; then	
 envsubst < ./templates/nimbus-vc.yaml | kubectl apply -f -
+elif [ $vc -eq 4 ]; then	
+envsubst < ./templates/prysm-vc.yaml | kubectl apply -f -
 fi
 ((node_index=node_index+1))
 done
