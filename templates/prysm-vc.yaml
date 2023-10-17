@@ -1,24 +1,3 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: $VC_INDEX-import-script-config
-  namespace: $CLUSTER_NAME
-data:
-  import-prysm-script.sh: |
-    #!/bin/sh
-    mkdir -p /prysm-wallet
-    echo "prysm-validator-secret" > /wallet-password.txt
-    /app/cmd/validator/validator wallet create --accept-terms-of-use --$NETWORK --wallet-password-file="/wallet-password.txt" --keymanager-kind=direct --wallet-dir="/prysm-wallet"
-    for f in /validator_keys/keystore-*.json; do
-      echo "Importing key ${f//json/json}"
-      /app/cmd/validator/validator accounts import \
-          --keys-dir="/validator_keys" \
-          --$NETWORK --accept-terms-of-use \
-          --account-password-file="${f//json/txt}" \
-          --wallet-password-file="/wallet-password.txt" \
-          --wallet-dir="/prysm-wallet"
-    done
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -38,91 +17,49 @@ spec:
       labels:
         app: $VC_INDEX-prysm
     spec:
-      # securityContext:
-      #   fsGroup: 1000
-      #   runAsUser: 1000
-      # initContainers:
-      #   - name: copy-script
-      #     from:
-      #       kind: DockerImage
-      #       name: prysmaticlabs/prysm-validator:$PRYSM_VERSION
-      #       copy:
-      #         src: /app/cmd/validator/validator
-      #         dest: /validator-binary
-      #     # command: [ "sh", "-c", "cp -R /app/cmd/validator/validator /validator-binary" ]
-      #     volumeMounts:
-      #       - name: data
-      #         mountPath: "/opt/data"
-      #       - name: validators
-      #         mountPath: "/validator_keys"
-      #       - name: config
-      #         mountPath: "/config"
-      #       - name: scripts
-      #         mountPath: "/opt/scripts"
-      #       - name: validator-binary
-      #         mountPath: "/validator-binary"
-        # - name: init-chown
-        #   image: busybox
-        #   securityContext:
-        #     runAsUser: 0
-        #   command:
-        #     - sh
-        #     - -ac
-        #     - chmod +x /opt/scripts/import-prysm-script.sh
-        #   volumeMounts:
-        #     - name: validators
-        #       mountPath: "/validator_keys"
-        #     - name: data
-        #       mountPath: "/opt/data"
-        #     - name: scripts
-        #       mountPath: "/opt/scripts"
       containers:
         - name: $VC_INDEX-prysm
-          image: alpine/curl
+          image: debian:stable-slim
           imagePullPolicy: Always
           command:
             - sh
             - -ace
-            - mkdir prysm && cd prysm
-            - curl https://raw.githubusercontent.com/prysmaticlabs/prysm/master/prysm.sh --output prysm.sh && chmod +x prysm.sh
-            # - mkdir -p /prysm-wallet
-            # - echo "prysm-validator-secret" > /wallet-password.txt
-            # - PRYSM_ALLOW_UNVERIFIED_BINARIES=1 ./prysm.sh validator wallet create --accept-terms-of-use --goerli --wallet-password-file=/wallet-password.txt --keymanager-kind=direct --wallet-dir="/prysm-wallet"
-            - tail -f /dev/null
-            # - accounts wallet create --accept-terms-of-use --$NETWORK --wallet-password-file="/wallet-password.txt" --keymanager-kind=direct --wallet-dir="/prysm-wallet"
-            #- accounts import --keys-dir=/validator_keys --wallet-dir="/wallet" --accept-terms-of-use --name validator
-            #- PRYSM_ALLOW_UNVERIFIED_BINARIES=1 ./prysm.sh validator accounts import --keys-dir=/tmpkeys --goerli --accept-terms-of-use --wallet-password-file="/wallet-password.txt" --wallet-dir="/prysm-wallet" --account-password-file=/tmpkeys/keystore-0.txt 
-          #     # /opt/scripts/import-prysm-script.sh
-          #     # /app/cmd/validator/validator --wallet-dir="/prysm-wallet" \
-          #     # --wallet-password-file="/wallet-password.txt" \
-          #     # --$NETWORK \
-          #     # --enable-beacon-rest-api \
-          #     # --accept-terms-of-use \
-          #     # --beacon-rest-api-provider="http://$NODE_NAME:3600"
+            - |
+              apt-get update && apt-get install -y curl
+              mkdir prysm && cd prysm
+              curl https://raw.githubusercontent.com/prysmaticlabs/prysm/${PRYSM_VERSION}/prysm.sh --output prysm.sh && chmod +x prysm.sh
+              mkdir -p /prysm-wallet
+              echo "prysm-validator-secret" > /wallet-password.txt
+              PRYSM_ALLOW_UNVERIFIED_BINARIES=1 ./prysm.sh validator wallet create --accept-terms-of-use --$NETWORK --wallet-password-file=/wallet-password.txt --keymanager-kind=direct --wallet-dir="/prysm-wallet"
+              mkdir -p /tmpkeys
+              tmpkeys="/tmpkeys"
+              for f in /validator_keys/keystore-*.json; do
+                cp "${f:="/validator_keys/keystore-0.json"}" "${tmpkeys:="/tmpkeys"}"
+                cp "${f%.*}.txt" "${tmpkeys:="/tmpkeys"}"
+                PRYSM_ALLOW_UNVERIFIED_BINARIES=1 ./prysm.sh validator accounts import \
+                    --keys-dir="/tmpkeys" \
+                    --$NETWORK --accept-terms-of-use \
+                    --account-password-file="${f%.*}.txt" \
+                    --wallet-password-file="/wallet-password.txt" \
+                    --wallet-dir="/prysm-wallet"
+                rm "${tmpkeys:="/tmpkeys"}/$(basename "${f:="/validator_keys/keystore-0.json"}")"
+              done
+              PRYSM_ALLOW_UNVERIFIED_BINARIES=1 ./prysm.sh validator \
+                --accept-terms-of-use \
+                --$NETWORK \
+                --wallet-dir="/prysm-wallet" \
+                --wallet-password-file="/wallet-password.txt" \
+                --enable-beacon-rest-api \
+                --beacon-rest-api-provider="http://$NODE_NAME:3600"
           volumeMounts:
             - name: validators
               mountPath: "/validator_keys"
-            - name: data
-              mountPath: "/opt/data"
-            - name: scripts
-              mountPath: "/opt/scripts"
-            - name: validator-binary
-              mountPath: "/validator-binary"
       volumes:
         - name: validators
           projected:
             sources:
               - secret:
                   name: $NODE_NAME-validators
-        - name: data
-          emptyDir: {}
-        - name: config
-          configMap:
-            name: $VC_INDEX-import-script-config
-        - name: scripts
-          emptyDir: {}
-        - name: validator-binary
-          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
