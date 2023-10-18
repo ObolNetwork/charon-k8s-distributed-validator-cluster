@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: $VC_INDEX-prysm
+  name: $VC_INDEX-prysm
+  namespace: $CLUSTER_NAME
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: $VC_INDEX-prysm
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: $VC_INDEX-prysm
+    spec:
+      containers:
+        - name: $VC_INDEX-prysm
+          image: debian:stable-slim
+          imagePullPolicy: Always
+          command:
+            - sh
+            - -ace
+            - |
+              apt-get update && apt-get install -y curl
+              mkdir prysm && cd prysm
+              curl https://raw.githubusercontent.com/prysmaticlabs/prysm/${PRYSM_VERSION}/prysm.sh --output prysm.sh && chmod +x prysm.sh
+              mkdir -p /prysm-wallet
+              echo "prysm-validator-secret" > /wallet-password.txt
+              PRYSM_ALLOW_UNVERIFIED_BINARIES=1 ./prysm.sh validator wallet create --accept-terms-of-use --$NETWORK --wallet-password-file=/wallet-password.txt --keymanager-kind=direct --wallet-dir="/prysm-wallet"
+              mkdir -p /tmpkeys
+              tmpkeys="/tmpkeys"
+              for f in /validator_keys/keystore-*.json; do
+                cp "${f:="/validator_keys/keystore-0.json"}" "${tmpkeys:="/tmpkeys"}"
+                cp "${f%.*}.txt" "${tmpkeys:="/tmpkeys"}"
+                PRYSM_ALLOW_UNVERIFIED_BINARIES=1 ./prysm.sh validator accounts import \
+                    --keys-dir="/tmpkeys" \
+                    --$NETWORK --accept-terms-of-use \
+                    --account-password-file="${f%.*}.txt" \
+                    --wallet-password-file="/wallet-password.txt" \
+                    --wallet-dir="/prysm-wallet"
+                rm "${tmpkeys:="/tmpkeys"}/$(basename "${f:="/validator_keys/keystore-0.json"}")"
+              done
+              PRYSM_ALLOW_UNVERIFIED_BINARIES=1 ./prysm.sh validator \
+                --accept-terms-of-use \
+                --$NETWORK \
+                --wallet-dir="/prysm-wallet" \
+                --wallet-password-file="/wallet-password.txt" \
+                --enable-beacon-rest-api \
+                --beacon-rest-api-provider="http://$NODE_NAME:3600"
+          volumeMounts:
+            - name: validators
+              mountPath: "/validator_keys"
+      volumes:
+        - name: validators
+          projected:
+            sources:
+              - secret:
+                  name: $NODE_NAME-validators
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: $VC_INDEX-prysm
+  namespace: $CLUSTER_NAME
+  labels:
+    app: $VC_INDEX-prysm
+spec:
+  selector:
+    app: $VC_INDEX-prysm
+  ports:
+    - name: metrics
+      protocol: TCP
+      port: 8008
+      targetPort: 8008
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: $VC_INDEX-prysm
+  namespace: $CLUSTER_NAME
+spec:
+  selector:
+    matchLabels:
+      app: $VC_INDEX-prysm
+  endpoints:
+  - port: metrics
