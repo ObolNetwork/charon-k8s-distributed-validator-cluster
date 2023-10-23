@@ -66,64 +66,144 @@ data:
       - job_name: 'node0'
         static_configs:
           - targets: ['node0:3620']
+        relabel_configs:
+          - source_labels: []
+            target_label: 'service_owner'
+            replacement: 'obol-platform'
       - job_name: 'node1'
         static_configs:
           - targets: ['node1:3620']
+        relabel_configs:
+          - source_labels: []
+            target_label: 'service_owner'
+            replacement: 'obol-platform'
       - job_name: 'node2'
         static_configs:
           - targets: ['node2:3620']
+        relabel_configs:
+          - source_labels: []
+            target_label: 'service_owner'
+            replacement: 'obol-platform'
       - job_name: 'node3'
         static_configs:
           - targets: ['node3:3620']
       - job_name: 'node4'
         static_configs:
           - targets: ['node4:3620']
+        relabel_configs:
+          - source_labels: []
+            target_label: 'service_owner'
+            replacement: 'obol-platform'
       - job_name: 'node5'
         static_configs:
           - targets: ['node5:3620']
+        relabel_configs:
+          - source_labels: []
+            target_label: 'service_owner'
+            replacement: 'obol-platform'
       - job_name: 'node6'
         static_configs:
           - targets: ['node6:3620']
+        relabel_configs:
+          - source_labels: []
+            target_label: 'service_owner'
+            replacement: 'obol-platform'
       - job_name: 'vc0-teku'
         static_configs:
           - targets: ['vc0-teku:8008']
+        relabel_configs:
+          - source_labels: []
+            target_label: 'service_owner'
+            replacement: 'obol-platform'
       - job_name: 'vc1-teku'
         static_configs:
           - targets: ['vc1-teku:8008']
+        relabel_configs:
+          - source_labels: []
+            target_label: 'service_owner'
+            replacement: 'obol-platform'
       - job_name: 'vc2-teku'
         static_configs:
           - targets: ['vc2-teku:8008']
+        relabel_configs:
+          - source_labels: []
+            target_label: 'service_owner'
+            replacement: 'obol-platform'
       - job_name: 'vc3-teku'
         static_configs:
           - targets: ['vc3-teku:8008']
+        relabel_configs:
+          - source_labels: []
+            target_label: 'service_owner'
+            replacement: 'obol-platform'
       - job_name: 'vc4-teku'
         static_configs:
           - targets: ['vc4-teku:8008']
+        relabel_configs:
+          - source_labels: []
+            target_label: 'service_owner'
+            replacement: 'obol-platform'
       - job_name: 'vc5-teku'
         static_configs:
           - targets: ['vc5-teku:8008']
+        relabel_configs:
+          - source_labels: []
+            target_label: 'service_owner'
+            replacement: 'obol-platform'
       - job_name: 'vc6-teku'
         static_configs:
           - targets: ['vc6-teku:8008']
+        relabel_configs:
+          - source_labels: []
+            target_label: 'service_owner'
+            replacement: 'obol-platform'
       - job_name: 'vc0-lighthouse'
         static_configs:
           - targets: ['vc0-lighthouse:8008']
+        relabel_configs:
+          - source_labels: []
+            target_label: 'service_owner'
+            replacement: 'obol-platform'
       - job_name: 'vc1-lighthouse'
         static_configs:
           - targets: ['vc1-lighthouse:8008']
+        relabel_configs:
+          - source_labels: []
+            target_label: 'service_owner'
+            replacement: 'obol-platform'
       - job_name: 'vc2-lighthouse'
         static_configs:
           - targets: ['vc2-lighthouse:8008']
+        relabel_configs:
+          - source_labels: []
+            target_label: 'service_owner'
+            replacement: 'obol-platform'
       - job_name: 'vc3-lighthouse'
         static_configs:
           - targets: ['vc3-lighthouse:8008']
+        relabel_configs:
+          - source_labels: []
+            target_label: 'service_owner'
+            replacement: 'obol-platform'
       - job_name: 'vc4-lighthouse'
         static_configs:
           - targets: ['vc4-lighthouse:8008']
+        relabel_configs:
+          - source_labels: []
+            target_label: 'service_owner'
+            replacement: 'obol-platform'
       - job_name: 'vc5-lighthouse'
         static_configs:
           - targets: ['vc5-lighthouse:8008']
+        relabel_configs:
+          - source_labels: []
+            target_label: 'service_owner'
+            replacement: 'obol-platform'
       - job_name: 'vc6-lighthouse'
         static_configs:
           - targets: ['vc6-lighthouse:8008']
+        relabel_configs:
+          - source_labels: []
+            target_label: 'service_owner'
+            replacement: 'obol-platform'
 
