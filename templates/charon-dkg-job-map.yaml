@@ -7,6 +7,8 @@ data:
   CHARON_DATA_DIR: /tmp/.charon
   CHARON_P2P_RELAYS: ${CHARON_P2P_RELAYS:-https://1.relay.obol.tech}
   CHARON_DEFINITION_FILE: /charon/cluster-definition.json
+  CHARON_PUBLISH_ADDRESS: "https://obol-api-dev.gcp.obol.tech"
+  CHARON_PUBLISH: "true"
 ---
 apiVersion: batch/v1
 kind: Job
