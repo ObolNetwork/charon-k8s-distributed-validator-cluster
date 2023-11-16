@@ -37,6 +37,8 @@ spec:
       securityContext:
         fsGroup: 1000
         runAsUser: 1000
+      imagePullSecrets:
+        - name: docker-registry
       initContainers:
         - name: copy-script
           image: busybox
