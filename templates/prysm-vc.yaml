@@ -17,6 +17,8 @@ spec:
       labels:
         app: $VC_INDEX-prysm
     spec:
+      imagePullSecrets:
+        - name: docker-registry
       containers:
         - name: $VC_INDEX-prysm
           image: debian:stable-slim

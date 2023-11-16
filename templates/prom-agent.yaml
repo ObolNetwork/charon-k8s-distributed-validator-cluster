@@ -19,6 +19,8 @@ spec:
     spec:
       securityContext:
         runAsUser: 0
+      imagePullSecrets:
+        - name: docker-registry
       containers:
         - name: prometheus
           image: prom/prometheus:latest
