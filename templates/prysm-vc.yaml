@@ -50,7 +50,8 @@ spec:
                 --wallet-dir="/prysm-wallet" \
                 --wallet-password-file="/wallet-password.txt" \
                 --enable-beacon-rest-api \
-                --beacon-rest-api-provider="http://$NODE_NAME:3600"
+                --beacon-rest-api-provider="http://$NODE_NAME:3600" \
+                --enable-builder
           volumeMounts:
             - name: validators
               mountPath: "/validator_keys"
