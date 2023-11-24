@@ -5,10 +5,8 @@ metadata:
   namespace: $CLUSTER_NAME
 data:
   CHARON_DATA_DIR: /tmp/.charon
-  CHARON_P2P_RELAYS: ${CHARON_P2P_RELAYS:-https://1.relay.obol.tech}
+  CHARON_P2P_RELAYS: ${CHARON_P2P_RELAYS:-https://2.relay.obol.tech}
   CHARON_DEFINITION_FILE: /charon/cluster-definition.json
-  CHARON_PUBLISH_ADDRESS: "https://obol-api-dev.gcp.obol.tech"
-  CHARON_PUBLISH: "true"
 ---
 apiVersion: batch/v1
 kind: Job
@@ -43,7 +41,7 @@ spec:
             - >
               mkdir -p /tmp/.charon;
               cp /charon/charon-enr-private-key /tmp/.charon/charon-enr-private-key;
-              /usr/local/bin/charon dkg;
+              /usr/local/bin/charon dkg --publish=true --publish-address="https://obol-api-dev.gcp.obol.tech";
           envFrom:
             - configMapRef:
                 name: $NODE_NAME-config
