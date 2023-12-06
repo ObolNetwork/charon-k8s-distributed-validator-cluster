@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: $NODE_NAME-config
+  namespace: $CLUSTER_NAME
+data:
+  CHARON_DATA_DIR: /tmp/.charon
+  CHARON_P2P_RELAYS: ${CHARON_P2P_RELAYS:-https://2.relay.obol.tech}
+  CHARON_DEFINITION_FILE: /charon/cluster-definition.json
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: $NODE_NAME-job
+  namespace: $CLUSTER_NAME
+spec:
+  completions: 1
+  parallelism: 1
+  template:
+    metadata:
+      labels:
+        app: $NODE_NAME
+    spec:
+      restartPolicy: Never
+      securityContext:
+        runAsUser: 1000
+        fsGroup: 1000
+      volumes:
+        - name: cluster-definition
+          configMap:
+            name: $NODE_NAME-charon-dkg-config
+        - name: charon
+          emptyDir: {}
+      containers:
+        - name: $NODE_NAME
+          image: ghcr.io/obolnetwork/charon:$CHARON_VERSION
+          imagePullPolicy: Always
+          command:
+            - sh
+            - -ac
+            - >
+              mkdir -p /tmp/.charon;
+              cp /charon/charon-enr-private-key /tmp/.charon/charon-enr-private-key;
+              /usr/local/bin/charon dkg --publish=true --publish-address="https://obol-api-dev.gcp.obol.tech";
+          envFrom:
+            - configMapRef:
+                name: $NODE_NAME-config
+          volumeMounts:
+            - name: cluster-definition
+              mountPath: /charon
+  backoffLimit: 0
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: $NODE_NAME
+  namespace: $CLUSTER_NAME
+spec:
+  selector:
+    app: $NODE_NAME
+  ports:
+    - name: http-bootnode
+      protocol: TCP
+      port: 3640
+      targetPort: 3640

@@ -9,16 +9,12 @@ set -uo pipefail
 
 COPY_FROM_CLUSTER_NAME="charon-dkg-test"
 CLUSTER_NAME=$1
-# NODES=7
-
-# download cluster config
-gcloud storage cp gs://charon-clusters-config/${COPY_FROM_CLUSTER_NAME}/${COPY_FROM_CLUSTER_NAME}.env .
 
 # override the env vars
 OLDIFS=$IFS
 IFS='
 '
-export $(< ./${COPY_FROM_CLUSTER_NAME}.env)
+export $(< ./envs/${COPY_FROM_CLUSTER_NAME}.env)
 IFS=$OLDIFS
 
 # Check if the custom P2P relays argument is provided
@@ -26,7 +22,7 @@ IFS=$OLDIFS
 #   CHARON_P2P_RELAYS=$2
 # fi
 
-rm ./${COPY_FROM_CLUSTER_NAME}.env
+# rm ./${COPY_FROM_CLUSTER_NAME}.env
 
 # create the namespace
 nsStatus=$(kubectl get namespace ${CLUSTER_NAME} --no-headers --output=go-template={{.metadata.name}} 2>/dev/null)
@@ -36,18 +32,16 @@ if [ -z "$nsStatus" ]; then
 fi
 
 # Deploy dkg jobs
-IFS=','
-secrets_count=$(kubectl get secrets -n ${CLUSTER_NAME} --no-headers | wc -l)
-NODES=$((secrets_count / 2))
 
 node_index=0
 total_jobs=${NODES}
 for ((i=0; i<total_jobs; i++)); do
   export NODE_NAME="node$node_index"
+  echo "Deploying job for node: ${NODE_NAME}"
   eval "cat <<EOF
-$(<./templates/charon-dkg-job.yaml)
+$(<./templates/charon-dkg-job-map.yaml)
 EOF
-" | kubectl apply -f - -n ${CLUSTER_NAME} > /dev/null 2>&1 &
+" | kubectl apply -f - -n ${CLUSTER_NAME} > /dev/null & 
   ((node_index=node_index+1))
 done
 

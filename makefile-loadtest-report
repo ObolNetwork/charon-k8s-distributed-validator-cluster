@@ -1,21 +1,22 @@
+include ./envs/charon-dkg-test.env
+
 # Define the range of indices for generating cluster names
 CLUSTER_INDEX_START := 1
-CLUSTER_INDEX_END := 50
+CLUSTER_INDEX_END := $(shell echo ${CLUSTERS})
 
 # Generate the cluster names using the indices
 CLUSTER_NAMES := $(addprefix relay-dkg-perf-,$(shell seq $(CLUSTER_INDEX_START) $(CLUSTER_INDEX_END)))
 
 # Set the environment variables
-export NETWORK=goerli
-export CHARON_VERSION=v0.16.0
-export CHARON_P2P_RELAYS=https://2.relay.obol.tech
 REPORT_FILE := Report-$(CLUSTER_INDEX_END).txt
 
 .PHONY: report
 
 report: $(CLUSTER_NAMES)
+	@wait  # Wait for all background tasks to complete
+	@echo "All background tasks have completed."
 
 $(CLUSTER_NAMES):
 	@for cluster_name in $(CLUSTER_NAMES); do \
-		./scripts/dkg-run-multi-ns-report.sh $$cluster_name >> $(REPORT_FILE) ; \
+		./scripts/dkg-run-multi-ns-report.sh $$cluster_name >> $(REPORT_FILE) & \
 	done
