@@ -1,11 +1,28 @@
 name: DKG Run
 
 on: 
-    workflow_dispatch:
+  repository_dispatch:
+      types: [charon-package-published]
+  workflow_dispatch:
+    inputs:
+      sha: 
+        type: string
+        required: true
+      relay: 
+        type: string
+        required: false
+  push:
+      branches:
+          - main
+      paths:
+          - templates/** 
 jobs:
   deploy:
     name: DKG run with AWS and GCP Relays
     runs-on: ubuntu-latest
+
+    env:
+      CHARON_P2P_RELAYS: ${{ github.event.inputs.relay }}
 
     steps:
     - name: Checkout
