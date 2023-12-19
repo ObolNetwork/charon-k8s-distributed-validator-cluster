@@ -11,7 +11,8 @@ set -uo pipefail
 CLUSTER_NAME=$1
 CHARON_IMAGE_TAG="${2:-"latest"}"
 
-gcloud storage cp gs://charon-clusters-config/tokens/tokens.env .
+# gcloud storage cp gs://charon-clusters-config/tokens/tokens.env .
+aws s3 cp s3://charon-clusters-config/tokens/tokens.env .
 
 # override the env vars
 OLDIFS=$IFS

@@ -57,7 +57,8 @@ done
 # Run the Docker Compose stack in the background
 docker-compose up
 
-gcloud storage cp -R ${definitions_dir} gs://charon-clusters-config/${CLUSTER_NAME}
+# gcloud storage cp -R ${definitions_dir} gs://charon-clusters-config/${CLUSTER_NAME}
+aws s3 cp --recursive ${definitions_dir} s3://charon-clusters-config/${CLUSTER_NAME}
 
 # delete cluster config before exit
 rm -rf ./.charon/${CLUSTER_NAME}

@@ -16,7 +16,8 @@ CLUSTER_NAME=$1
 
 # download cluster config
 mkdir -p ./.charon
-gcloud storage cp -r gs://charon-clusters-config/${CLUSTER_NAME} ./.charon/
+# gcloud storage cp -r gs://charon-clusters-config/${CLUSTER_NAME} ./.charon/
+aws s3 cp --recursive s3://charon-clusters-config/${CLUSTER_NAME} ./.charon/
 
 definitions_dir="./.charon/${CLUSTER_NAME}/lighthouse-validators-definitions"
 
@@ -59,7 +60,8 @@ END
     INDEX=0
 done
 
-gcloud storage cp -R ${definitions_dir} gs://charon-clusters-config/${CLUSTER_NAME}
+# gcloud storage cp -R ${definitions_dir} gs://charon-clusters-config/${CLUSTER_NAME}
+aws s3 cp --recursive ${definitions_dir} s3://charon-clusters-config/${CLUSTER_NAME}
 
 # delete cluster config before exit
 rm -rf ./.charon/${CLUSTER_NAME}

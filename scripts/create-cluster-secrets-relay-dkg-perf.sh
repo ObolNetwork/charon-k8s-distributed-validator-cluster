@@ -17,7 +17,8 @@ for ((INDEX = 296; INDEX <= NUM_ITERATIONS; INDEX++)); do
     
     # download cluster config
     mkdir -p ./.charon
-    gcloud storage cp -r gs://charon-clusters-config/${CLUSTER_NAME_PREFIX}/${CLUSTER_NAME} ./.charon/
+    # gcloud storage cp -r gs://charon-clusters-config/${CLUSTER_NAME_PREFIX}/${CLUSTER_NAME} ./.charon/
+    aws s3 cp --recursive s3://charon-clusters-config/${CLUSTER_NAME} ./.charon/
     # Calculate the number of nodes
     NODES=$(find ./.charon/${CLUSTER_NAME}/ -type d -name "node*" | wc -l)
     
