@@ -61,7 +61,7 @@ END
 done
 
 # gcloud storage cp -R ${definitions_dir} gs://charon-clusters-config/${CLUSTER_NAME}
-aws s3 cp --recursive ${definitions_dir} s3://charon-clusters-config/${CLUSTER_NAME}
+aws s3 cp --recursive ${definitions_dir} s3://charon-clusters-config/${CLUSTER_NAME}/lighthouse-validators-definitions
 
 # delete cluster config before exit
 rm -rf ./.charon/${CLUSTER_NAME}
