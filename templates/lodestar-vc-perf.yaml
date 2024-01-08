@@ -1,0 +1,164 @@
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   name: $VC_INDEX-import-script-config
+#   namespace: $CLUSTER_NAME
+# data:
+#   import-lodestar-script.sh: |
+#     #!/bin/sh
+#     for f in /validator_keys/keystore-*.json; do
+#       echo "Importing key ${f//json/json}"
+#       node /usr/app/packages/cli/bin/lodestar validator import \
+#           --dataDir="/opt/data" \
+#           --network="$NETWORK" \
+#           --importKeystores="${f//json/json}" \
+#           --importKeystoresPassword="${f//json/txt}"
+#     done
+# ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: $VC_INDEX-lodestar
+  name: $VC_INDEX-lodestar
+  namespace: $CLUSTER_NAME
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: $VC_INDEX-lodestar
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: $VC_INDEX-lodestar
+    spec:
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+      # serviceAccount: "$CLUSTER_NAME-sa"
+      # serviceAccountName: "$CLUSTER_NAME-sa"
+      imagePullSecrets:
+        - name: docker-registry
+      initContainers:
+        - name: download-cluster-config
+          image: amazon/aws-cli:latest
+          command: ["/bin/sh", "-c", "aws s3 cp --recursive s3://charon-clusters-config/$CLUSTER_NAME/lodestar-validators-definitions/$NODE_NAME /data/lodestar/$NODE_NAME"]
+          # args:
+          #   - |
+          #     aws s3 cp --recursive s3://charon-clusters-config/$CLUSTER_NAME/lodestar-validators-definitions/node${$VC_INDEX} /data/lodestar/node${$VC_INDEX}
+          volumeMounts:
+            - name: data
+              mountPath: "/data/lodestar"
+            - name: aws-credentials  # Mount the AWS credentials secret
+              mountPath: /root/.aws
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: sg-aws-credentials
+                  key: AWS_ACCESS_KEY_ID
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: sg-aws-credentials
+                  key: AWS_SECRET_ACCESS_KEY
+            - name: AWS_SESSION_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: sg-aws-credentials
+                  key: AWS_SESSION_TOKEN
+          # volumeMounts:
+          #   - name: data
+          #     mountPath: "/opt/data"
+          #   - name: validators
+          #     mountPath: "/validator_keys"
+          #   - name: config
+          #     mountPath: "/config"
+          #   - name: scripts
+          #     mountPath: "/opt/scripts"
+        # - name: init-chown
+        #   image: busybox
+        #   securityContext:
+        #     runAsUser: 0
+        #   command:
+        #     - sh
+        #     - -ac
+        #     - chmod +x /opt/scripts/import-lodestar-script.sh
+        #   volumeMounts:
+        #     - name: validators
+        #       mountPath: "/validator_keys"
+        #     - name: data
+        #       mountPath: "/opt/data"
+        #     - name: scripts
+        #       mountPath: "/opt/scripts"
+      containers:
+        - name: $VC_INDEX-lodestar
+          image: chainsafe/lodestar:$LODESTAR_VERSION
+          imagePullPolicy: Always
+          command:
+            - sh
+            - -ace
+            - |
+              # /opt/scripts/import-lodestar-script.sh
+              node /usr/app/packages/cli/bin/lodestar validator \
+              --dataDir="/data/lodestar/$NODE_NAME" \
+              --network=$NETWORK \
+              --metrics=true \
+              --metrics.address="0.0.0.0" \
+              --metrics.port=5064 \
+              --beaconNodes="http://$NODE_NAME:3600" \
+              --distributed \
+              $LODESTAR_VC_EXTRA_ARGS
+          volumeMounts:
+            # - name: validators
+            #   mountPath: "/validator_keys"
+            - name: data
+              mountPath: "/data/lodestar"
+            # - name: scripts
+            #   mountPath: "/opt/scripts"
+      volumes:
+        # - name: validators
+        #   projected:
+        #     sources:
+        #       - secret:
+        #           name: $NODE_NAME-validators
+        - name: data
+          emptyDir: {}
+        - name: aws-credentials
+          secret:
+            secretName: sg-aws-credentials
+        # - name: config
+        #   configMap:
+        #     name: $VC_INDEX-import-script-config
+        # - name: scripts
+        #   emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: $VC_INDEX-lodestar
+  namespace: $CLUSTER_NAME
+  labels:
+    app: $VC_INDEX-lodestar
+spec:
+  selector:
+    app: $VC_INDEX-lodestar
+  ports:
+    - name: metrics
+      protocol: TCP
+      port: 8008
+      targetPort: 8008
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: $VC_INDEX-lodestar
+  namespace: $CLUSTER_NAME
+spec:
+  selector:
+    matchLabels:
+      app: $VC_INDEX-lodestar
+  endpoints:
+  - port: metrics

@@ -1,0 +1,145 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: $NODE_NAME-config
+  namespace: $CLUSTER_NAME
+data:
+  CHARON_VALIDATOR_API_ADDRESS: "0.0.0.0:3600"
+  CHARON_P2P_TCP_ADDRESS: "0.0.0.0:3610"
+  CHARON_MONITORING_ADDRESS: "0.0.0.0:3620"
+  CHARON_P2P_RELAYS: ${CHARON_P2P_RELAYS:-https://0.relay.obol.tech}
+  CHARON_BEACON_NODE_ENDPOINTS: $BEACON_NODE_ENDPOINTS
+  CHARON_LOCK_FILE: "/charon/$NODE_NAME/cluster-lock.json"
+  CHARON_PRIVATE_KEY_FILE: "/charon/$NODE_NAME/charon-enr-private-key"
+  CHARON_P2P_EXTERNAL_HOSTNAME: ""
+  CHARON_LOG_LEVEL: "debug"
+  CHARON_LOKI_ADDRESSES: $LOKI_ADDRESSES
+  CHARON_LOKI_SERVICE: "charon"
+  CHARON_NO_VERIFY: "true"
+  CHARON_P2P_DISABLE_REUSEPORT: "true"
+  CHARON_PRIVATE_KEY_FILE_LOCK: "false"
+  CHARON_BUILDER_API: ${CHARON_BUILDER_API}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: $NODE_NAME
+  name: $NODE_NAME
+  namespace: $CLUSTER_NAME
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: $NODE_NAME
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: $NODE_NAME
+    spec:
+      securityContext:
+        runAsUser: 1000
+        fsGroup: 1000
+      volumes:
+        - name: cluster-config
+          emptyDir: {}
+        - name: aws-credentials
+          secret:
+            secretName: sg-aws-credentials
+      initContainers:
+        - name: download-cluster-config
+          image: amazon/aws-cli:latest
+          # image: busybox
+          # command: ["/bin/sh", "-c", "tail -f /dev/null"]
+          command: ["/bin/sh", "-c", "aws s3 cp --recursive s3://charon-clusters-config/$CLUSTER_NAME/$NODE_NAME/ /charon/$NODE_NAME"]
+          volumeMounts:
+            - name: cluster-config
+              mountPath: /charon
+            - name: aws-credentials  # Mount the AWS credentials secret
+              mountPath: /root/.aws  # Adjust the path to your application's AWS credentials location
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: sg-aws-credentials
+                  key: AWS_ACCESS_KEY_ID
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: sg-aws-credentials
+                  key: AWS_SECRET_ACCESS_KEY
+            - name: AWS_SESSION_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: sg-aws-credentials
+                  key: AWS_SESSION_TOKEN
+      containers:
+        - name: $NODE_NAME
+          image: ghcr.io/obolnetwork/charon:$CHARON_VERSION
+          imagePullPolicy: Always
+          command: ["/usr/local/bin/charon"]
+          args: ["run"]
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 3620
+            initialDelaySeconds: 5
+            periodSeconds: 3
+          livenessProbe:
+            httpGet:
+              path: /livez
+              port: 3620
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          envFrom:
+            - configMapRef:
+                name: $NODE_NAME-config
+          volumeMounts:
+            # - name: private-key
+            #   mountPath: /charon/$NODE_NAME
+            - name: cluster-config
+              mountPath: /charon
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: $NODE_NAME
+  namespace: $CLUSTER_NAME
+spec:
+  selector:
+    app: $NODE_NAME
+  ports:
+    - name: http-bootnode
+      protocol: TCP
+      port: 3640
+      targetPort: 3640
+    - name: monitoring
+      protocol: TCP
+      port: 3620
+      targetPort: 3620
+    - name: validator-api
+      protocol: TCP
+      port: 3600
+      targetPort: 3600
+    - name: p2p-tcp
+      protocol: TCP
+      port: 3610
+      targetPort: 3610
+    - name: p2p-udp
+      protocol: UDP
+      port: 3630
+      targetPort: 3630
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: $NODE_NAME
+  namespace: $CLUSTER_NAME
+spec:
+  selector:
+    matchLabels:
+      app: $NODE_NAME
+  endpoints:
+  - port: monitoring
