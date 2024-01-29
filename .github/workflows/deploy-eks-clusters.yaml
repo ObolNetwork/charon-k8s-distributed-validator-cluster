@@ -62,12 +62,12 @@ jobs:
       run: ./scripts/deploy-cluster-with-charon-tag.sh canary-goerli-2 ${{ steps.charon_image_tag.outputs.tag }}
       shell: bash
 
-    - name: Delete charon-gnosis-0
-      run: ./scripts/delete-cluster.sh charon-gnosis-0
-      shell: bash
-    - name: Deploy charon-gnosis-0
-      run: ./scripts/deploy-cluster-with-charon-tag.sh charon-gnosis-0 ${{ steps.charon_image_tag.outputs.tag }}
-      shell: bash
+    # - name: Delete charon-gnosis-0
+    #   run: ./scripts/delete-cluster.sh charon-gnosis-0
+    #   shell: bash
+    # - name: Deploy charon-gnosis-0
+    #   run: ./scripts/deploy-cluster-with-charon-tag.sh charon-gnosis-0 ${{ steps.charon_image_tag.outputs.tag }}
+    #   shell: bash
     
     # Disable charon-prater-0 automation until web3signer experiment is completed
     # - name: Delete charon-prater-0
