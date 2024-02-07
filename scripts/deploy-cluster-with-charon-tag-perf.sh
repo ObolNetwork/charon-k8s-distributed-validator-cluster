@@ -50,12 +50,12 @@ else
     export CHARON_VERSION="$version"
 fi
 eval "cat <<EOF
-$(<./templates/charon.yaml)
+$(<./templates/charon-perf.yaml)
 EOF
 " | kubectl apply -f -
 ((node_index=node_index+1))
 done
-
+export CLUSTER_NAME="${CLUSTER_NAME}"
 # Deploy Validator client of required type for each charon node. 
 IFS=','
 read -a vcs <<< "$VC_TYPES"
@@ -75,7 +75,7 @@ $(<./templates/lighthouse-vc.yaml)
 EOF
 " | kubectl apply -f -
 elif [ $vc -eq 2 ]; then
-envsubst < ./templates/lodestar-vc.yaml | kubectl apply -f -
+envsubst < ./templates/lodestar-vc-perf.yaml | kubectl apply -f -
 elif [ $vc -eq 3 ]; then	
 envsubst < ./templates/nimbus-vc.yaml | kubectl apply -f -
 elif [ $vc -eq 4 ]; then	

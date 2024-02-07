@@ -23,16 +23,16 @@ WITHDRAWAL_ADDR=<ENTER YOUR WITHDRAWAL ADDRESS HERE>
 FEE_RECIPIENT_ADDR=<ENTER YOUR FEE RECIPIENT ADDRESS HERE>
 
 # Create a distributed validator cluster
-docker run --rm -v "$(pwd):/opt/charon" obolnetwork/charon:v0.16.0 create cluster --name="mycluster" --withdrawal-addresses="${WITHDRAWAL_ADDR}" --fee-recipient-addresses="${FEE_RECIPIENT_ADDR}" --nodes 6 --threshold 5
+docker run --rm -v "$(pwd):/opt/charon" obolnetwork/charon:v0.18.0 create cluster --name="mycluster" --withdrawal-addresses="${WITHDRAWAL_ADDR}" --fee-recipient-addresses="${FEE_RECIPIENT_ADDR}" --nodes 6 --threshold 5
 
 # rename cluster directory to the <cluster_name>
 mv .charon/cluster .charon/mycluster
 ```
 
-## Upload Cluster Config to GCS
+## Upload Cluster Config to EKS
 ```sh
-gcloud storage cp -R .charon/<cluster_name> gs://charon-clusters-config
-gcloud storage cp .env gs://charon-clusters-config/<cluster_name>/<cluster_name>.env .
+aws s3 cp --recursive .charon/<cluster_name>/ s3://charon-clusters-config/<cluster_name>/
+aws s3 cp .env s3://charon-clusters-config/<cluster_name>/<cluster_name>.env
 ```
 
 ## Generate Lighthouse validators definitions
