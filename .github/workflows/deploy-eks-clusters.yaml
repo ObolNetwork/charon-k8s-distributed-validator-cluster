@@ -84,12 +84,12 @@ jobs:
       run: ./scripts/deploy-cluster-with-charon-tag.sh charon-prater-1 ${{ steps.charon_image_tag.outputs.tag }}
       shell: bash
     
-    - name: Delete charon-sepolia-1780
-      run: ./scripts/delete-cluster.sh charon-sepolia-1780
-      shell: bash
-    - name: Deploy charon-sepolia-1780
-      run: ./scripts/deploy-cluster-with-charon-tag.sh charon-sepolia-1780 ${{ steps.charon_image_tag.outputs.tag }}
-      shell: bash
+    # - name: Delete charon-sepolia-1780
+    #   run: ./scripts/delete-cluster.sh charon-sepolia-1780
+    #   shell: bash
+    # - name: Deploy charon-sepolia-1780
+    #   run: ./scripts/deploy-cluster-with-charon-tag.sh charon-sepolia-1780 ${{ steps.charon_image_tag.outputs.tag }}
+    #   shell: bash
 
     - name: Delete canary-holesky-1
       run: ./scripts/delete-cluster.sh canary-holesky-1
