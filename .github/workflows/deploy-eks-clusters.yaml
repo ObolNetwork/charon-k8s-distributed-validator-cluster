@@ -48,49 +48,6 @@ jobs:
       run: |
          echo ::set-output name=tag::$(git rev-parse --short ${{ github.event.client_payload.sha }})
 
-    - name: Delete canary-goerli-1
-      run: ./scripts/delete-cluster.sh canary-goerli-1
-      shell: bash
-    - name: Deploy canary-goerli-1
-      run: ./scripts/deploy-cluster-with-charon-tag.sh canary-goerli-1 ${{ steps.charon_image_tag.outputs.tag }}
-      shell: bash
-
-    - name: Delete canary-goerli-2
-      run: ./scripts/delete-cluster.sh canary-goerli-2
-      shell: bash
-    - name: Deploy canary-goerli-2
-      run: ./scripts/deploy-cluster-with-charon-tag.sh canary-goerli-2 ${{ steps.charon_image_tag.outputs.tag }}
-      shell: bash
-
-    # - name: Delete charon-gnosis-0
-    #   run: ./scripts/delete-cluster.sh charon-gnosis-0
-    #   shell: bash
-    # - name: Deploy charon-gnosis-0
-    #   run: ./scripts/deploy-cluster-with-charon-tag.sh charon-gnosis-0 ${{ steps.charon_image_tag.outputs.tag }}
-    #   shell: bash
-    
-    # Disable charon-prater-0 automation until web3signer experiment is completed
-    # - name: Delete charon-prater-0
-    #   run: ./scripts/delete-cluster.sh charon-prater-0
-    #   shell: bash
-    # - name: Deploy charon-prater-0
-    #   run: ./scripts/deploy-cluster-with-charon-tag.sh charon-prater-0 ${{ steps.charon_image_tag.outputs.tag }}
-    #   shell: bash
-
-    - name: Delete charon-prater-1
-      run: ./scripts/delete-cluster.sh charon-prater-1
-      shell: bash
-    - name: Deploy charon-prater-1
-      run: ./scripts/deploy-cluster-with-charon-tag.sh charon-prater-1 ${{ steps.charon_image_tag.outputs.tag }}
-      shell: bash
-    
-    # - name: Delete charon-sepolia-1780
-    #   run: ./scripts/delete-cluster.sh charon-sepolia-1780
-    #   shell: bash
-    # - name: Deploy charon-sepolia-1780
-    #   run: ./scripts/deploy-cluster-with-charon-tag.sh charon-sepolia-1780 ${{ steps.charon_image_tag.outputs.tag }}
-    #   shell: bash
-
     - name: Delete canary-holesky-1
       run: ./scripts/delete-cluster.sh canary-holesky-1
       shell: bash

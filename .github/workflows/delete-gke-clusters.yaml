@@ -25,26 +25,6 @@ jobs:
         location: ${{ secrets.GKE_REGION }}
         credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
         project_id: ${{ secrets.PROJECT_ID }}
-    
-    - name: Delete canary-goerli-1
-      run: ./scripts/delete-cluster.sh canary-goerli-1
-      shell: bash
-   
-    - name: Delete canary-goerli-2
-      run: ./scripts/delete-cluster.sh canary-goerli-2
-      shell: bash
-   
-    - name: Delete charon-gnosis-0
-      run: ./scripts/delete-cluster.sh charon-gnosis-0
-      shell: bash
-    
-    - name: Delete charon-prater-1
-      run: ./scripts/delete-cluster.sh charon-prater-1
-      shell: bash
- 
-    # - name: Delete charon-sepolia-1780
-    #   run: ./scripts/delete-cluster.sh charon-sepolia-1780
-    #   shell: bash
 
     - name: Delete canary-holesky-1
       run: ./scripts/delete-cluster.sh canary-holesky-1
