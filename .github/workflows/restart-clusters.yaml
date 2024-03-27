@@ -25,52 +25,12 @@ jobs:
         credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
         project_id: ${{ secrets.PROJECT_ID }}
     
-    - name: Restart canary-goerli-1
-      run: ./restart-cluster.sh canary-goerli-1
+    - name: Restart canary-holesky-1
+      run: ./restart-cluster.sh canary-holesky-1
       shell: bash
     
     - uses: sarisia/actions-status-discord@v1
       if: always()
       with:
         webhook: ${{ secrets.DISCORD_WEBHOOK }}
-        title: "canary-goerli-1"
-
-    - name: Restart canary-goerli-2
-      run: ./restart-cluster.sh canary-goerli-2
-      shell: bash
-
-    - uses: sarisia/actions-status-discord@v1
-      if: always()
-      with:
-        webhook: ${{ secrets.DISCORD_WEBHOOK }}
-        title: "canary-goerli-2"
-
-    - name: Restart charon-gnosis-0
-      run: ./restart-cluster.sh charon-gnosis-0
-      shell: bash
-    
-    - uses: sarisia/actions-status-discord@v1
-      if: always()
-      with:
-        webhook: ${{ secrets.DISCORD_WEBHOOK }}
-        title: "charon-gnosis-0"
-
-    - name: Restart charon-prater-0
-      run: ./restart-cluster.sh charon-prater-0
-      shell: bash
-    
-    - uses: sarisia/actions-status-discord@v1
-      if: always()
-      with:
-        webhook: ${{ secrets.DISCORD_WEBHOOK }}
-        title: "charon-prater-0"
-
-    - name: Restart charon-prater-1
-      run: ./restart-cluster.sh charon-prater-1
-      shell: bash
-    
-    - uses: sarisia/actions-status-discord@v1
-      if: always()
-      with:
-        webhook: ${{ secrets.DISCORD_WEBHOOK }}
-        title: "charon-prater-1"
+        title: "canary-holesky-1"
