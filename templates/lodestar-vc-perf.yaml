@@ -110,6 +110,7 @@ spec:
               --metrics.port=5064 \
               --beaconNodes="http://$NODE_NAME:3600" \
               --distributed \
+              --useProduceBlockV3=false \
               $LODESTAR_VC_EXTRA_ARGS
           volumeMounts:
             # - name: validators
