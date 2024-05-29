@@ -45,9 +45,7 @@ spec:
       volumes:
         - name: cluster-config
           emptyDir: {}
-        - name: aws-credentials
-          secret:
-            secretName: sg-aws-credentials
+      serviceAccountName: "$CLUSTER_NAME-sa"
       initContainers:
         - name: download-cluster-config
           image: amazon/aws-cli:latest
@@ -57,24 +55,6 @@ spec:
           volumeMounts:
             - name: cluster-config
               mountPath: /charon
-            - name: aws-credentials  # Mount the AWS credentials secret
-              mountPath: /root/.aws  # Adjust the path to your application's AWS credentials location
-          env:
-            - name: AWS_ACCESS_KEY_ID
-              valueFrom:
-                secretKeyRef:
-                  name: sg-aws-credentials
-                  key: AWS_ACCESS_KEY_ID
-            - name: AWS_SECRET_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: sg-aws-credentials
-                  key: AWS_SECRET_ACCESS_KEY
-            - name: AWS_SESSION_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: sg-aws-credentials
-                  key: AWS_SESSION_TOKEN
       containers:
         - name: $NODE_NAME
           image: ghcr.io/obolnetwork/charon:$CHARON_VERSION

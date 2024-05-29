@@ -15,9 +15,9 @@ fi
 CLUSTER_NAME=$1
 
 # download cluster config
-mkdir -p ./.charon
+mkdir -p ./.charon/${CLUSTER_NAME}
 # gcloud storage cp -r gs://charon-clusters-config/${CLUSTER_NAME} ./.charon/
-aws s3 cp --recursive s3://charon-clusters-config/${CLUSTER_NAME} ./.charon/
+aws s3 cp --recursive s3://charon-clusters-config/${CLUSTER_NAME} ./.charon/${CLUSTER_NAME}
 
 definitions_dir="./.charon/${CLUSTER_NAME}/lighthouse-validators-definitions"
 

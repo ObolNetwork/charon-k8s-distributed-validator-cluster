@@ -1,20 +1,3 @@
-# apiVersion: v1
-# kind: ConfigMap
-# metadata:
-#   name: $VC_INDEX-import-script-config
-#   namespace: $CLUSTER_NAME
-# data:
-#   import-lodestar-script.sh: |
-#     #!/bin/sh
-#     for f in /validator_keys/keystore-*.json; do
-#       echo "Importing key ${f//json/json}"
-#       node /usr/app/packages/cli/bin/lodestar validator import \
-#           --dataDir="/opt/data" \
-#           --network="$NETWORK" \
-#           --importKeystores="${f//json/json}" \
-#           --importKeystoresPassword="${f//json/txt}"
-#     done
-# ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -37,8 +20,7 @@ spec:
       securityContext:
         fsGroup: 1000
         runAsUser: 1000
-      # serviceAccount: "$CLUSTER_NAME-sa"
-      # serviceAccountName: "$CLUSTER_NAME-sa"
+      serviceAccountName: "$CLUSTER_NAME-sa"
       imagePullSecrets:
         - name: docker-registry
       initContainers:
@@ -51,48 +33,6 @@ spec:
           volumeMounts:
             - name: data
               mountPath: "/data/lodestar"
-            - name: aws-credentials  # Mount the AWS credentials secret
-              mountPath: /root/.aws
-          env:
-            - name: AWS_ACCESS_KEY_ID
-              valueFrom:
-                secretKeyRef:
-                  name: sg-aws-credentials
-                  key: AWS_ACCESS_KEY_ID
-            - name: AWS_SECRET_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: sg-aws-credentials
-                  key: AWS_SECRET_ACCESS_KEY
-            - name: AWS_SESSION_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: sg-aws-credentials
-                  key: AWS_SESSION_TOKEN
-          # volumeMounts:
-          #   - name: data
-          #     mountPath: "/opt/data"
-          #   - name: validators
-          #     mountPath: "/validator_keys"
-          #   - name: config
-          #     mountPath: "/config"
-          #   - name: scripts
-          #     mountPath: "/opt/scripts"
-        # - name: init-chown
-        #   image: busybox
-        #   securityContext:
-        #     runAsUser: 0
-        #   command:
-        #     - sh
-        #     - -ac
-        #     - chmod +x /opt/scripts/import-lodestar-script.sh
-        #   volumeMounts:
-        #     - name: validators
-        #       mountPath: "/validator_keys"
-        #     - name: data
-        #       mountPath: "/opt/data"
-        #     - name: scripts
-        #       mountPath: "/opt/scripts"
       containers:
         - name: $VC_INDEX-lodestar
           image: chainsafe/lodestar:$LODESTAR_VERSION
@@ -110,31 +50,14 @@ spec:
               --metrics.port=5064 \
               --beaconNodes="http://$NODE_NAME:3600" \
               --distributed \
-              --useProduceBlockV3=false \
-              $LODESTAR_VC_EXTRA_ARGS
+              --useProduceBlockV3=true \
+              # $LODESTAR_VC_EXTRA_ARGS
           volumeMounts:
-            # - name: validators
-            #   mountPath: "/validator_keys"
             - name: data
               mountPath: "/data/lodestar"
-            # - name: scripts
-            #   mountPath: "/opt/scripts"
       volumes:
-        # - name: validators
-        #   projected:
-        #     sources:
-        #       - secret:
-        #           name: $NODE_NAME-validators
         - name: data
           emptyDir: {}
-        - name: aws-credentials
-          secret:
-            secretName: sg-aws-credentials
-        # - name: config
-        #   configMap:
-        #     name: $VC_INDEX-import-script-config
-        # - name: scripts
-        #   emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
