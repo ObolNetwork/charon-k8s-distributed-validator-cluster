@@ -18,8 +18,8 @@ spec:
         app: $VC_INDEX-lodestar
     spec:
       securityContext:
-        fsGroup: 1000
-        runAsUser: 1000
+        fsGroup: 0
+        runAsUser: 0
       serviceAccountName: "$CLUSTER_NAME-sa"
       imagePullSecrets:
         - name: docker-registry
