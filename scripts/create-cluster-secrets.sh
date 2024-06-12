@@ -25,8 +25,9 @@ if [ -z "$nsStatus" ]; then
 fi
 
 # download cluster config
-mkdir -p ./.charon
-gcloud storage cp -r gs://charon-clusters-config/${CLUSTER_NAME} ./.charon/
+mkdir -p ./.charon/${CLUSTER_NAME}
+# gcloud storage cp -r gs://charon-clusters-config/${CLUSTER_NAME} ./.charon/
+aws s3 cp --recursive s3://charon-clusters-config/${CLUSTER_NAME} ./.charon/${CLUSTER_NAME}
 
 # set current namespace
 kubectl config set-context --current --namespace=${CLUSTER_NAME}

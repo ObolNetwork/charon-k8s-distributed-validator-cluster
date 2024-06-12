@@ -39,23 +39,34 @@ echo "deploying cluster: ${CLUSTER_NAME}"
 # Deploy charon nodes
 IFS=','
 read -a versions <<< "$CHARON_VERSIONS"
+read -a bns <<< "$BEACON_NODE_ENDPOINTS"
 node_index=0
 for version in "${versions[@]}"
 do
 export NODE_NAME="node$node_index"
 export VC_INDEX="vc$node_index"
+bn_index=0
+for bn in "${bns[@]}"
+do
+  if [[ $bn_index -eq $node_index ]]; then
+    export BEACON_NODE_ENDPOINT="$bn"
+    echo "Deploying charon node with beacon node endpoint: $bn"
+    break
+  fi
+  (( bn_index++ ))
+done
 if [ "$version" = "latest" ]; then
     export CHARON_VERSION="${CHARON_IMAGE_TAG}"
 else
     export CHARON_VERSION="$version"
 fi
 eval "cat <<EOF
-$(<./templates/charon.yaml)
+$(<./templates/charon-perf.yaml)
 EOF
 " | kubectl apply -f -
 ((node_index=node_index+1))
 done
-
+export CLUSTER_NAME="${CLUSTER_NAME}"
 # Deploy Validator client of required type for each charon node. 
 IFS=','
 read -a vcs <<< "$VC_TYPES"
@@ -75,7 +86,7 @@ $(<./templates/lighthouse-vc.yaml)
 EOF
 " | kubectl apply -f -
 elif [ $vc -eq 2 ]; then
-envsubst < ./templates/lodestar-vc.yaml | kubectl apply -f -
+envsubst < ./templates/lodestar-vc-perf.yaml | kubectl apply -f -
 elif [ $vc -eq 3 ]; then	
 envsubst < ./templates/nimbus-vc.yaml | kubectl apply -f -
 elif [ $vc -eq 4 ]; then	
