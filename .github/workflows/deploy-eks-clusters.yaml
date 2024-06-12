@@ -14,10 +14,6 @@ on:
         paths:
             - templates/** 
 jobs:
-  # delete-eks-canaries:
-  #   uses: ObolNetwork/charon-k8s-distributed-validator-cluster/.github/workflows/delete-eks-clusters.yaml@main
-  #   secrets: inherit
-
   deploy:
     name: Deploy the canary clusters
     runs-on: ubuntu-latest
@@ -29,10 +25,6 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v3
-
-    # - uses: 'google-github-actions/auth@v0'
-    #   with:
-    #     credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
 
     - name: Configure aws credentials
       uses: aws-actions/configure-aws-credentials@v2

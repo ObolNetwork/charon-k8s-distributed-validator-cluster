@@ -34,6 +34,13 @@ mv .charon/cluster .charon/mycluster
 aws s3 cp --recursive .charon/<cluster_name>/ s3://charon-clusters-config/<cluster_name>/
 aws s3 cp .env s3://charon-clusters-config/<cluster_name>/<cluster_name>.env
 ```
+OR
+
+## Upload Cluster Config to GCP (if setting up canary on GCP)
+```sh
+gcloud storage cp -r .charon/<cluster_name>/ gs://charon-clusters-config/<cluster_name>/
+gcloud storage cp .env gs://charon-clusters-config/<cluster_name>/<cluster_name>.env
+```
 
 ## Generate Lighthouse validators definitions
 ```sh
