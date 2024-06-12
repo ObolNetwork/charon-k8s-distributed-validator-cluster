@@ -43,11 +43,6 @@ spec:
         runAsUser: 1000
         fsGroup: 1000
       volumes:
-        - name: validators
-          projected:
-            sources:
-              - secret:
-                  name: $NODE_NAME-validators
         - name: private-key
           projected:
             sources:
@@ -80,8 +75,6 @@ spec:
             - configMapRef:
                 name: $NODE_NAME-config
           volumeMounts:
-            - name: validators
-              mountPath: /charon/$NODE_NAME/validator_keys
             - name: private-key
               mountPath: /charon/$NODE_NAME
             - name: cluster-lock
