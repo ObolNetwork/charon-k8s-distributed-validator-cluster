@@ -59,5 +59,10 @@ gcloud storage cp .env gs://charon-clusters-config/<cluster_name>/<cluster_name>
 
 ## Deploy Charon Cluster
 ```sh
-./deploy-cluster-with-charon-tag.sh <cluster-name> <commit-sha>
+./scripts/deploy-cluster-with-charon-tag.sh <cluster-name> <commit-sha>
+```
+
+## Deploy Charon Performance Cluster
+```sh
+./scripts/deploy-cluster-with-charon-tag-perf.sh <cluster-name> <commit-sha>
 ```
