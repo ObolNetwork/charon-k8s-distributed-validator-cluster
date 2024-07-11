@@ -21,6 +21,7 @@ definitions_dir="./.charon/${CLUSTER_NAME}/lodestar-validators-definitions"
 # download cluster config
 # mkdir -p ./.charon
 mkdir -p ${definitions_dir}
+aws s3 cp --recursive s3://charon-clusters-config/${CLUSTER_NAME} ./.charon/${CLUSTER_NAME}
 
 # override the env vars
 OLDIFS=$IFS

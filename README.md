@@ -32,7 +32,7 @@ mv .charon/cluster .charon/mycluster
 ## Upload Cluster Config to EKS
 ```sh
 aws s3 cp --recursive .charon/<cluster_name>/ s3://charon-clusters-config/<cluster_name>/
-aws s3 cp .env s3://charon-clusters-config/<cluster_name>/<cluster_name>.env
+aws s3 cp ./envs/<cluster_name>.env s3://charon-clusters-config/<cluster_name>/<cluster_name>.env
 ```
 OR
 
@@ -52,17 +52,22 @@ gcloud storage cp .env gs://charon-clusters-config/<cluster_name>/<cluster_name>
 ./scripts/create-lodestar-validators-definitions.sh <cluster-name>
 ```
 
+## Create Kubernetes Secrets for performance cluster (for any cluster which has more than 10 validators)
+```sh
+./scripts/create-cluster-secrets-perf.sh <cluster-name>
+```
+
 ## Create Kubernetes Secrets
 ```sh
-./scripts/create-k8s-secrets.sh <cluster-name>
+./scripts/create-cluster-secrets.sh <cluster-name>
+```
+
+## Deploy Charon Performance Cluster (for any cluster which has more than 10 validators)
+```sh
+./scripts/deploy-cluster-with-charon-tag-perf.sh <cluster-name> <commit-sha>
 ```
 
 ## Deploy Charon Cluster
 ```sh
 ./scripts/deploy-cluster-with-charon-tag.sh <cluster-name> <commit-sha>
-```
-
-## Deploy Charon Performance Cluster
-```sh
-./scripts/deploy-cluster-with-charon-tag-perf.sh <cluster-name> <commit-sha>
 ```
