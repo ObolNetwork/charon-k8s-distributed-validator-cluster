@@ -32,18 +32,18 @@ aws s3 cp --recursive s3://charon-clusters-config/${CLUSTER_NAME} ./.charon/${CL
 # set current namespace
 kubectl config set-context --current --namespace=${CLUSTER_NAME}
 
-i=0
-while [[ $i -lt "$NODES" ]]
-do
-    files=""
-    for secret in ./.charon/${CLUSTER_NAME}/node${i}/validator_keys/*; do
-        files="$files --from-file=./.charon/${CLUSTER_NAME}/node${i}/validator_keys/$(basename $secret)"
-    done
-    kubectl -n ${CLUSTER_NAME} create secret generic node${i}-validators $files --dry-run=client -o yaml | kubectl apply -f -
-    kubectl -n ${CLUSTER_NAME} create secret generic node${i}-charon-enr-private-key --from-file=charon-enr-private-key=./.charon/${CLUSTER_NAME}/node${i}/charon-enr-private-key --dry-run=client -o yaml | kubectl apply -f -
-    kubectl -n ${CLUSTER_NAME} create secret generic node${i}-cluster-lock --from-file=cluster-lock.json=./.charon/${CLUSTER_NAME}/cluster-lock.json --dry-run=client -o yaml | kubectl apply -f -
-    ((i=i+1))
-done
+# i=0
+# while [[ $i -lt "$NODES" ]]
+# do
+#     files=""
+#     for secret in ./.charon/${CLUSTER_NAME}/node${i}/validator_keys/*; do
+#         files="$files --from-file=./.charon/${CLUSTER_NAME}/node${i}/validator_keys/$(basename $secret)"
+#     done
+#     kubectl -n ${CLUSTER_NAME} create secret generic node${i}-validators $files --dry-run=client -o yaml | kubectl apply -f -
+#     kubectl -n ${CLUSTER_NAME} create secret generic node${i}-charon-enr-private-key --from-file=charon-enr-private-key=./.charon/${CLUSTER_NAME}/node${i}/charon-enr-private-key --dry-run=client -o yaml | kubectl apply -f -
+#     kubectl -n ${CLUSTER_NAME} create secret generic node${i}-cluster-lock --from-file=cluster-lock.json=./.charon/${CLUSTER_NAME}/cluster-lock.json --dry-run=client -o yaml | kubectl apply -f -
+#     ((i=i+1))
+# done
 
 # create the lighthouse validators definitions configmaps
 kubectl apply -f ./.charon/${CLUSTER_NAME}/lighthouse-validators-definitions/
