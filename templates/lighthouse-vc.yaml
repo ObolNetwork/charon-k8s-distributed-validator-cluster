@@ -47,7 +47,7 @@ spec:
               mountPath: /etc/lighthouse
       containers:
         - name: $VC_INDEX-lighthouse
-          image: sigp/lighthouse:$lIGTHTHOUSE_VERSION
+          image: sigp/lighthouse:$LIGHTHOUSE_VERSION
           imagePullPolicy: Always
           command:
             - sh
