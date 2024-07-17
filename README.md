@@ -8,6 +8,10 @@ Please follow the following instructions to deploy a charon cluster to Kubernete
 
 # Prerequisites
 Ensure having [`docker`](https://docs.docker.com/get-docker/), a functional [`Kubernetes`](https://kubernetes.io/) cluster and [`kubectl`](https://kubernetes.io/docs/tasks/tools/#kubectl) installed.
+Install [`jq`](https://formulae.brew.sh/formula/jq) package 
+```sh
+brew install jq 
+```
 
 # Deployment Steps
 ## Cluster Configuration
