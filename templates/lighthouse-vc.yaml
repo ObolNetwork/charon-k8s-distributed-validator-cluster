@@ -70,6 +70,7 @@ spec:
               --use-long-timeouts \
               --graffiti "Obol DVT" \
               --produce-block-v3 \
+              --debug-level=trace \
               $LIGHTHOUSE_VC_EXTRA_ARGS;
           volumeMounts:
             - name: data
