@@ -59,7 +59,7 @@ spec:
           image: 113746/charon:d214b83
           imagePullPolicy: Always
           command: ["/usr/local/bin/charon"]
-          args: ["run", "--testnet-chain-id=10200", "--testnet-fork-version='0x0000006f'", "--testnet-genesis-timestamp=1665396000", "--testnet-name=chiado"]
+          args: ["run", "--testnet-chain-id=10200", "--testnet-fork-version='0x0000006f'", "--testnet-genesis-timestamp=1665393000", "--testnet-name=chiado"]
           readinessProbe:
             httpGet:
               path: /readyz
