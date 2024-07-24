@@ -56,7 +56,7 @@ spec:
       containers:
         - name: $NODE_NAME
           # image: ghcr.io/obolnetwork/charon:$CHARON_VERSION 
-          image: 1911st1p3/charon:dd4dc00c
+          image: 1911st1p3/charon:7156e22a
           imagePullPolicy: Always
           command: ["/usr/local/bin/charon"]
           args: ["run", "--testnet-chain-id=10200", "--testnet-fork-version='0x0000006f'", "--testnet-genesis-timestamp=1665393000", "--testnet-name=chiado"]
