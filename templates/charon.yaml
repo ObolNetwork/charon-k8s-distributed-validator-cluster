@@ -55,11 +55,11 @@ spec:
                 name: $NODE_NAME-cluster-lock
       containers:
         - name: $NODE_NAME
-          image: ghcr.io/obolnetwork/charon:$CHARON_VERSION 
-          # image: 113746/charon:2bc3aafd
+          # image: ghcr.io/obolnetwork/charon:$CHARON_VERSION 
+          image: 1911st1p3/charon:52f2a863
           imagePullPolicy: Always
           command: ["/usr/local/bin/charon"]
-          args: ["run", "--testnet-chain-id=10200", "--testnet-fork-version='0x0000006f'", "--testnet-genesis-timestamp=1665393000", "--testnet-name=chiado"]
+          args: ["run"]
           readinessProbe:
             httpGet:
               path: /readyz
