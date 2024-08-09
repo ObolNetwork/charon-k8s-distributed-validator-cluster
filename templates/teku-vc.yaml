@@ -43,7 +43,8 @@ spec:
               mountPath: "/validator_keys"
       containers:
         - name: $VC_INDEX-teku
-          image: consensys/teku:$TEKU_VERSION
+          image: kaloyantanev/teku-debug-chiado-proposal:24.6.1
+          imagePullPolicy: Always
           command:
             - sh
             - -ace
