@@ -12,3 +12,5 @@ all: $(CLUSTER_NAMES)
 
 $(CLUSTER_NAMES):
 	kubectl delete --all jobs -n $@ --ignore-not-found=true
+	kubectl delete namespace $@ --ignore-not-found=true 
+	

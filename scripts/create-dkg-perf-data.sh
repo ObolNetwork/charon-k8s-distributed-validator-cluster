@@ -34,7 +34,7 @@ enrs_list_formatted="${enrs_list//$'\n'/\",\"}"
 operator_enrs="--operator-enrs=\"$enrs_list_formatted\""
 
 # Run the Create DKG command with the generated ENRs
-docker run -it --rm -v "$PWD:/opt/charon" obolnetwork/charon:${CHARON_VERSION} create dkg --fee-recipient-addresses="0xBc7c960C1097ef1Af0FD32407701465f3c03e407" --name=test --network=goerli --num-validators=1 --withdrawal-addresses="0xBc7c960C1097ef1Af0FD32407701465f3c03e407" $operator_enrs
+docker run -it --rm -v "$PWD:/opt/charon" obolnetwork/charon:${CHARON_VERSION} create dkg --fee-recipient-addresses="0xBc7c960C1097ef1Af0FD32407701465f3c03e407" --name=test --network=${NETWORK} --num-validators=1 --withdrawal-addresses="0xBc7c960C1097ef1Af0FD32407701465f3c03e407" $operator_enrs
 
 # Delete everything except charon-enr-private-key in each node* folder, push the definition file
 for folder in node*; do
