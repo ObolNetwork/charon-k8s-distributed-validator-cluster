@@ -9,7 +9,7 @@ COPY_FROM_CLUSTER_NAME="charon-dkg-test"
 OLDIFS=$IFS
 IFS='
 '
-export $(< ./envs/${COPY_FROM_CLUSTER_NAME}.env)
+export $(< ./envs/charon-dkg-test.env)
 IFS=$OLDIFS
 
 INDEX=0
