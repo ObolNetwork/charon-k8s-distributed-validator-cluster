@@ -1,9 +1,6 @@
 name: DKG Perf
 
 on:
-  push:
-    branches:
-      - troubleshoot-dkg-workflow
   workflow_dispatch: 
 jobs:
   deploy:
