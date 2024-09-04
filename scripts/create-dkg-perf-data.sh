@@ -14,7 +14,7 @@ IFS=$OLDIFS
 
 INDEX=0
 for ((i = 1; i <= ${CLUSTERS}; i++)); do
-docker run --rm -v "$PWD:/opt/charon" obolnetwork/charon:${CHARON_VERSION} create cluster --fee-recipient-addresses="0xBc7c960C1097ef1Af0FD32407701465f3c03e407" --nodes=${NODES} --network=${NETWORK} --withdrawal-addresses="0xBc7c960C1097ef1Af0FD32407701465f3c03e407" --name=test --num-validators=${NUM_VALIDATORS}
+docker run -u $(id -u):$(id -g) --rm -v "$PWD:/opt/charon" obolnetwork/charon:${CHARON_VERSION} create cluster --fee-recipient-addresses="0xBc7c960C1097ef1Af0FD32407701465f3c03e407" --nodes=${NODES} --network=${NETWORK} --withdrawal-addresses="0xBc7c960C1097ef1Af0FD32407701465f3c03e407" --name=test --num-validators=${NUM_VALIDATORS}
 ls -la node0
 # Set the path to the cluster-lock.json file
 cluster_lock_file="node0/cluster-lock.json"
