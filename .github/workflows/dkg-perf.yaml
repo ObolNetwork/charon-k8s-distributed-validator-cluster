@@ -7,8 +7,8 @@ on:
   workflow_dispatch: 
 jobs:
   deploy:
-    name: DKG perf with AWS and GCP Relays
-    runs-on: ubuntu-latest
+    name: DKG perf testing
+    runs-on: charon-ci
     permissions:
       id-token: write # This is required for requesting the JWT
       contents: read  # This is required for actions/checkout  
@@ -29,5 +29,4 @@ jobs:
     - name: Run DKG Performance Test
       run: |
         aws eks update-kubeconfig --region ${{ secrets.AWS_DEFAULT_REGION }} --name ${{ secrets.EKS_DEV_CLUSTER }}
-        kubectl get ns
         make -f makefile-loadtest-batch-runner
