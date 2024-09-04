@@ -1,10 +1,10 @@
-name: DKG Perf
+name: DKG Perf Delete
 
 on: 
   workflow_dispatch: 
 jobs:
   deploy:
-    name: DKG perf with AWS and GCP Relays
+    name: DKG delete
     runs-on: ubuntu-latest
     permissions:
       id-token: write # This is required for requesting the JWT
@@ -23,8 +23,5 @@ jobs:
     - name: Update kube config
       run: aws eks update-kubeconfig --region ${{ secrets.AWS_DEFAULT_REGION }} --name ${{ secrets.EKS_DEV_CLUSTER }}
     
-    - name: Set up Docker
-      uses: docker/setup-buildx-action@v1
-
-    - name: Run DKG Performance Test
-      run: make -f makefile-loadtest-batch-runner
+    - name: Delete DKG Perf 
+      run: make -f makefile-delete-ns
