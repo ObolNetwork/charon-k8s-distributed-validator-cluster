@@ -1,0 +1,27 @@
+name: DKG Perf Delete
+
+on: 
+  workflow_dispatch: 
+jobs:
+  deploy:
+    name: DKG delete
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # This is required for requesting the JWT
+      contents: read  # This is required for actions/checkout  
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Configure aws credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        role-to-assume: ${{ secrets.GHA_AWS_IAM_ROLE }}
+        aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+
+    - name: Update kube config
+      run: aws eks update-kubeconfig --region ${{ secrets.AWS_DEFAULT_REGION }} --name ${{ secrets.EKS_DEV_CLUSTER }}
+    
+    - name: Delete DKG Perf 
+      run: make -f makefile-delete-ns
