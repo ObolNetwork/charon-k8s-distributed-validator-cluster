@@ -10,9 +10,18 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v3
+
+    - name: Configure aws credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        role-to-assume: ${{ secrets.GHA_AWS_IAM_ROLE }}
+        aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+
+    - name: Update kube config
+      run: aws eks update-kubeconfig --region ${{ secrets.AWS_DEFAULT_REGION }} --name ${{ secrets.EKS_DEV_CLUSTER }}
     
     - name: Set up Docker
       uses: docker/setup-buildx-action@v1
 
     - name: Run DKG Performance Test
-      run: make -f Makefile makefile-loadtest-batch-runner
+      run: make -f makefile-loadtest-batch-runner
