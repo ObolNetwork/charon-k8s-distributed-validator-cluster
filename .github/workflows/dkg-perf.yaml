@@ -8,8 +8,8 @@ on:
 jobs:
   deploy:
     name: DKG perf with AWS and GCP Relays
-    runs-on: charon-ci  # Custom runner
-    #runs-on: ubuntu-latest
+    #runs-on: charon-ci  # Custom runner
+    runs-on: ubuntu-latest
     permissions:
       id-token: write # This is required for requesting the JWT
       contents: read  # This is required for actions/checkout  
