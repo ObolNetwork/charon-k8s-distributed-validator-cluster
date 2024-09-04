@@ -1,6 +1,6 @@
 
 #!/bin/bash
-set -uo pipefail
+# set -uo pipefail
 CLUSTER_NAME_PREFIX="relay-dkg-perf"
 
 COPY_FROM_CLUSTER_NAME="charon-dkg-test"
