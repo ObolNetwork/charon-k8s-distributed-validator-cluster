@@ -15,7 +15,7 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Configure aws credentials
-      uses: aws-actions/configure-aws-credentials@v2
+      uses: aws-actions/configure-aws-credentials@v4
       with:
         role-to-assume: ${{ secrets.GHA_AWS_IAM_ROLE }}
         aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
