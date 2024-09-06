@@ -8,8 +8,8 @@ on:
 jobs:
   deploy:
     name: DKG perf testing
-    runs-on: charon-ci
-    timeout-minutes: 720
+    runs-on: dkg-perf
+    timeout-minutes: 720 # 12 hours
     permissions:
       id-token: write # This is required for requesting the JWT
       contents: read  # This is required for actions/checkout  
