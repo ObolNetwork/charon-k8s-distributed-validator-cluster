@@ -46,7 +46,7 @@ kubectl config set-context --current --namespace=${CLUSTER_NAME}
 # done
 
 # create the lighthouse validators definitions configmaps
-kubectl apply -f ./.charon/${CLUSTER_NAME}/lighthouse-validators-definitions/
+kubectl create -f ./.charon/${CLUSTER_NAME}/lighthouse-validators-definitions/
 
 # delete cluster config before exit
 rm -rf ./.charon/${CLUSTER_NAME}

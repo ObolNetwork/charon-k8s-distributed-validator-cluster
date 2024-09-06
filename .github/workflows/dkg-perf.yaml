@@ -1,11 +1,11 @@
 name: DKG Perf
 
-on: 
+on:
   workflow_dispatch: 
 jobs:
   deploy:
-    name: DKG perf with AWS and GCP Relays
-    runs-on: ubuntu-latest
+    name: DKG perf testing
+    runs-on: charon-ci
     permissions:
       id-token: write # This is required for requesting the JWT
       contents: read  # This is required for actions/checkout  
@@ -15,16 +15,16 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Configure aws credentials
-      uses: aws-actions/configure-aws-credentials@v2
+      uses: aws-actions/configure-aws-credentials@v4
       with:
         role-to-assume: ${{ secrets.GHA_AWS_IAM_ROLE }}
         aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
-
-    - name: Update kube config
-      run: aws eks update-kubeconfig --region ${{ secrets.AWS_DEFAULT_REGION }} --name ${{ secrets.EKS_DEV_CLUSTER }}
+        role-duration-seconds: 43200 # 12 hours
     
     - name: Set up Docker
       uses: docker/setup-buildx-action@v1
 
     - name: Run DKG Performance Test
-      run: make -f makefile-loadtest-batch-runner
+      run: |
+        aws eks update-kubeconfig --region ${{ secrets.AWS_DEFAULT_REGION }} --name ${{ secrets.EKS_DEV_CLUSTER }}
+        make -f makefile-loadtest-batch-runner
