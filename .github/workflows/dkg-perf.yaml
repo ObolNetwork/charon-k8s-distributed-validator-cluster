@@ -1,9 +1,6 @@
 name: DKG Perf
 
 on:
-  push:
-    branches:
-      - dkg-perf-with-100-clusters
   workflow_dispatch:
 jobs:
   deploy:
