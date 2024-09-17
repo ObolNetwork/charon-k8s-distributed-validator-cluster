@@ -20,16 +20,23 @@ spec:
       securityContext:
         fsGroup: 0
         runAsUser: 0
-      serviceAccountName: "$CLUSTER_NAME-sa"
       imagePullSecrets:
         - name: docker-registry
       initContainers:
         - name: download-cluster-config
           image: amazon/aws-cli:latest
           command: ["/bin/sh", "-c", "aws s3 cp --recursive s3://charon-clusters-config/$CLUSTER_NAME/lodestar-validators-definitions/$NODE_NAME /data/lodestar/$NODE_NAME"]
-          # args:
-          #   - |
-          #     aws s3 cp --recursive s3://charon-clusters-config/$CLUSTER_NAME/lodestar-validators-definitions/node${$VC_INDEX} /data/lodestar/node${$VC_INDEX}
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: aws-credentials
+                  key: AWS_ACCESS_KEY_ID
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: aws-credentials
+                  key: AWS_SECRET_ACCESS_KEY
           volumeMounts:
             - name: data
               mountPath: "/data/lodestar"
