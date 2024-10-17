@@ -1,4 +1,4 @@
-name: Deploy AWS Canary Clusters
+name: Update BM Canary Clusters - Latest Charon
 
 on: 
     repository_dispatch:
@@ -15,7 +15,7 @@ on:
             - templates/** 
 jobs:
   deploy:
-    name: Deploy the canary clusters
+    name: Deploy Canary Clusters
     runs-on: ubuntu-latest
     # needs: delete-eks-canaries
     permissions:
@@ -32,8 +32,11 @@ jobs:
         role-to-assume: ${{ secrets.GHA_AWS_IAM_ROLE }}
         aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
 
-    - name: Update kube config
-      run: aws eks update-kubeconfig --region ${{ secrets.AWS_DEFAULT_REGION }} --name ${{ secrets.EKS_DEV_CLUSTER }}
+    - name: Set up kubeconfig
+      run: |
+        mkdir -p $HOME/.kube
+        echo "${{ secrets.K8S_BARE_METAL_KUBECONFIG }}" > $HOME/.kube/config
+        chmod 600 $HOME/.kube/config
 
     - name: Get charon image tag
       id: charon_image_tag
@@ -45,4 +48,25 @@ jobs:
       shell: bash
     - name: Deploy canary-holesky-1
       run: ./scripts/deploy-cluster-with-charon-tag.sh canary-holesky-1 ${{ steps.charon_image_tag.outputs.tag }}
+      shell: bash
+
+    - name: Delete canary-holesky-2
+      run: ./scripts/delete-cluster.sh canary-holesky-2
+      shell: bash
+    - name: Deploy canary-holesky-2
+      run: ./scripts/deploy-cluster-with-charon-tag.sh canary-holesky-2 ${{ steps.charon_image_tag.outputs.tag }}
+      shell: bash
+
+    - name: Delete canary-holesky-1000
+      run: ./scripts/delete-cluster.sh canary-holesky-1000
+      shell: bash
+    - name: Deploy canary-holesky-1000
+      run: ./scripts/deploy-cluster-with-charon-tag-perf.sh canary-holesky-1000 ${{ steps.charon_image_tag.outputs.tag }}
+      shell: bash
+
+    - name: Delete canary-holesky-10000
+      run: ./scripts/delete-cluster.sh canary-holesky-10000
+      shell: bash
+    - name: Deploy canary-holesky-10000
+      run: ./scripts/deploy-cluster-with-charon-tag-perf.sh canary-holesky-10000 ${{ steps.charon_image_tag.outputs.tag }}
       shell: bash
