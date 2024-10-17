@@ -1,4 +1,4 @@
-name: Delete EKS Canary Clusters
+name: Delete BM Canary Clusters
 
 on: 
     workflow_dispatch:
@@ -6,7 +6,7 @@ on:
 
 jobs:
   deploy:
-    name: Delete the canary clusters from EKS
+    name: Delete Canary Clusters
     runs-on: ubuntu-latest
     permissions:
       id-token: write # This is required for requesting the JWT
@@ -15,16 +15,31 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v3
-   
+
     - name: Configure aws credentials
       uses: aws-actions/configure-aws-credentials@v2
       with:
         role-to-assume: ${{ secrets.GHA_AWS_IAM_ROLE }}
         aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
 
-    - name: Update kube config
-      run: aws eks update-kubeconfig --region ${{ secrets.AWS_DEFAULT_REGION }} --name ${{ secrets.EKS_DEV_CLUSTER }}
- 
+    - name: Set up kubeconfig
+      run: |
+        mkdir -p $HOME/.kube
+        echo "${{ secrets.K8S_BARE_METAL_KUBECONFIG }}" > $HOME/.kube/config
+        chmod 600 $HOME/.kube/config
+
     - name: Delete canary-holesky-1
       run: ./scripts/delete-cluster.sh canary-holesky-1
+      shell: bash
+
+    - name: Delete canary-holesky-2
+      run: ./scripts/delete-cluster.sh canary-holesky-2
+      shell: bash
+
+    - name: Delete canary-holesky-1000
+      run: ./scripts/delete-cluster.sh canary-holesky-1000
+      shell: bash
+
+    - name: Delete canary-holesky-10000
+      run: ./scripts/delete-cluster.sh canary-holesky-10000
       shell: bash
