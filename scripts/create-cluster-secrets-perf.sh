@@ -30,7 +30,7 @@ mkdir -p ./.charon/${CLUSTER_NAME}
 aws s3 cp --recursive s3://charon-clusters-config/${CLUSTER_NAME} ./.charon/${CLUSTER_NAME}
 
 # set current namespace
-kubectl config set-context --current --namespace=${CLUSTER_NAME}
+#kubectl config set-context --current --namespace=${CLUSTER_NAME}
 
 # i=0
 # while [[ $i -lt "$NODES" ]]
@@ -46,7 +46,7 @@ kubectl config set-context --current --namespace=${CLUSTER_NAME}
 # done
 
 # create the lighthouse validators definitions configmaps
-kubectl create -f ./.charon/${CLUSTER_NAME}/lighthouse-validators-definitions/
+#kubectl create -f ./.charon/${CLUSTER_NAME}/lighthouse-validators-definitions/
 
 # delete cluster config before exit
 rm -rf ./.charon/${CLUSTER_NAME}

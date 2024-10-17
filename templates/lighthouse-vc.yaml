@@ -24,11 +24,22 @@ spec:
       imagePullSecrets:
         - name: docker-registry
       initContainers:
-        - name: init-chown
-          image: busybox
+        - name: download-config
+          image: amazon/aws-cli:latest
           imagePullPolicy: IfNotPresent
           securityContext:
             runAsUser: 0
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name:  aws-credentials
+                  key: AWS_ACCESS_KEY_ID
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: aws-credentials
+                  key: AWS_SECRET_ACCESS_KEY
           command:
             - sh
             - -ac
@@ -36,15 +47,13 @@ spec:
               rm -rf /data/lighthouse/validator_keys 2>/dev/null || true;
               mkdir -p /data/lighthouse/validator_keys;
               cp /validator_keys/* /data/lighthouse/validator_keys;
-              cp /etc/lighthouse/* /data/lighthouse;
+              aws s3 cp s3://charon-clusters-config/${CLUSTER_NAME}/lighthouse-validators-definitions/vc-node-$VC_INDEX.yaml /data/lighthouse/validator_definitions.yml;
               chown -R 1000:1000 /data/lighthouse;
           volumeMounts:
             - name: data
               mountPath: /data/lighthouse
             - name: validators
               mountPath: "/validator_keys"
-            - name: validators-config
-              mountPath: /etc/lighthouse
       containers:
         - name: $VC_INDEX-lighthouse
           image: sigp/lighthouse:$LIGHTHOUSE_VERSION
@@ -73,19 +82,12 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /data/lighthouse
-            - name: validators-config
-              mountPath: /etc/lighthouse
       volumes:
         - name: validators
           projected:
             sources:
             - secret:
                 name: $NODE_NAME-validators
-        - name: validators-config
-          projected:
-            sources:
-            - configMap:
-                name: $VC_INDEX-lighthouse
         - name: data
           emptyDir: {}
 ---
