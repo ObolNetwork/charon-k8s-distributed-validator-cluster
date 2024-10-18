@@ -33,29 +33,23 @@ mkdir -p .charon/${CLUSTER_NAME}/lighthouse-validators-definitions
 i=0
 INDEX=0
 while [[ $i -lt "$NODES" ]]; do
-    tee -a ${definitions_dir}/vc-node-$i.yaml << END
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: vc$i-lighthouse
-  namespace: ${CLUSTER_NAME}
-data:
-  validator_definitions.yml: |
-    ---
-END
+    node_file="${definitions_dir}/vc-node-$i.yaml"
+    echo "---" > $node_file
+
     while [[ $INDEX -lt "$NUM_VALIDATORS" ]]; do
       KEY=$(cat ./.charon/${CLUSTER_NAME}/node$i/validator_keys/keystore-$INDEX.json | jq -r ".pubkey")
-      tee -a ${definitions_dir}/vc-node-$i.yaml << END
-    - enabled: true
-      voting_public_key: 0x$KEY
-      type: local_keystore
-      voting_keystore_path: /data/lighthouse/validator_keys/keystore-$INDEX.json
-      voting_keystore_password_path: /data/lighthouse/validator_keys/keystore-$INDEX.txt
-      suggested_fee_recipient: ${PROPOSER_DEFAULT_FEE_RECIPIENT}
+
+      cat <<END >> $node_file
+- enabled: true
+  voting_public_key: 0x$KEY
+  type: local_keystore
+  voting_keystore_path: /data/lighthouse/validator_keys/keystore-$INDEX.json
+  voting_keystore_password_path: /data/lighthouse/validator_keys/keystore-$INDEX.txt
+  suggested_fee_recipient: ${PROPOSER_DEFAULT_FEE_RECIPIENT}
 END
-        ((INDEX=INDEX+1))
+      ((INDEX=INDEX+1))
     done
+
     ((i=i+1))
     INDEX=0
 done
