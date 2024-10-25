@@ -40,19 +40,35 @@ spec:
         app: $NODE_NAME
     spec:
       securityContext:
-        runAsUser: 1000
-        fsGroup: 1000
+        runAsUser: 0
+        fsGroup: 0
       volumes:
-        - name: private-key
-          projected:
-            sources:
-              - secret:
-                  name: $NODE_NAME-charon-enr-private-key
-        - name: cluster-lock
-          projected:
-            sources:
-            - secret:
-                name: $NODE_NAME-cluster-lock
+        - name: cluster-config
+          emptyDir: {}
+      initContainers:
+        - name: download-cluster-config
+          image: amazon/aws-cli:latest
+          command:
+            - sh
+            - -ac
+            - >
+              mkdir /charon/$NODE_NAME;
+              aws s3 cp s3://charon-clusters-config/$CLUSTER_NAME/$NODE_NAME/charon-enr-private-key /charon/$NODE_NAME/;
+              aws s3 cp s3://charon-clusters-config/$CLUSTER_NAME/$NODE_NAME/cluster-lock.json /charon/
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: aws-credentials
+                  key: AWS_ACCESS_KEY_ID
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: aws-credentials
+                  key: AWS_SECRET_ACCESS_KEY
+          volumeMounts:
+            - name: cluster-config
+              mountPath: /charon
       containers:
         - name: $NODE_NAME
           image: ghcr.io/obolnetwork/charon:$CHARON_VERSION
@@ -75,9 +91,7 @@ spec:
             - configMapRef:
                 name: $NODE_NAME-config
           volumeMounts:
-            - name: private-key
-              mountPath: /charon/$NODE_NAME
-            - name: cluster-lock
+            - name: cluster-config
               mountPath: /charon
 ---
 apiVersion: v1
