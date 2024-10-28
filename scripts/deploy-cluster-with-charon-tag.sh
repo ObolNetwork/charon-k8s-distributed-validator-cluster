@@ -64,6 +64,7 @@ for vc in "${vcs[@]}"
 do
 export NODE_NAME="node$node_index"
 export VC_INDEX="vc$node_index"
+export NODE_INDEX="$node_index"
 if [ $vc -eq 0 ]; then
 eval "cat <<EOF
 $(<./templates/teku-vc.yaml)
