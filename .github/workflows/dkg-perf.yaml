@@ -29,3 +29,9 @@ jobs:
       run: |
         aws eks update-kubeconfig --region ${{ secrets.AWS_DEFAULT_REGION }} --name ${{ secrets.EKS_DEV_CLUSTER }}
         make -f makefile-loadtest-batch-runner
+
+    - name: Load Test Cluster Configuration
+      run: |
+        aws eks update-kubeconfig --region ${{ secrets.AWS_DEFAULT_REGION }} --name ${{ secrets.EKS_DEV_CLUSTER }}
+        make -f makefile-loadtest-batch-runner display-test-load 
+     
