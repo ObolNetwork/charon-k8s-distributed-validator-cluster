@@ -20,7 +20,7 @@ deploy-batches: display-test-load run-shell-script
 
 
 display-test-load:
-	@echo "🔍 Load Test Cluster Configuration:" 
+	@echo "Load Test Cluster Configuration:" 
 	@echo "----------------------------------"
 	@echo "Clusters: ${CLUSTERS}"
 	@echo "Nodes: ${NODES}"
