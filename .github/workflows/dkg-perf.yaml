@@ -25,6 +25,9 @@ jobs:
     - name: Set up Docker
       uses: docker/setup-buildx-action@v1
 
+    - name: Load Test Cluster Configuration
+      run: make -f makefile-loadtest-batch-runner display-test-load
+
     - name: Run DKG Performance Test
       run: |
         aws eks update-kubeconfig --region ${{ secrets.AWS_DEFAULT_REGION }} --name ${{ secrets.EKS_DEV_CLUSTER }}

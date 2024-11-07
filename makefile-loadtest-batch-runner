@@ -4,7 +4,7 @@ CLUSTER_INDEX_START := 1
 CLUSTER_INDEX_END := $(shell echo $$((${CLUSTERS})))
 WAIT_TIME := 5
 
-.PHONY: deploy-batches run-shell-script
+.PHONY: deploy-batches run-shell-script display-test-load
 
 deploy-batches: run-shell-script
 	@for i in $$(seq $(CLUSTER_INDEX_START) $(BATCH_SIZE) $(CLUSTER_INDEX_END)); do \
@@ -20,3 +20,15 @@ deploy-batches: run-shell-script
 
 run-shell-script:
 	./scripts/create-dkg-perf-data.sh
+
+display-test-load:
+	@echo "Load Test Cluster Configuration:" 
+	@echo "----------------------------------"
+	@echo "Clusters: ${CLUSTERS}"
+	@echo "Nodes: ${NODES}"
+	@echo "Number of Validators: ${NUM_VALIDATORS}"
+	@echo "Batch Size: ${BATCH_SIZE}"
+	@echo "----------------------------------"
+	@echo "Charon Relay: ${CHARON_P2P_RELAYS}"
+	@echo "Network: ${NETWORK}"
+	@echo "Charon Version: ${CHARON_VERSION}"
