@@ -58,8 +58,8 @@ metadata:
 data:
   prometheus.yaml: |
     global:
-      scrape_interval: 12s
-      evaluation_interval: 12s
+      scrape_interval: 30s
+      evaluation_interval: 30s
     remote_write:
       - url: https://vm.monitoring.gcp.obol.tech/write
         authorization:
