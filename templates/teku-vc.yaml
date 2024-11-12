@@ -25,13 +25,25 @@ spec:
         - name: docker-registry
       initContainers:
         - name: init-chown
-          image: busybox
+          image: amazon/aws-cli:latest
           securityContext:
             runAsUser: 0
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name:  aws-credentials
+                  key: AWS_ACCESS_KEY_ID
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: aws-credentials
+                  key: AWS_SECRET_ACCESS_KEY
           command:
             - sh
             - -ac
             - >
+              aws s3 cp --recursive s3://charon-clusters-config/${CLUSTER_NAME}/node${NODE_INDEX}/validator_keys /validator_keys;
               rm -rf /data/teku/validator_keys 2>/dev/null || true;
               mkdir -p /data/teku/validator_keys;
               cp /validator_keys/* /data/teku/validator_keys;
@@ -66,10 +78,7 @@ spec:
               mountPath: /data/teku
       volumes:
         - name: validators
-          projected:
-            sources:
-              - secret:
-                  name: $NODE_NAME-validators
+          emptyDir: {}
         - name: data
           emptyDir: {}
 ---

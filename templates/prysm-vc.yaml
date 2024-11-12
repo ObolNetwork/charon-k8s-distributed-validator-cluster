@@ -19,6 +19,30 @@ spec:
     spec:
       imagePullSecrets:
         - name: docker-registry
+      initContainers:
+        - name: download-config
+          image: amazon/aws-cli:latest
+          securityContext:
+            runAsUser: 0
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name:  aws-credentials
+                  key: AWS_ACCESS_KEY_ID
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: aws-credentials
+                  key: AWS_SECRET_ACCESS_KEY
+          command:
+            - sh
+            - -ac
+            - >
+              aws s3 cp --recursive s3://charon-clusters-config/${CLUSTER_NAME}/node${NODE_INDEX}/validator_keys /validator_keys;
+          volumeMounts:
+            - name: validators
+              mountPath: "/validator_keys"
       containers:
         - name: $VC_INDEX-prysm
           image: debian:stable-slim
@@ -59,10 +83,7 @@ spec:
               mountPath: "/validator_keys"
       volumes:
         - name: validators
-          projected:
-            sources:
-              - secret:
-                  name: $NODE_NAME-validators
+          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service

@@ -40,36 +40,28 @@ spec:
       imagePullSecrets:
         - name: docker-registry
       initContainers:
-        - name: copy-script
-          image: busybox
-          command:
-            - sh
-            - -ac
-            - cp /config/import-lodestar-script.sh /opt/scripts/import-lodestar-script.sh
-          volumeMounts:
-            - name: data
-              mountPath: "/opt/data"
-            - name: validators
-              mountPath: "/validator_keys"
-            - name: config
-              mountPath: "/config"
-            - name: scripts
-              mountPath: "/opt/scripts"
-        - name: init-chown
-          image: busybox
+        - name: download-config
+          image: amazon/aws-cli:latest
           securityContext:
             runAsUser: 0
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name:  aws-credentials
+                  key: AWS_ACCESS_KEY_ID
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: aws-credentials
+                  key: AWS_SECRET_ACCESS_KEY
           command:
             - sh
             - -ac
-            - chmod +x /opt/scripts/import-lodestar-script.sh
+            - aws s3 cp --recursive s3://charon-clusters-config/${CLUSTER_NAME}/node${NODE_INDEX}/validator_keys /validator_keys;
           volumeMounts:
             - name: validators
               mountPath: "/validator_keys"
-            - name: data
-              mountPath: "/opt/data"
-            - name: scripts
-              mountPath: "/opt/scripts"
       containers:
         - name: $VC_INDEX-lodestar
           image: chainsafe/lodestar:$LODESTAR_VERSION
@@ -93,18 +85,17 @@ spec:
               mountPath: "/validator_keys"
             - name: data
               mountPath: "/opt/data"
-            - name: scripts
-              mountPath: "/opt/scripts"
+            - name: config
+              mountPath: "/opt/scripts/import-lodestar-script.sh"
+              subPath: import-lodestar-script.sh
       volumes:
         - name: validators
-          projected:
-            sources:
-              - secret:
-                  name: $NODE_NAME-validators
+          emptyDir: {}
         - name: data
           emptyDir: {}
         - name: config
           configMap:
+            defaultMode: 493
             name: $VC_INDEX-import-script-config
         - name: scripts
           emptyDir: {}
